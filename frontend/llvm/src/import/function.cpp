@@ -658,11 +658,18 @@ void FunctionImporter::translate_call_helper(
     bool force_return_cast,
     bool force_args_cast,
     CreateStmtFun create_stmt) {
+  // Extract LLVM function type
+  llvm::FunctionType* llvm_fun_type = call->getFunctionType();
+  // Translate to AR function type
+  ar::Type* ar_fun_type_base = this->_ctx.type_imp->translate_type(llvm_fun_type);
+  auto fun_type = ar::cast< ar::FunctionType >(ar_fun_type_base);
+  
+  // Create expected pointer type
+  ar::PointerType* expected_called_type = ar::PointerType::get(this->_context, fun_type);
+
   // Translate called value
   ar::Value* called =
-      this->translate_value(bb_translation, call->getCalledOperand(), nullptr);
-  auto called_type = ar::cast< ar::PointerType >(called->type());
-  auto fun_type = ar::cast< ar::FunctionType >(called_type->pointee());
+      this->translate_value(bb_translation, call->getCalledOperand(), expected_called_type);
 
   const bool has_return_value = !call->getType()->isVoidTy();
 

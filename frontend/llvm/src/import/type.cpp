@@ -1304,7 +1304,7 @@ static bool is_constructor_with_virtual_base(llvm::FunctionType* fun_type) {
 }
 
 ar::Type* TypeWithDebugInfoImporter::translate_subroutine_di_type(
-    llvm::DISubroutineType* di_type, llvm::Type* type) {
+    llvm::DISubroutineType* di_type, llvm::Type* type, llvm::Function* fun) {
   if (ikos_unlikely(type->isStructTy())) {
     // This should be very rare, but we can have a function pointer type
     // translated into a pointer on an empty structure.
@@ -1425,13 +1425,20 @@ ar::Type* TypeWithDebugInfoImporter::translate_subroutine_di_type(
           tag == dwarf::DW_TAG_class_type || tag == dwarf::DW_TAG_union_type) {
         // Debug info parameter is a structure, class or union
 
-        if (auto ptr_param_type =
-                llvm::dyn_cast< llvm::PointerType >(param_type)) {
-          llvm::Type* pointee_param_type =
-              ptr_param_type->getPointerElementType();
-          if (pointee_param_type->isStructTy()) {
+        if (param_type->isPointerTy()) {
+          llvm::Type* pointee_param_type = nullptr;
+          // Structure passed by pointer (see byval/sret attribute)
+          if (fun != nullptr) {
+            unsigned arg_idx = std::distance(fun_type->param_begin(), param_it);
+            if (fun->hasParamAttribute(arg_idx, llvm::Attribute::ByVal)) {
+              pointee_param_type = fun->getParamByValType(arg_idx);
+            } else if (fun->hasParamAttribute(arg_idx, llvm::Attribute::StructRet)) {
+              pointee_param_type = fun->getParamStructRetType(arg_idx);
+            }
+          }
+
+          if (pointee_param_type != nullptr && pointee_param_type->isStructTy()) {
             try {
-              // Structure passed by pointer (see byval attribute)
               TypeWithDebugInfoImporter imp = this->fork();
               ar::Type* ar_pointee_param =
                   imp.translate_type(pointee_param_type, di_param_type);
@@ -1500,7 +1507,7 @@ ar::FunctionType* TypeWithDebugInfoImporter::translate_function_di_type(
                "function");
 
   return ar::cast< ar::FunctionType >(
-      this->translate_subroutine_di_type(di_type, fun->getFunctionType()));
+      this->translate_subroutine_di_type(di_type, fun->getFunctionType(), fun));
 }
 
 TypeMatcher::TypeMatcher(ImportContext& ctx)
