@@ -901,8 +901,12 @@ void FunctionImporter::translate_getelementptr(
   this->mark_variable_mapping(gep, var);
 
   // Translate base
+  ar::Type* preferred_type = nullptr;
+  if (llvm::Type* source_element_type = gep->getSourceElementType()) {
+    preferred_type = ar::PointerType::get(this->_context, this->_ctx.type_imp->translate_type(source_element_type, ar::Signed));
+  }
   ar::Value* pointer =
-      this->translate_value(bb_translation, gep->getPointerOperand(), nullptr);
+      this->translate_value(bb_translation, gep->getPointerOperand(), preferred_type);
 
   // Translate operands
   std::vector< ar::PointerShift::Term > terms;
@@ -924,7 +928,7 @@ void FunctionImporter::translate_getelementptr(
                       std::numeric_limits< unsigned >::max());
       auto uint_value = static_cast< unsigned >(value.getZExtValue());
       uint64_t offset = this->_llvm_data_layout.getStructLayout(struct_type)
-                            ->getElementOffset(uint_value);
+                            ->getElementOffset(uint_value).getFixedValue();
 
       ar::IntegerConstant* ar_op =
           ar::IntegerConstant::get(this->_context,
@@ -939,7 +943,7 @@ void FunctionImporter::translate_getelementptr(
     } else {
       // Shift in a sequential type
       uint64_t size =
-          this->_llvm_data_layout.getTypeAllocSize(it.getIndexedType());
+          this->_llvm_data_layout.getTypeAllocSize(it.getIndexedType()).getFixedValue();
       ar::Type* preferred_type =
           llvm::isa< llvm::Constant >(op)
               ? _ctx.type_imp->translate_type(op->getType(), ar::Signed)
@@ -1555,19 +1559,19 @@ ar::IntegerConstant* FunctionImporter::translate_indexes(
 
     if (auto struct_type = llvm::dyn_cast< llvm::StructType >(indexed_type)) {
       offset += this->_llvm_data_layout.getStructLayout(struct_type)
-                    ->getElementOffset(idx);
+                    ->getElementOffset(idx).getFixedValue();
     } else if (auto array_type =
                    llvm::dyn_cast< llvm::ArrayType >(indexed_type)) {
       ar::ZNumber element_size(
           this->_llvm_data_layout.getTypeAllocSize(array_type->getElementType())
-              .getFixedSize());
+              .getFixedValue());
       offset += element_size * idx;
     } else if (auto vector_type =
                    llvm::dyn_cast< llvm::VectorType >(indexed_type)) {
       ar::ZNumber element_size(
           this->_llvm_data_layout
               .getTypeAllocSize(vector_type->getElementType())
-              .getFixedSize());
+              .getFixedValue());
       offset += element_size * idx;
     } else {
       throw ImportError("unsupported operand to llvm extractvalue");
@@ -1604,7 +1608,7 @@ void FunctionImporter::translate_extractelement(
   ar::ZNumber element_size(
       this->_llvm_data_layout
           .getTypeAllocSize(inst->getVectorOperandType()->getElementType())
-          .getFixedSize());
+          .getFixedValue());
   ar::ZNumber offset_value = index->getZExtValue() * element_size;
   auto offset = ar::IntegerConstant::get(this->_context,
                                          size_type,
@@ -1638,7 +1642,7 @@ void FunctionImporter::translate_insertelement(
   ar::ZNumber element_size(
       this->_llvm_data_layout
           .getTypeAllocSize(inst->getType()->getElementType())
-          .getFixedSize());
+          .getFixedValue());
   ar::ZNumber offset_value = index->getZExtValue() * element_size;
   auto offset = ar::IntegerConstant::get(this->_context,
                                          size_type,

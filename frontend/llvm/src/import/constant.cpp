@@ -475,7 +475,11 @@ std::unique_ptr< ar::PointerShift > ConstantImporter::translate_getelementptr(
     ConstantExpressionList& exprs) {
   // Translate base
   auto pointer = llvm::cast< llvm::Constant >(gep->getPointerOperand());
-  ar::Value* ar_pointer = this->translate_constant(pointer, nullptr, bb, exprs);
+  ar::Type* preferred_type = nullptr;
+  if (llvm::Type* source_element_type = gep->getSourceElementType()) {
+    preferred_type = ar::PointerType::get(this->_context, _ctx.type_imp->translate_type(source_element_type, ar::Signed));
+  }
+  ar::Value* ar_pointer = this->translate_constant(pointer, preferred_type, bb, exprs);
 
   // Translate operands
   std::vector< ar::PointerShift::Term > terms;
@@ -510,7 +514,7 @@ std::unique_ptr< ar::PointerShift > ConstantImporter::translate_getelementptr(
     } else {
       // Shift in a sequential type
       uint64_t size =
-          this->_llvm_data_layout.getTypeAllocSize(it.getIndexedType());
+          this->_llvm_data_layout.getTypeAllocSize(it.getIndexedType()).getFixedValue();
       ar::Value* ar_op = this->translate_constant(op, nullptr, bb, exprs);
       terms.emplace_back(ar::MachineInt(size,
                                         size_type->bit_width(),

@@ -139,11 +139,11 @@ void TypeWithSignImporter::sanity_check_size(llvm::Type* llvm_type,
   }
 
   check_import(this->_llvm_data_layout.getTypeSizeInBits(llvm_type)
-                       .getFixedSize() >=
+                       .getFixedValue() >=
                    this->_ar_data_layout.size_in_bits(ar_type),
                "llvm type size in bits is smaller than ar type size");
   check_import(this->_llvm_data_layout.getTypeAllocSize(llvm_type)
-                       .getFixedSize() ==
+                       .getFixedValue() ==
                    this->_ar_data_layout.alloc_size_in_bytes(ar_type),
                "llvm type and ar type alloc size are different");
 }
@@ -414,11 +414,11 @@ void TypeWithDebugInfoImporter::sanity_check_size(llvm::Type* llvm_type,
   }
 
   check_import(this->_llvm_data_layout.getTypeSizeInBits(llvm_type)
-                       .getFixedSize() >=
+                       .getFixedValue() >=
                    this->_ar_data_layout.size_in_bits(ar_type),
                "llvm type size in bits is smaller than ar type size");
   check_import(this->_llvm_data_layout.getTypeAllocSize(llvm_type)
-                       .getFixedSize() ==
+                       .getFixedValue() ==
                    this->_ar_data_layout.alloc_size_in_bytes(ar_type),
                "llvm type and ar type alloc size are different");
 }
@@ -1002,7 +1002,7 @@ ar::StructType* TypeWithDebugInfoImporter::translate_struct_di_type(
     llvm::Type* element_type = struct_type->getElementType(i);
     ar::ZNumber element_offset_bytes(struct_layout->getElementOffset(i));
     ar::ZNumber element_size_bytes(
-        this->_llvm_data_layout.getTypeStoreSize(element_type).getFixedSize());
+        this->_llvm_data_layout.getTypeStoreSize(element_type).getFixedValue());
 
     // Find matching debug info
     di_matching_members.clear();
