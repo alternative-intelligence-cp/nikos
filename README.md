@@ -10,3 +10,6 @@ By upgrading the LLVM frontend from LLVM 14 to LLVM 20, NIKOS resolves critical 
 ## License
 NIKOS is built upon IKOS, which was originally developed by NASA and released under the NASA Open Source Agreement (NOSA) version 1.3. 
 Modifications and new code in NIKOS remain open-source and compatible with these terms.
+
+## Status
+**Cycle 0.0 Completed:** Environment Provisioning, CMake configurations, and Initial Build Baseline are established. We are currently migrating the codebase to LLVM 20 and modern C++17.

@@ -1,0 +1,351 @@
+/home/randy/Workspace/REPOS/nikos/ar/include/ikos/ar/semantic/intrinsic.hpp:164:5: warning: identifier '_EndLibcppIntrinsic' is reserved because it starts with '_' followed by a capital letter [-Wreserved-identifier]
+  164 |     _EndLibcppIntrinsic,
+      |     ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:159:9: error: no type named 'initializeCoroutines' in namespace 'llvm'
+  159 |   llvm::initializeCoroutines(registry);
+      |   ~~~~~~^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:159:29: warning: redundant parentheses surrounding declarator [-Wredundant-parens]
+--
+/home/randy/Workspace/REPOS/nikos/ar/include/ikos/ar/semantic/type.hpp:86:5: warning: identifier '_EndAggregateKind' is reserved because it starts with '_' followed by a capital letter [-Wreserved-identifier]
+   86 |     _EndAggregateKind,
+      |     ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:161:9: error: no type named 'initializeObjCARCOpts' in namespace 'llvm'
+  161 |   llvm::initializeObjCARCOpts(registry);
+      |   ~~~~~~^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:161:30: warning: redundant parentheses surrounding declarator [-Wredundant-parens]
+--
+/home/randy/Workspace/REPOS/nikos/ar/include/ikos/ar/semantic/value.hpp:93:5: warning: identifier '_EndVariableKind' is reserved because it starts with '_' followed by a capital letter [-Wreserved-identifier]
+   93 |     _EndVariableKind
+      |     ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:167:9: error: no type named 'initializeAggressiveInstCombine' in namespace 'llvm'
+  167 |   llvm::initializeAggressiveInstCombine(registry);
+      |   ~~~~~~^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:167:40: warning: redundant parentheses surrounding declarator [-Wredundant-parens]
+--
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:157:23: note: previous declaration is here
+  157 |   llvm::PassRegistry& registry = *llvm::PassRegistry::getPassRegistry();
+      |                       ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/data_layout.cpp:53:40: error: no member named 'getABITypeAlignment' in 'llvm::DataLayout'
+   53 |   uint64_t abi_alignment = data_layout.getABITypeAlignment(type);
+      |                            ~~~~~~~~~~~ ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/data_layout.cpp:54:41: error: no member named 'getPrefTypeAlignment' in 'llvm::DataLayout'
+   54 |   uint64_t pref_alignment = data_layout.getPrefTypeAlignment(type);
+      |                             ~~~~~~~~~~~ ^
+In file included from /home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/bundle.cpp:49:
+--
+/home/randy/Workspace/REPOS/nikos/ar/include/ikos/ar/semantic/value.hpp:93:5: warning: identifier '_EndVariableKind' is reserved because it starts with '_' followed by a capital letter [-Wreserved-identifier]
+   93 |     _EndVariableKind
+      |     ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:168:9: error: no type named 'initializeInstrumentation' in namespace 'llvm'
+  168 |   llvm::initializeInstrumentation(registry);
+      |   ~~~~~~^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:168:34: warning: redundant parentheses surrounding declarator [-Wredundant-parens]
+--
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:157:23: note: previous declaration is here
+  157 |   llvm::PassRegistry& registry = *llvm::PassRegistry::getPassRegistry();
+      |                       ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:170:9: error: no type named 'initializeExpandMemCmpPassPass' in namespace 'llvm'
+  170 |   llvm::initializeExpandMemCmpPassPass(registry);
+      |   ~~~~~~^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:170:39: warning: redundant parentheses surrounding declarator [-Wredundant-parens]
+--
+      |     ^
+make[2]: *** [frontend/llvm/CMakeFiles/ikos-llvm-to-ar.dir/build.make:104: frontend/llvm/CMakeFiles/ikos-llvm-to-ar.dir/src/import/data_layout.cpp.o] Error 1
+make[2]: *** Waiting for unfinished jobs....
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:171:9: error: no type named 'initializeCodeGenPreparePass' in namespace 'llvm'
+  171 |   llvm::initializeCodeGenPreparePass(registry);
+      |   ~~~~~~^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:171:37: warning: redundant parentheses surrounding declarator [-Wredundant-parens]
+--
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:157:23: note: previous declaration is here
+  157 |   llvm::PassRegistry& registry = *llvm::PassRegistry::getPassRegistry();
+      |                       ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:172:9: error: no type named 'initializeAtomicExpandPass' in namespace 'llvm'
+  172 |   llvm::initializeAtomicExpandPass(registry);
+      |   ~~~~~~^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:172:35: warning: redundant parentheses surrounding declarator [-Wredundant-parens]
+--
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:157:23: note: previous declaration is here
+  157 |   llvm::PassRegistry& registry = *llvm::PassRegistry::getPassRegistry();
+      |                       ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:173:9: error: no type named 'initializeRewriteSymbolsLegacyPassPass' in namespace 'llvm'
+  173 |   llvm::initializeRewriteSymbolsLegacyPassPass(registry);
+      |   ~~~~~~^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:173:47: warning: redundant parentheses surrounding declarator [-Wredundant-parens]
+--
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:157:23: note: previous declaration is here
+  157 |   llvm::PassRegistry& registry = *llvm::PassRegistry::getPassRegistry();
+      |                       ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:180:9: error: no type named 'initializeIndirectBrExpandPassPass' in namespace 'llvm'
+  180 |   llvm::initializeIndirectBrExpandPassPass(registry);
+      |   ~~~~~~^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:180:43: warning: redundant parentheses surrounding declarator [-Wredundant-parens]
+--
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:157:23: note: previous declaration is here
+  157 |   llvm::PassRegistry& registry = *llvm::PassRegistry::getPassRegistry();
+      |                       ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:183:9: error: no type named 'initializeEntryExitInstrumenterPass' in namespace 'llvm'
+  183 |   llvm::initializeEntryExitInstrumenterPass(registry);
+      |   ~~~~~~^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:183:44: warning: redundant parentheses surrounding declarator [-Wredundant-parens]
+--
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:157:23: note: previous declaration is here
+  157 |   llvm::PassRegistry& registry = *llvm::PassRegistry::getPassRegistry();
+      |                       ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:189:9: error: no type named 'initializeHardwareLoopsPass' in namespace 'llvm'
+  189 |   llvm::initializeHardwareLoopsPass(registry);
+      |   ~~~~~~^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:189:36: warning: redundant parentheses surrounding declarator [-Wredundant-parens]
+--
+/home/randy/Workspace/REPOS/nikos/ar/include/ikos/ar/semantic/intrinsic.hpp:164:5: warning: identifier '_EndLibcppIntrinsic' is reserved because it starts with '_' followed by a capital letter [-Wreserved-identifier]
+  164 |     _EndLibcppIntrinsic,
+      |     ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:257:28: error: no member named 'createUnifyFunctionExitNodesPass' in namespace 'llvm'; did you mean 'createUnifyLoopExitsPass'?
+  257 |     pass_manager.add(llvm::createUnifyFunctionExitNodesPass());
+      |                      ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                            createUnifyLoopExitsPass
+/usr/lib/llvm-20/include/llvm/Transforms/Utils.h:109:15: note: 'createUnifyLoopExitsPass' declared here
+  109 | FunctionPass *createUnifyLoopExitsPass();
+      |               ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:264:28: error: no member named 'createGlobalDCEPass' in namespace 'llvm'
+  264 |     pass_manager.add(llvm::createGlobalDCEPass());
+      |                      ~~~~~~^
+In file included from /home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/importer.cpp:56:
+--
+/home/randy/Workspace/REPOS/nikos/ar/include/ikos/ar/semantic/value.hpp:93:5: warning: identifier '_EndVariableKind' is reserved because it starts with '_' followed by a capital letter [-Wreserved-identifier]
+   93 |     _EndVariableKind
+      |     ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:288:28: error: no member named 'createUnifyFunctionExitNodesPass' in namespace 'llvm'; did you mean 'createUnifyLoopExitsPass'?
+  288 |     pass_manager.add(llvm::createUnifyFunctionExitNodesPass());
+      |                      ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                            createUnifyLoopExitsPass
+--
+/home/randy/Workspace/REPOS/nikos/ar/include/ikos/ar/semantic/intrinsic.hpp:164:5: warning: identifier '_EndLibcppIntrinsic' is reserved because it starts with '_' followed by a capital letter [-Wreserved-identifier]
+  164 |     _EndLibcppIntrinsic,
+      |     ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:302:17: error: no member named 'createInternalizePass' in namespace 'llvm'
+  302 |           llvm::createInternalizePass([=](const llvm::GlobalValue& gv) {
+      |           ~~~~~~^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:309:28: In file included from error: /home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/constant.cppno member named 'createGlobalDCEPass' in namespace 'llvm'
+:56:
+In file included from /home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/bundle.hpp:55:
+In file included from /home/randy/Workspace/REPOS/nikos/ar/include/ikos/ar/semantic/function.hpp  :30955 | :
+--
+/home/randy/Workspace/REPOS/nikos/ar/include/ikos/ar/semantic/value.hpp:93:5: warning: identifier '_EndVariableKind' is reserved because it starts with '_' followed by a capital letter [-Wreserved-identifier]
+   93 |     _EndVariableKind
+      |     ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:315:28: error: no member named 'createGlobalOptimizerPass' in namespace 'llvm'; did you mean 'createSelectOptimizePass'?
+  315 |     pass_manager.add(llvm::createGlobalOptimizerPass());
+      |                      ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                            createSelectOptimizePass
+/usr/lib/llvm-20/include/llvm/CodeGen/Passes.h:609:17: note: 'createSelectOptimizePass' declared here
+  609 |   FunctionPass *createSelectOptimizePass();
+      |                 ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:339:28: error: no member named 'createGlobalDCEPass' in namespace 'llvm'
+  339 |     pass_manager.add(llvm::createGlobalDCEPass());
+      |                      ~~~~~~^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:346:28: error: no member named 'createJumpThreadingPass' in namespace 'llvm'
+  346 |     pass_manager.add(llvm::createJumpThreadingPass());
+      |                      ~~~~~~^
+In file included from /home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/library_function.cpp:46:
+--
+/home/randy/Workspace/REPOS/nikos/core/include/ikos/core/number/z_number.hpp:1167:33: warning: unsafe buffer access [-Wunsafe-buffer-usage]
+ 1167 |     boost::hash_combine(result, m.get_mpz_t()[0]._mp_d[i]);
+      |                                 ^~~~~~~~~~~~~~~~~~~~~~
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+22 warnings and 20 errors generated.
+make[2]: *** [frontend/llvm/CMakeFiles/ikos-pp.dir/build.make:76: frontend/llvm/CMakeFiles/ikos-pp.dir/src/ikos_pp.cpp.o] Error 1
+make[1]: *** [CMakeFiles/Makefile2:1676: frontend/llvm/CMakeFiles/ikos-pp.dir/all] Error 2
+--
+/home/randy/Workspace/REPOS/nikos/ar/include/ikos/ar/semantic/intrinsic.hpp:164:5: warning: identifier '_EndLibcppIntrinsic' is reserved because it starts with '_' followed by a capital letter [-Wreserved-identifier]
+  164 |     _EndLibcppIntrinsic,
+      |     ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/type.cpp:142:25: error: no member named 'getFixedSize' in 'llvm::TypeSize'; did you mean 'getFixedValue'?
+  142 |                        .getFixedSize() >=
+      |                         ^~~~~~~~~~~~
+      |                         getFixedValue
+/usr/lib/llvm-20/include/llvm/Support/TypeSize.h:202:22: note: 'getFixedValue' declared here
+  202 |   constexpr ScalarTy getFixedValue() const {
+      |                      ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/type.cpp:146:25: error: no member named 'getFixedSize' in 'llvm::TypeSize'; did you mean 'getFixedValue'?
+  146 |                        .getFixedSize() ==
+      |                         ^~~~~~~~~~~~
+      |                         getFixedValue
+/usr/lib/llvm-20/include/llvm/Support/TypeSize.h:202:22: note: 'getFixedValue' declared here
+  202 |   constexpr ScalarTy getFixedValue() const {
+      |                      ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/type.cpp:195:38: error: no member named 'getPointerElementType' in 'llvm::PointerType'; did you mean 'getArrayElementType'?
+  195 |       this->translate_type(ptr_type->getPointerElementType(), preferred);
+      |                                      ^~~~~~~~~~~~~~~~~~~~~
+      |                                      getArrayElementType
+--
+/home/randy/Workspace/REPOS/nikos/ar/include/ikos/ar/semantic/value.hpp:93:5: warning: identifier '_EndVariableKind' is reserved because it starts with '_' followed by a capital letter [-Wreserved-identifier]
+   93 |     _EndVariableKind
+      |     ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/type.cpp:319:32: error: no member named 'SourceLanguage' in namespace 'llvm::dwarf'
+  319 |   llvm::SmallSet< llvm::dwarf::SourceLanguage, 2 > languages;
+      |                   ~~~~~~~~~~~~~^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/type.cpp:326:42: error: no type named 'SourceLanguage' in namespace 'llvm::dwarf'
+  326 |     languages.insert(static_cast< dwarf::SourceLanguage >(lang));
+      |                                   ~~~~~~~^
+In file included from /home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/source_location.cpp:49:
+--
+/home/randy/Workspace/REPOS/nikos/ar/include/ikos/ar/semantic/statement.hpp:516:5: warning: identifier '_EndPointerPred' is reserved because it starts with '_' followed by a capital letter [-Wreserved-identifier]
+  516 |     _EndPointerPred,
+      |     ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/type.cpp:329:40: error: no member named 'DW_LANG_C' in namespace 'llvm::dwarf'
+  329 |   this->_is_c = languages.count(dwarf::DW_LANG_C) != 0 ||
+      |                                 ~~~~~~~^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/type.cpp:330:40: error: no member named 'DW_LANG_C89' in namespace 'llvm::dwarf'
+  330 |                 languages.count(dwarf::DW_LANG_C89) != 0 ||
+      |                                 ~~~~~~~^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/type.cpp:331:40: error: no member named 'DW_LANG_C99' in namespace 'llvm::dwarf'
+  331 |                 languages.count(dwarf::DW_LANG_C99) != 0 ||
+      |                                 ~~~~~~~^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/type.cpp:332:40: error: no member named 'DW_LANG_C11' in namespace 'llvm::dwarf'
+  332 |                 languages.count(dwarf::DW_LANG_C11) != 0;
+      |                                 ~~~~~~~^
+In file included from /home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/function.cpp:60:
+--
+/home/randy/Workspace/REPOS/nikos/ar/include/ikos/ar/semantic/intrinsic.hpp:164:5: warning: identifier '_EndLibcppIntrinsic' is reserved because it starts with '_' followed by a capital letter [-Wreserved-identifier]
+  164 |     _EndLibcppIntrinsic,
+      |     ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/bundle.cpp:98:45: error: no member named 'getPointerElementType' in 'llvm::PointerType'; did you mean 'getArrayElementType'?
+   98 |         _ctx.type_imp->translate_type(type->getPointerElementType(),
+      |                                             ^~~~~~~~~~~~~~~~~~~~~
+      |                                             getArrayElementType
+/usr/lib/llvm-20/include/llvm/IR/Type.h:411:9: note: 'getArrayElementType' declared here
+  411 |   Type *getArrayElementType() const {
+      |         ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/bundle.cpp:107:47: error: no member named 'getPointerElementType' in 'llvm::PointerType'; did you mean 'getArrayElementType'?
+  107 |           _ctx.type_imp->translate_type(type->getPointerElementType(), di_type);
+      |                                               ^~~~~~~~~~~~~~~~~~~~~
+      |                                               getArrayElementType
+/usr/lib/llvm-20/include/llvm/IR/Type.h:411:9: note: 'getArrayElementType' declared here
+  411 |   Type *getArrayElementType() const {
+      |         ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/bundle.cpp:113:47: error: no member named 'getPointerElementType' in 'llvm::PointerType'; did you mean 'getArrayElementType'?
+  113 |           _ctx.type_imp->translate_type(type->getPointerElementType(),
+      |                                               ^~~~~~~~~~~~~~~~~~~~~
+      |                                               getArrayElementType
+/usr/lib/llvm-20/include/llvm/IR/Type.h:411:9: note: 'getArrayElementType' declared here
+  411 |   Type *getArrayElementType() const {
+      |         ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/bundle.cpp:379:22: error: no member named 'startswith' in 'llvm::StringRef'; did you mean 'starts_with'?
+  379 |   if (fun->getName().startswith("_ZTW")) {
+      |                      ^~~~~~~~~~
+      |                      starts_with
+/usr/lib/llvm-20/include/llvm/ADT/StringRef.h:265:24: note: 'starts_with' declared here
+  265 |     [[nodiscard]] bool starts_with(StringRef Prefix) const {
+      |                        ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/type.cpp:334:42: error: no member named 'DW_LANG_C_plus_plus' in namespace 'llvm::dwarf'
+  334 |   this->_is_cpp = languages.count(dwarf::DW_LANG_C_plus_plus) != 0 ||
+      |                                   ~~~~~~~^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/type.cpp:335:42: error: no member named 'DW_LANG_C_plus_plus_03' in namespace 'llvm::dwarf'
+  335 |                   languages.count(dwarf::DW_LANG_C_plus_plus_03) != 0 ||
+      |                                   ~~~~~~~^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/type.cpp:336:42: error: no member named 'DW_LANG_C_plus_plus_11' in namespace 'llvm::dwarf'
+  336 |                   languages.count(dwarf::DW_LANG_C_plus_plus_11) != 0 ||
+      |                                   ~~~~~~~^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/type.cpp:337:42: error: no member named 'DW_LANG_C_plus_plus_14' in namespace 'llvm::dwarf'
+  337 |                   languages.count(dwarf::DW_LANG_C_plus_plus_14) != 0;
+      |                                   ~~~~~~~^
+In file included from /home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/function.cpp:60:
+--
+/home/randy/Workspace/REPOS/nikos/ar/include/ikos/ar/semantic/type.hpp:86:5: warning: identifier '_EndAggregateKind' is reserved because it starts with '_' followed by a capital letter [-Wreserved-identifier]
+   86 |     _EndAggregateKind,
+      |     ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/type.cpp:417:25: error: no member named 'getFixedSize' in 'llvm::TypeSize'; did you mean 'getFixedValue'?
+  417 |                        .getFixedSize() >=
+      |                         ^~~~~~~~~~~~
+      |                         getFixedValue
+--
+/home/randy/Workspace/REPOS/nikos/ar/include/ikos/ar/semantic/value.hpp:93:5: warning: identifier '_EndVariableKind' is reserved because it starts with '_' followed by a capital letter [-Wreserved-identifier]
+   93 |     _EndVariableKind
+      |     ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/type.cpp:421:25: error: no member named 'getFixedSize' in 'llvm::TypeSize'; did you mean 'getFixedValue'?
+  421 |                        .getFixedSize() ==
+      |                         ^~~~~~~~~~~~
+      |                         getFixedValue
+/usr/lib/llvm-20/include/llvm/Support/TypeSize.h:202:22: note: 'getFixedValue' declared here
+  202 |   constexpr ScalarTy getFixedValue() const {
+      |                      ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/type.cpp:455:34: error: no type named 'TypeKind' in namespace 'llvm::dwarf'; did you mean 'ar::AggregateType::TypeKind'?
+  455 |     auto encoding = static_cast< dwarf::TypeKind >(di_type->getEncoding());
+      |                                  ^~~~~~~~~~~~~~~
+      |                                  ar::AggregateType::TypeKind
+--
+/home/randy/Workspace/REPOS/nikos/ar/include/ikos/ar/semantic/statement.hpp:87:5: warning: identifier '_EndCallBaseKind' is reserved because it starts with '_' followed by a capital letter [-Wreserved-identifier]
+   87 |     _EndCallBaseKind,
+      |     ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/type.cpp:458:19: error: no member named 'DW_ATE_signed' in namespace 'llvm::dwarf'
+  458 |       case dwarf::DW_ATE_signed:
+      |            ~~~~~~~^
+/home/randy/Workspace/REPOS/nikos/ar/include/ikos/ar/semantic/statement.hpp:317:5: warning: identifier '_BeginIntegerOp' is reserved because it starts with '_' followed by a capital letter [-Wreserved-identifier]
+--
+/home/randy/Workspace/REPOS/nikos/ar/include/ikos/ar/semantic/statement.hpp:516:5: warning: identifier '_EndPointerPred' is reserved because it starts with '_' followed by a capital letter [-Wreserved-identifier]
+  516 |     _EndPointerPred,
+      |     ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/type.cpp:459:19: error: no member named 'DW_ATE_unsigned' in namespace 'llvm::dwarf'
+  459 |       case dwarf::DW_ATE_unsigned:
+      |            ~~~~~~~^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/type.cpp:460:19: error: no member named 'DW_ATE_signed_char' in namespace 'llvm::dwarf'
+  460 |       case dwarf::DW_ATE_signed_char:
+      |            ~~~~~~~^
+In file included from /home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/source_location.cpp:49:
+--
+/home/randy/Workspace/REPOS/nikos/core/include/ikos/core/number/z_number.hpp:1167:33: warning: unsafe buffer access [-Wunsafe-buffer-usage]
+ 1167 |     boost::hash_combine(result, m.get_mpz_t()[0]._mp_d[i]);
+      |                                 ^~~~~~~~~~~~~~~~~~~~~~
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+12 warnings and 20 errors generated.
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/function.cpp:398:35: error: no member named 'getPointerElementType' in 'llvm::PointerType'; did you mean 'getArrayElementType'?
+  398 |   check_import(alloca->getType()->getPointerElementType() ==
+      |                                   ^~~~~~~~~~~~~~~~~~~~~
+      |                                   getArrayElementType
+--
+39 warnings generated.
+38 warnings and 4 errors generated.
+39 warnings generated.
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/function.cpp:1548:14: error: no viable overloaded '+='
+ 1548 |       offset += this->_llvm_data_layout.getStructLayout(struct_type)
+      |       ~~~~~~ ^  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 1549 |                     ->getElementOffset(idx);
+--
+  384 |   ZNumber& operator+=(T x) {
+      |            ^
+make[2]: *** [frontend/llvm/CMakeFiles/ikos-llvm-to-ar.dir/build.make:76: frontend/llvm/CMakeFiles/ikos-llvm-to-ar.dir/src/import/bundle.cpp.o] Error 1
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/function.cpp:1554:16: error: no member named 'getFixedSize' in 'llvm::TypeSize'; did you mean 'getFixedValue'?
+ 1554 |               .getFixedSize());
+      |                ^~~~~~~~~~~~
+      |                getFixedValue
+--
+/home/randy/Workspace/REPOS/nikos/core/include/ikos/core/number/z_number.hpp:1167:33: warning: unsafe buffer access [-Wunsafe-buffer-usage]
+ 1167 |     boost::hash_combine(result, m.get_mpz_t()[0]._mp_d[i]);
+      |                                 ^~~~~~~~~~~~~~~~~~~~~~
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/function.cpp:1561:16: error: no member named 'getFixedSize' in 'llvm::TypeSize'; did you mean 'getFixedValue'?
+ 1561 |               .getFixedSize());
+      |                ^~~~~~~~~~~~
+      |                getFixedValue
+--
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/constant.cpp:289:67: warning: unsafe pointer arithmetic [-Wunsafe-buffer-usage]
+  289 |   for (auto it = cst->op_begin(), et = cst->op_end(); it != et; ++it) {
+      |                                                                   ^~
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/function.cpp:1598:12: error: no member named 'getFixedSize' in 'llvm::TypeSize'; did you mean 'getFixedValue'?
+ 1598 |           .getFixedSize());
+      |            ^~~~~~~~~~~~
+      |            getFixedValue
+/usr/lib/llvm-20/include/llvm/Support/TypeSize.h:202:22: note: 'getFixedValue' declared here
+  202 |   constexpr ScalarTy getFixedValue() const {
+      |                      ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/function.cpp:1632:12: error: no member named 'getFixedSize' in 'llvm::TypeSize'; did you mean 'getFixedValue'?
+ 1632 |           .getFixedSize());
+      |            ^~~~~~~~~~~~
+      |            getFixedValue
+/usr/lib/llvm-20/include/llvm/Support/TypeSize.h:202:22: note: 'getFixedValue' declared here
+  202 |   constexpr ScalarTy getFixedValue() const {
+      |                      ^
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/import/function.cpp:1903:15: error: no member named 'FindDbgAddrUses' in namespace 'llvm'
+ 1903 |         llvm::FindDbgAddrUses(alloca);
+      |         ~~~~~~^
+42 warnings generated.

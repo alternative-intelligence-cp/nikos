@@ -130,7 +130,7 @@ option(IKOS_LINK_LLVM_DYLIB "Link IKOS against the libLLVM dynamic library" OFF)
 #
 
 include(AddFlagUtils)
-add_compiler_flag(REQUIRED "CXX14" "-std=c++1y")
+add_compiler_flag(REQUIRED "CXX17" "-std=c++17")
 add_compiler_flag(REQUIRED "FVISIBILITY_INLINES_HIDDEN" "-fvisibility-inlines-hidden")
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
