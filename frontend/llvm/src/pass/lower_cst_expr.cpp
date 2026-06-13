@@ -151,7 +151,7 @@ struct LowerCstExprPass final : public FunctionPass {
     Instruction* new_inst = cst_expr->getAsInstruction();
     ikos_assert_msg(new_inst, "Unhandled constant expression");
     new_inst->setDebugLoc(insertion_loc->getDebugLoc());
-    new_inst->insertBefore(insertion_loc);
+    new_inst->insertBefore(insertion_loc->getIterator());
     TotalLowered++;
     return new_inst;
   }

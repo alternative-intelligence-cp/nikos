@@ -144,7 +144,7 @@ struct LowerSelectPass final : public FunctionPass {
     PHINode* phi = PHINode::Create(si->getOperand(1)->getType(),
                                    si->getNumOperands(),
                                    "",
-                                   si);
+                                   si->getIterator());
     phi->addIncoming(si->getOperand(1), true_block);
     phi->addIncoming(si->getOperand(2), false_block);
     if (si->hasName()) {
