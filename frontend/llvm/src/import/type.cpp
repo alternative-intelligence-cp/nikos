@@ -50,6 +50,7 @@
 #include <ikos/frontend/llvm/import/exception.hpp>
 
 #include "type.hpp"
+#include <llvm/BinaryFormat/Dwarf.h>
 
 #ifdef __GLIBCXX__
 // Fix for libstdc++, see https://bugs.llvm.org/show_bug.cgi?id=35755
@@ -190,9 +191,8 @@ ar::FloatType* TypeWithSignImporter::translate_floating_point_type(
 
 ar::PointerType* TypeWithSignImporter::translate_pointer_type(
     llvm::Type* type, ar::Signedness preferred) {
-  auto ptr_type = llvm::cast< llvm::PointerType >(type);
-  ar::Type* ar_pointee_type =
-      this->translate_type(ptr_type->getPointerElementType(), preferred);
+  // LLVM 15+ pointers are opaque
+  ar::Type* ar_pointee_type = ar::OpaqueType::create(this->_context);
   ar::PointerType* ar_type =
       ar::PointerType::get(this->_context, ar_pointee_type);
   this->store_translation(type, preferred, ar_type);
@@ -253,7 +253,7 @@ ar::Type* TypeWithSignImporter::translate_struct_type(
 
   for (unsigned i = 0; i < struct_type->getNumElements(); i++) {
     llvm::Type* element_type = struct_type->getElementType(i);
-    uint64_t element_offset = struct_layout->getElementOffset(i);
+    uint64_t element_offset = struct_layout->getElementOffset(i).getFixedValue();
     ar::Type* ar_element_type = this->translate_type(element_type, preferred);
     ar_layout.push_back({ar::ZNumber(element_offset), ar_element_type});
   }
@@ -554,9 +554,7 @@ ar::Type* TypeWithDebugInfoImporter::translate_basic_di_type(
 
     if (tag == dwarf::DW_TAG_unspecified_type &&
         di_type->getName() == "decltype(nullptr)") {
-      check_match(type->isPointerTy() && llvm::cast< llvm::PointerType >(type)
-                                             ->getPointerElementType()
-                                             ->isIntegerTy(8),
+      check_match(type->isPointerTy(),
                   "unexpected llvm type for llvm DIBasicType with name "
                   "'decltype(nullptr)'");
       ar_type = ar::PointerType::get(this->_context,
@@ -610,13 +608,11 @@ ar::PointerType* TypeWithDebugInfoImporter::translate_pointer_di_type(
                   this->_llvm_data_layout.getPointerSizeInBits(),
               "llvm DIDerivedType with pointer tag and llvm pointer type have "
               "a different bit-width");
-  auto ptr_type = llvm::cast< llvm::PointerType >(type);
-  llvm::Type* pointee_type = ptr_type->getPointerElementType();
   auto di_pointee_type =
       llvm::cast_or_null< llvm::DIType >(di_type->getRawBaseType());
 
-  ar::Type* ar_pointee_type =
-      this->translate_type(pointee_type, di_pointee_type);
+  // LLVM 15+ pointers are opaque, fallback to ar::OpaqueType
+  ar::Type* ar_pointee_type = ar::OpaqueType::create(this->_context);
   ar::PointerType* ar_type =
       ar::PointerType::get(this->_context, ar_pointee_type);
   this->store_translation(type, di_type, ar_type);
@@ -633,13 +629,11 @@ ar::PointerType* TypeWithDebugInfoImporter::translate_reference_di_type(
                       this->_llvm_data_layout.getPointerSizeInBits(),
               "llvm DIDerivedType with reference tag and llvm pointer type "
               "have a different bit-width");
-  auto ptr_type = llvm::cast< llvm::PointerType >(type);
-  llvm::Type* pointee_type = ptr_type->getPointerElementType();
   auto di_referred_type =
       llvm::cast_or_null< llvm::DIType >(di_type->getRawBaseType());
 
-  ar::Type* ar_pointee_type =
-      this->translate_type(pointee_type, di_referred_type);
+  // LLVM 15+ pointers are opaque, fallback to ar::OpaqueType
+  ar::Type* ar_pointee_type = ar::OpaqueType::create(this->_context);
   ar::PointerType* ar_type =
       ar::PointerType::get(this->_context, ar_pointee_type);
   this->store_translation(type, di_type, ar_type);
@@ -738,13 +732,13 @@ ar::Type* TypeWithDebugInfoImporter::translate_array_di_type(
       if (prev_no_count) {
         // Type T[][] is flattened into T*, so skip this element
         continue;
-      } else if (current_element->isPointerTy()) {
+      } else if (current_element != nullptr && current_element->isPointerTy()) {
         auto ptr_type = llvm::cast< llvm::PointerType >(current_element);
 
         llvm_elements.push_back(ptr_type);
-        current_element = ptr_type->getPointerElementType();
+        current_element = nullptr;
         prev_no_count = true;
-      } else if (current_element->isArrayTy()) {
+      } else if (current_element != nullptr && current_element->isArrayTy()) {
         auto array_type = llvm::cast< llvm::ArrayType >(current_element);
         check_match(array_type->getNumElements() == 0,
                     "llvm DICompositeType with array tag and count -1, but "
@@ -786,7 +780,7 @@ ar::Type* TypeWithDebugInfoImporter::translate_array_di_type(
           this->_llvm_data_layout.getStructLayout(struct_type);
 
       for (unsigned i = 0; i < struct_type->getNumElements(); i++) {
-        ar::ZNumber offset(struct_layout->getElementOffset(i));
+        ar::ZNumber offset(struct_layout->getElementOffset(i).getFixedValue());
         ar_type = this->translate_type(struct_type->getElementType(i),
                                        di_final_element);
         ar_layout.push_back({offset, ar_type});
@@ -928,9 +922,9 @@ static bool is_base_subobject(llvm::DIDerivedType* di_member,
       llvm::isa< llvm::StructType >(member)) {
     auto struct_type = llvm::cast< llvm::StructType >(member);
     return struct_type->hasName() &&
-           (struct_type->getName().startswith("struct.") ||
-            struct_type->getName().startswith("class.")) &&
-           struct_type->getName().endswith(".base");
+           (struct_type->getName().starts_with("struct.") ||
+            struct_type->getName().starts_with("class.")) &&
+           struct_type->getName().ends_with(".base");
   }
   return false;
 }
@@ -1000,7 +994,7 @@ ar::StructType* TypeWithDebugInfoImporter::translate_struct_di_type(
   for (unsigned i = 0; i < struct_type->getNumElements(); i++) {
     // llvm struct member
     llvm::Type* element_type = struct_type->getElementType(i);
-    ar::ZNumber element_offset_bytes(struct_layout->getElementOffset(i));
+    ar::ZNumber element_offset_bytes(struct_layout->getElementOffset(i).getFixedValue());
     ar::ZNumber element_size_bytes(
         this->_llvm_data_layout.getTypeStoreSize(element_type).getFixedValue());
 
@@ -1250,7 +1244,7 @@ ar::Type* TypeWithDebugInfoImporter::translate_union_di_type(
       if (padding_type != nullptr) {
         ar::Type* ar_padding_type =
             this->_type_sign_imp.translate_type(padding_type, ar::Signed);
-        ar::ZNumber padding_offset_bytes(struct_layout->getElementOffset(1));
+        ar::ZNumber padding_offset_bytes(struct_layout->getElementOffset(1).getFixedValue());
         ar_layout.push_back({padding_offset_bytes, ar_padding_type});
       }
 
@@ -1287,18 +1281,7 @@ static bool is_constructor_with_virtual_base(llvm::FunctionType* fun_type) {
   if (fun_type->getReturnType()->isVoidTy() && fun_type->getNumParams() == 2) {
     llvm::Type* fst = fun_type->getParamType(0);
     llvm::Type* snd = fun_type->getParamType(1);
-    return fst->isPointerTy() &&
-           llvm::cast< llvm::PointerType >(fst)
-               ->getPointerElementType()
-               ->isStructTy() &&
-           snd->isPointerTy() &&
-           llvm::cast< llvm::PointerType >(snd)
-               ->getPointerElementType()
-               ->isPointerTy() &&
-           llvm::cast< llvm::PointerType >(
-               llvm::cast< llvm::PointerType >(snd)->getPointerElementType())
-               ->getPointerElementType()
-               ->isIntegerTy(8);
+    return fst->isPointerTy() && snd->isPointerTy();
   }
   return false;
 }
@@ -1576,14 +1559,7 @@ bool TypeMatcher::match_floating_point_type(llvm::Type* llvm_type,
 bool TypeMatcher::match_pointer_type(llvm::Type* llvm_type,
                                      ar::Type* ar_type,
                                      ARTypeSet seen) {
-  if (!ar_type->is_pointer()) {
-    return false;
-  }
-  auto llvm_pointee_type =
-      llvm::cast< llvm::PointerType >(llvm_type)->getPointerElementType();
-  auto ar_pointee_type = ar::cast< ar::PointerType >(ar_type)->pointee();
-
-  return this->match_type(llvm_pointee_type, ar_pointee_type, std::move(seen));
+  return ar_type->is_pointer();
 }
 
 bool TypeMatcher::match_array_type(llvm::Type* llvm_type,
@@ -1648,7 +1624,7 @@ bool TypeMatcher::match_struct_type(llvm::Type* llvm_type,
   auto it = ar_struct_type->field_begin();
   for (unsigned i = 0; i < llvm_struct_type->getNumElements(); ++i, ++it) {
     llvm::Type* llvm_element_type = llvm_struct_type->getElementType(i);
-    uint64_t llvm_element_offset = llvm_struct_layout->getElementOffset(i);
+    uint64_t llvm_element_offset = llvm_struct_layout->getElementOffset(i).getFixedValue();
     if (llvm_element_offset != it->offset ||
         !this->match_type(llvm_element_type, it->type, seen)) {
       return false;
@@ -1710,16 +1686,8 @@ bool TypeMatcher::match_extern_function_type(llvm::FunctionType* llvm_type,
 bool TypeMatcher::match_extern_function_param_type(llvm::Type* llvm_type,
                                                    ar::Type* ar_type) {
   if (llvm_type->isPointerTy()) {
-    // Allow `{}*` to match with `opaque*`
-    if (!ar_type->is_pointer()) {
-      return false;
-    }
-    auto llvm_pointee_type =
-        llvm::cast< llvm::PointerType >(llvm_type)->getPointerElementType();
-    auto ar_pointee_type = ar::cast< ar::PointerType >(ar_type)->pointee();
-
-    return (llvm_pointee_type->isStructTy() && ar_pointee_type->is_opaque()) ||
-           this->match_type(llvm_pointee_type, ar_pointee_type);
+    // LLVM 15+ opaque pointers
+    return ar_type->is_pointer();
   } else {
     return this->match_type(llvm_type, ar_type);
   }

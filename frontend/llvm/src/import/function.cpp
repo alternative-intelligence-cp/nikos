@@ -395,9 +395,8 @@ void FunctionImporter::translate_instruction(
 void FunctionImporter::translate_alloca(BasicBlockTranslation* bb_translation,
                                         llvm::AllocaInst* alloca) {
   // Translate types
-  check_import(alloca->getType()->getPointerElementType() ==
-                   alloca->getAllocatedType(),
-               "unexpected allocated type in llvm alloca");
+  check_import(alloca->getType()->isPointerTy(),
+               "unexpected type for alloca instruction");
   auto var_type = ar::cast< ar::PointerType >(this->infer_type(alloca));
   ar::Type* allocated_type = var_type->pointee();
 
@@ -423,7 +422,7 @@ void FunctionImporter::translate_store(BasicBlockTranslation* bb_translation,
                                        llvm::StoreInst* store) {
   // Translate stored value
   ar::Type* value_type =
-      this->_ctx.type_imp->translate_type(store->getValueOperand()->getType());
+      this->_ctx.type_imp->translate_type(store->getValueOperand()->getType(), ar::Signed);
   ar::Value* value = this->translate_value(bb_translation,
                                            store->getValueOperand(),
                                            value_type);
@@ -661,7 +660,7 @@ void FunctionImporter::translate_call_helper(
   // Extract LLVM function type
   llvm::FunctionType* llvm_fun_type = call->getFunctionType();
   // Translate to AR function type
-  ar::Type* ar_fun_type_base = this->_ctx.type_imp->translate_type(llvm_fun_type);
+  ar::Type* ar_fun_type_base = this->_ctx.type_imp->translate_type(llvm_fun_type, ar::Signed);
   auto fun_type = ar::cast< ar::FunctionType >(ar_fun_type_base);
   
   // Create expected pointer type
@@ -944,12 +943,12 @@ void FunctionImporter::translate_getelementptr(
       // Shift in a sequential type
       uint64_t size =
           this->_llvm_data_layout.getTypeAllocSize(it.getIndexedType()).getFixedValue();
-      ar::Type* preferred_type =
+      ar::Type* op_preferred_type =
           llvm::isa< llvm::Constant >(op)
               ? _ctx.type_imp->translate_type(op->getType(), ar::Signed)
               : nullptr;
       ar::Value* ar_op =
-          this->translate_value(bb_translation, op, preferred_type);
+          this->translate_value(bb_translation, op, op_preferred_type);
       terms.emplace_back(ar::MachineInt(size,
                                         size_type->bit_width(),
                                         size_type->sign()),
@@ -1912,8 +1911,8 @@ ar::Type* FunctionImporter::infer_type(llvm::Value* value) {
 ar::Type* FunctionImporter::infer_type_from_dbg(llvm::Value* value) {
   // Check for llvm.dbg.declare and llvm.dbg.addr
   if (auto alloca = llvm::dyn_cast< llvm::AllocaInst >(value)) {
-    llvm::TinyPtrVector< llvm::DbgVariableIntrinsic* > dbg_addrs =
-        llvm::FindDbgAddrUses(alloca);
+    llvm::SmallVector< llvm::DbgVariableIntrinsic*, 1 > dbg_addrs;
+    llvm::findDbgUsers(dbg_addrs, alloca);
     auto dbg_addr =
         std::find_if(dbg_addrs.begin(),
                      dbg_addrs.end(),

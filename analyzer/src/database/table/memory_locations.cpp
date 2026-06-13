@@ -102,8 +102,8 @@ JsonDict MemoryLocationsTable::info(MemoryLocation* mem_loc) {
     auto alloca = llvm::cast< llvm::AllocaInst >(value);
 
     // Check for llvm.dbg.declare and llvm.dbg.addr
-    llvm::TinyPtrVector< llvm::DbgVariableIntrinsic* > dbg_addrs =
-        llvm::FindDbgAddrUses(alloca);
+    llvm::SmallVector< llvm::DbgVariableIntrinsic*, 1 > dbg_addrs;
+    llvm::findDbgUsers(dbg_addrs, alloca);
     auto dbg_addr =
         std::find_if(dbg_addrs.begin(),
                      dbg_addrs.end(),

@@ -82,7 +82,7 @@ ar::GlobalVariable* BundleImporter::translate_global_variable(
     name = "ar." + name.substr(5);
   }
 
-  llvm::PointerType* type = gv->getType();
+
 
   // Extract the DWARF type from debug information
   llvm::SmallVector< llvm::DIGlobalVariableExpression*, 1 > dbgs;
@@ -376,7 +376,7 @@ bool BundleImporter::is_clang_generated_function(llvm::Function* fun) {
     return true;
   }
 
-  if (fun->getName().startswith("_ZTW")) {
+  if (fun->getName().starts_with("_ZTW")) {
     // Thread-local wrapper function
     return true;
   }

@@ -353,7 +353,7 @@ std::string repr(llvm::Type* type, TypeSet seen) {
       throw FrontendError("unsupported llvm floating point type");
     }
   } else if (auto ptr_type = llvm::dyn_cast< llvm::PointerType >(type)) {
-    return repr(ptr_type->getPointerElementType(), seen) + "*";
+    return "ptr";
   } else if (auto array_type = llvm::dyn_cast< llvm::ArrayType >(type)) {
     return repr(array_type->getElementType(), seen) + "[" +
            std::to_string(array_type->getNumElements()) + "]";
@@ -714,8 +714,8 @@ ReprResult repr(llvm::Value* value, ValueSet seen) {
 
   if (auto arg = llvm::dyn_cast< llvm::Argument >(value)) {
     // Check for llvm.dbg.declare and llvm.dbg.addr
-    llvm::TinyPtrVector< llvm::DbgVariableIntrinsic* > dbg_addrs =
-        llvm::FindDbgAddrUses(arg);
+    llvm::SmallVector< llvm::DbgVariableIntrinsic*, 1 > dbg_addrs;
+    llvm::findDbgUsers(dbg_addrs, arg);
     auto dbg_addr =
         std::find_if(dbg_addrs.begin(),
                      dbg_addrs.end(),
@@ -748,8 +748,8 @@ ReprResult repr(llvm::Value* value, ValueSet seen) {
   if (auto inst = llvm::dyn_cast< llvm::Instruction >(value)) {
     if (auto alloca = llvm::dyn_cast< llvm::AllocaInst >(inst)) {
       // Check for llvm.dbg.declare and llvm.dbg.addr
-      llvm::TinyPtrVector< llvm::DbgVariableIntrinsic* > dbg_addrs =
-          llvm::FindDbgAddrUses(alloca);
+      llvm::SmallVector< llvm::DbgVariableIntrinsic*, 1 > dbg_addrs;
+      llvm::findDbgUsers(dbg_addrs, alloca);
       auto dbg_addr =
           std::find_if(dbg_addrs.begin(),
                        dbg_addrs.end(),
@@ -1057,8 +1057,8 @@ struct OperandReprVisitor {
     auto alloca = llvm::cast< llvm::AllocaInst >(value);
 
     // Check for llvm.dbg.declare and llvm.dbg.addr
-    llvm::TinyPtrVector< llvm::DbgVariableIntrinsic* > dbg_addrs =
-        llvm::FindDbgAddrUses(alloca);
+    llvm::SmallVector< llvm::DbgVariableIntrinsic*, 1 > dbg_addrs;
+    llvm::findDbgUsers(dbg_addrs, alloca);
     auto dbg_addr =
         std::find_if(dbg_addrs.begin(),
                      dbg_addrs.end(),
