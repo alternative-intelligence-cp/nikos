@@ -523,8 +523,8 @@ void FunctionImporter::translate_intrinsic_call(
                                        dest,
                                        src,
                                        length,
-                                       memcpy->getDestAlignment(),
-                                       memcpy->getSourceAlignment(),
+                                       memcpy->getDestAlign().valueOrOne().value(),
+                                       memcpy->getSourceAlign().valueOrOne().value(),
                                        memcpy->isVolatile());
     stmt->set_frontend< llvm::Value >(memcpy);
     bb_translation->add_statement(std::move(stmt));
@@ -544,8 +544,8 @@ void FunctionImporter::translate_intrinsic_call(
                                        dest,
                                        src,
                                        length,
-                                       memmove->getDestAlignment(),
-                                       memmove->getSourceAlignment(),
+                                       memmove->getDestAlign().valueOrOne().value(),
+                                       memmove->getSourceAlign().valueOrOne().value(),
                                        memmove->isVolatile());
     stmt->set_frontend< llvm::Value >(memmove);
     bb_translation->add_statement(std::move(stmt));
@@ -564,7 +564,7 @@ void FunctionImporter::translate_intrinsic_call(
                                       dest,
                                       value,
                                       length,
-                                      memset->getDestAlignment(),
+                                      memset->getDestAlign().valueOrOne().value(),
                                       memset->isVolatile());
     stmt->set_frontend< llvm::Value >(memset);
     bb_translation->add_statement(std::move(stmt));

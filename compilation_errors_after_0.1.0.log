@@ -1,0 +1,20 @@
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:159:9: error: no
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:161:9: error: no
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:167:9: error: no
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:168:9: error: no
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:170:9: error: no
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:171:9: error: no
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:172:9: error: no
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:173:9: error: no
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:180:9: error: no
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:183:9: error: no
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:189:9: error: no
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:257:28: error: n
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:264:28: error: n
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:288:28: error: n
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:302:17: error: n
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:309:28: error: n
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:315:28: error: n
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:339:28: error: n
+/home/randy/Workspace/REPOS/nikos/frontend/llvm/src/ikos_pp.cpp:346:28: error: n
+fatal error: too many errors emitted, stopping now [-ferror-limit=]

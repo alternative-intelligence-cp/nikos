@@ -124,7 +124,7 @@ ar::GlobalVariable* BundleImporter::translate_global_variable(
                                  ar_type,
                                  name,
                                  /*is_definition = */ !gv->isDeclaration(),
-                                 gv->getAlignment());
+                                 gv->getAlign().valueOrOne().value());
   ar_gv->set_frontend(gv);
   this->_globals.try_emplace(gv, ar_gv);
   return ar_gv;
