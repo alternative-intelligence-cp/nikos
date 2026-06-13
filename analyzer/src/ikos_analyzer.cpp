@@ -910,6 +910,7 @@ int main(int argc, char** argv) {
         err.print(progname.c_str(), llvm::errs());
         return 2;
       }
+      module->convertFromNewDbgValues();
     }
 
     // Immediately run the verifier to catch any problems

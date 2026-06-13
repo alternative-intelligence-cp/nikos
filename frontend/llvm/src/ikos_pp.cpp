@@ -210,6 +210,7 @@ int main(int argc, char** argv) {
     err.print(progname.c_str(), llvm::errs());
     return 1;
   }
+  module->convertFromNewDbgValues();
 
   // Immediately run the verifier to catch any problems
   if (!NoVerify && verifyModule(*module, &llvm::errs())) {
