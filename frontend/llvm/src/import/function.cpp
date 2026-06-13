@@ -421,16 +421,18 @@ void FunctionImporter::translate_alloca(BasicBlockTranslation* bb_translation,
 
 void FunctionImporter::translate_store(BasicBlockTranslation* bb_translation,
                                        llvm::StoreInst* store) {
-  // Translate pointer
-  ar::Value* pointer = this->translate_value(bb_translation,
-                                             store->getPointerOperand(),
-                                             nullptr);
-  auto ptr_type = ar::cast< ar::PointerType >(pointer->type());
-
   // Translate stored value
+  ar::Type* value_type =
+      this->_ctx.type_imp->translate_type(store->getValueOperand()->getType());
   ar::Value* value = this->translate_value(bb_translation,
                                            store->getValueOperand(),
-                                           ptr_type->pointee());
+                                           value_type);
+
+  // Translate pointer
+  ar::PointerType* ptr_type = ar::PointerType::get(this->_context, value->type());
+  ar::Value* pointer = this->translate_value(bb_translation,
+                                             store->getPointerOperand(),
+                                             ptr_type);
 
   auto stmt = ar::Store::create(pointer,
                                 value,
