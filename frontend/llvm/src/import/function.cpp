@@ -377,10 +377,10 @@ void FunctionImporter::translate_instruction(
     throw ImportError("llvm switch instructions are not supported");
   } else if (inst->getOpcode() == llvm::Instruction::FNeg) {
     auto* binary_inst =
-        llvm::BinaryOperator::Create(llvm::BinaryOperator::FMul,
+        llvm::BinaryOperator::Create(llvm::BinaryOperator::FSub,
                                      llvm::ConstantFP::get(inst->getOperand(0)
                                                                ->getType(),
-                                                           -1.0),
+                                                           -0.0),
                                      inst->getOperand(0));
     inst->replaceAllUsesWith(binary_inst);
     binary_inst->setDebugLoc(inst->getDebugLoc());
