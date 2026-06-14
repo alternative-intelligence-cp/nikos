@@ -3,7 +3,7 @@ source_filename = "aggregate-in-reg-2.cpp"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -15,7 +15,6 @@ target triple = "x86_64-apple-macosx10.14.0"
 ; CHECK: define [4 x si8]* @.str, align 1, init {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @.str, [37, 102, 10, 0], align 1
-; CHECK: }
 ; CHECK: }
 
 ; Function Attrs: noinline nounwind ssp uwtable
@@ -39,30 +38,29 @@ define { <2 x float>, <2 x float> } @_Z1ff(float) #0 !dbg !8 {
   %12 = load { <2 x float>, <2 x float> }, { <2 x float>, <2 x float> }* %11, align 4, !dbg !28
   ret { <2 x float>, <2 x float> } %12, !dbg !28
 }
+; CHECK: }
 ; CHECK: define {0: <2 x float>, 8: <2 x float>} @_Z1ff(float %1) {
 ; CHECK: #1 !entry !exit {
-; CHECK:   {0: {0: float, 4: float}, 8: {0: float, 4: float}}* $2 = allocate {0: {0: float, 4: float}, 8: {0: float, 4: float}}, 1, align 4
+; CHECK:   opaque* $2 = allocate opaque, 1, align 4
 ; CHECK:   float* $3 = allocate float, 1, align 4
 ; CHECK:   store $3, %1, align 4
-; CHECK:   {0: float, 4: float}* %4 = ptrshift $2, 16 * 0, 1 * 0
-; CHECK:   float* %5 = ptrshift %4, 8 * 0, 1 * 0
-; CHECK:   store %5, 0.0E+0, align 4
-; CHECK:   float* %6 = ptrshift %4, 8 * 0, 1 * 4
-; CHECK:   float %7 = load $3, align 4
-; CHECK:   store %6, %7, align 4
-; CHECK:   {0: float, 4: float}* %8 = ptrshift $2, 16 * 0, 1 * 8
-; CHECK:   float* %9 = ptrshift %8, 8 * 0, 1 * 0
-; CHECK:   store %9, 2.0E+0, align 4
-; CHECK:   float* %10 = ptrshift %8, 8 * 0, 1 * 4
-; CHECK:   store %10, 0.0E+0, align 4
-; CHECK:   {0: <2 x float>, 8: <2 x float>}* %11 = bitcast $2
-; CHECK:   {0: <2 x float>, 8: <2 x float>} %12 = load %11, align 4
-; CHECK:   return %12
-; CHECK: }
-; CHECK: }
+; CHECK:   {0: {0: float, 4: float}, 8: {0: float, 4: float}}* %4 = bitcast $2
+; CHECK:   opaque* %5 = ptrshift %4, 16 * 0, 1 * 0
+; CHECK:   {0: float, 4: float}* %6 = bitcast %5
+; CHECK:   opaque* %7 = ptrshift %6, 8 * 0, 1 * 0
+; CHECK:   float* %8 = bitcast %7
+; CHECK:   store %8, 0.0E+0, align 4
+; CHECK:   {0: float, 4: float}* %9 = bitcast %5
+; CHECK:   opaque* %10 = ptrshift %9, 8 * 0, 1 * 4
+; CHECK:   opaque* %11 = bitcast $3
+; CHECK:   opaque %12 = load %11, align 4
+; CHECK:   float %13 = bitcast %12
+; CHECK:   float* %14 = bitcast %10
+; CHECK:   store %14, %13, align 4
+; CHECK:   {0: {0: float, 4: float}, 8: {0: float, 4: float}}* %15 = bitcast $2
 
 declare i32 @printf(i8*, ...) #3
-; CHECK: declare si32 @ar.libc.printf(si8*, ...)
+; CHECK:   opaque* %16 = ptrshift %15, 16 * 0, 1 * 8
 
 ; Function Attrs: noinline norecurse ssp uwtable
 define i32 @main() #2 !dbg !29 {
@@ -85,28 +83,26 @@ define i32 @main() #2 !dbg !29 {
   %14 = call i32 (i8*, ...) @printf(i8* %13, double %12), !dbg !36
   ret i32 0, !dbg !37
 }
+; CHECK:   {0: float, 4: float}* %17 = bitcast %16
+; CHECK:   opaque* %18 = ptrshift %17, 8 * 0, 1 * 0
+; CHECK:   float* %19 = bitcast %18
+; CHECK:   store %19, 2.0E+0, align 4
+; CHECK:   {0: float, 4: float}* %20 = bitcast %16
+; CHECK:   opaque* %21 = ptrshift %20, 8 * 0, 1 * 4
+; CHECK:   float* %22 = bitcast %21
+; CHECK:   store %22, 0.0E+0, align 4
+; CHECK:   opaque* %23 = bitcast $2
+; CHECK:   {0: <2 x float>, 8: <2 x float>}* %24 = bitcast %23
+; CHECK:   {0: <2 x float>, 8: <2 x float>} %25 = load %24, align 4
+; CHECK:   return %25
+; CHECK: }
+; CHECK: }
+; CHECK: declare si32 @ar.libc.printf(si8*, ...)
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry !exit {
-; CHECK:   si32* $1 = allocate si32, 1, align 4
-; CHECK:   {0: {0: float, 4: float}, 8: {0: float, 4: float}}* $2 = allocate {0: {0: float, 4: float}, 8: {0: float, 4: float}}, 1, align 4
-; CHECK:   store $1, 0, align 4
-; CHECK:   {0: <2 x float>, 8: <2 x float>} %3 = call @_Z1ff(2.0E+0)
-; CHECK:   {0: <2 x float>, 8: <2 x float>}* %4 = bitcast $2
-; CHECK:   <2 x float>* %5 = ptrshift %4, 16 * 0, 1 * 0
-; CHECK:   <2 x float> %6 = extractelement %3, 0
-; CHECK:   store %5, %6, align 4
-; CHECK:   <2 x float>* %7 = ptrshift %4, 16 * 0, 1 * 8
-; CHECK:   <2 x float> %8 = extractelement %3, 8
-; CHECK:   store %7, %8, align 4
-; CHECK:   {0: float, 4: float}* %9 = ptrshift $2, 16 * 0, 1 * 0
-; CHECK:   float* %10 = ptrshift %9, 8 * 0, 1 * 4
-; CHECK:   float %11 = load %10, align 4
-; CHECK:   double %12 = fpext %11
-; CHECK:   si8* %13 = ptrshift @.str, 4 * 0, 1 * 0
-; CHECK:   si32 %14 = call @ar.libc.printf(%13, %12)
-; CHECK:   return 0
-; CHECK: }
-; CHECK: }
+; CHECK:   opaque* $1 = allocate opaque, 1, align 4
+; CHECK:   opaque* $2 = allocate opaque, 1, align 4
+; CHECK:   si32* %3 = bitcast $1
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1

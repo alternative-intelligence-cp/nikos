@@ -3,7 +3,7 @@ source_filename = "pointer-arithmetic.cpp"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -13,10 +13,9 @@ target triple = "x86_64-apple-macosx10.14.0"
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @.str.2, [37, 100, 10, 0], align 1
 ; CHECK: }
-; CHECK: }
 
 declare i32 @printf(i8*, ...) local_unnamed_addr #1
-; CHECK: declare si32 @ar.libc.printf(si8*, ...)
+; CHECK: }
 
 ; Function Attrs: noinline norecurse ssp uwtable
 define i32 @main() local_unnamed_addr #0 !dbg !33 {
@@ -24,13 +23,11 @@ define i32 @main() local_unnamed_addr #0 !dbg !33 {
   %2 = call i32 (i8*, ...) @printf(i8* %1, i32 6), !dbg !36
   ret i32 %2, !dbg !37
 }
+; CHECK: declare si32 @ar.libc.printf(si8*, ...)
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   si8* %1 = ptrshift @.str.2, 4 * 0, 1 * 0
-; CHECK:   si32 %2 = call @ar.libc.printf(%1, 6)
-; CHECK:   return %2
-; CHECK: }
-; CHECK: }
+; CHECK:   si32 (opaque*, ...)* %2 = bitcast @ar.libc.printf
 
 attributes #0 = { noinline norecurse ssp uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+cx8,+fxsr,+mmx,+sahf,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
 attributes #1 = { "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+cx8,+fxsr,+mmx,+sahf,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }

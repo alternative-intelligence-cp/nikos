@@ -3,14 +3,13 @@ source_filename = "non-term-1.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
 
 ; Function Attrs: noreturn
 declare void @exit(i32) #1
-; CHECK: declare void @ar.libc.exit(si32)
 
 ; Function Attrs: noinline nounwind ssp uwtable
 define i32 @main(i32, i8**) #0 !dbg !8 {
@@ -33,7 +32,8 @@ define i32 @main(i32, i8**) #0 !dbg !8 {
   call void @llvm.dbg.value(metadata i32 %7, metadata !19, metadata !DIExpression()), !dbg !16
   br label %3, !dbg !18, !llvm.loop !26
 }
-; CHECK: define si32 @main(si32 %1, si8** %2) {
+; CHECK: declare void @ar.libc.exit(si32)
+; CHECK: define si32 @main(si32 %1, opaque* %2) {
 ; CHECK: #1 !entry successors={#2} {
 ; CHECK:   si32 %.0 = undef
 ; CHECK: }
@@ -48,8 +48,6 @@ define i32 @main(i32, i8**) #0 !dbg !8 {
 ; CHECK:   %.0 sine 0
 ; CHECK:   si32 %3 = %.0 sadd.nw 1
 ; CHECK:   si32 %.0 = %3
-; CHECK: }
-; CHECK: }
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.value(metadata, metadata, metadata) #2

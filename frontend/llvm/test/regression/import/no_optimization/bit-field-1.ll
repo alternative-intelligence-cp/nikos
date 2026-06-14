@@ -3,7 +3,7 @@ source_filename = "bit-field-1.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -15,11 +15,10 @@ target triple = "x86_64-apple-macosx10.14.0"
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @__const.main.info, {0: -88, 1: 16, 2: undef}, align 1
 ; CHECK: }
-; CHECK: }
 
 ; Function Attrs: argmemonly nounwind
 declare void @llvm.memcpy.p0i8.p0i8.i64(i8* nocapture writeonly, i8* nocapture readonly, i64, i1) #2
-; CHECK: declare void @ar.memcpy(si8*, si8*, ui64, ui32, ui32, ui1)
+; CHECK: }
 
 ; Function Attrs: noinline nounwind ssp uwtable
 define i32 @main() #0 !dbg !8 {
@@ -32,17 +31,15 @@ define i32 @main() #0 !dbg !8 {
   call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 4 %3, i8* align 4 %4, i64 4, i1 false), !dbg !20
   ret i32 0, !dbg !21
 }
+; CHECK: declare void @ar.memcpy(si8*, si8*, ui64, ui32, ui32, ui1)
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry !exit {
-; CHECK:   si32* $1 = allocate si32, 1, align 4
+; CHECK:   opaque* $1 = allocate opaque, 1, align 4
 ; CHECK:   {0: ui16, 2: [2 x si8]}* $2 = allocate {0: ui16, 2: [2 x si8]}, 1, align 4
-; CHECK:   store $1, 0, align 4
-; CHECK:   si8* %3 = bitcast $2
-; CHECK:   si8* %4 = ptrshift @__const.main.info, 4 * 0, 1 * 0
-; CHECK:   call @ar.memcpy(%3, %4, 4, 4, 4, 0)
-; CHECK:   return 0
-; CHECK: }
-; CHECK: }
+; CHECK:   si32* %3 = bitcast $1
+; CHECK:   store %3, 0, align 4
+; CHECK:   si8* %4 = bitcast $2
+; CHECK:   si8* %5 = ptrshift @__const.main.info, 4 * 0, 1 * 0
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1

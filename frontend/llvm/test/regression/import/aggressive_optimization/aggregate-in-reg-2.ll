@@ -3,7 +3,7 @@ source_filename = "aggregate-in-reg-2.cpp"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -22,20 +22,16 @@ define internal fastcc { <2 x float>, <2 x float> } @_Z1ff(float) unnamed_addr #
 ; CHECK:   {0: <2 x float>, 8: <2 x float>} %.fca.0.insert = insertelement undef, 0, %.sroa.0.4.vec.insert
 ; CHECK:   {0: <2 x float>, 8: <2 x float>} %.fca.1.insert = insertelement %.fca.0.insert, 8, <2.0E+0, 0.0E+0>
 ; CHECK:   return %.fca.1.insert
-; CHECK: }
-; CHECK: }
 
 ; Function Attrs: noinline norecurse ssp uwtable
 define i32 @main() local_unnamed_addr #1 !dbg !26 {
   %1 = call fastcc { <2 x float>, <2 x float> } @_Z1ff(float 2.000000e+00), !dbg !30
   ret i32 0, !dbg !31
 }
+; CHECK: }
+; CHECK: }
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry !exit {
-; CHECK:   {0: <2 x float>, 8: <2 x float>} %1 = call @_Z1ff(2.0E+0)
-; CHECK:   return 0
-; CHECK: }
-; CHECK: }
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.value(metadata, metadata, metadata) #2

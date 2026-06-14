@@ -3,7 +3,7 @@ source_filename = "file-intrinsics.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -17,49 +17,43 @@ target triple = "x86_64-apple-macosx10.14.0"
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @.str, [47, 116, 109, 112, 47, 116, 101, 115, 116, 0], align 1
 ; CHECK: }
-; CHECK: }
 
 @.str.1 = private unnamed_addr constant [3 x i8] c"rw\00", align 1
+; CHECK: }
 ; CHECK: define [3 x si8]* @.str.1, align 1, init {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @.str.1, [114, 119, 0], align 1
-; CHECK: }
-; CHECK: }
 
 @.str.2 = private unnamed_addr constant [12 x i8] c"hello world\00", align 1
+; CHECK: }
+; CHECK: }
 ; CHECK: define [12 x si8]* @.str.2, align 1, init {
 ; CHECK: #1 !entry !exit {
+
+@.str.3 = private unnamed_addr constant [3 x i8] c"%d\00", align 1
 ; CHECK:   store @.str.2, [104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 0], align 1
 ; CHECK: }
 ; CHECK: }
-
-@.str.3 = private unnamed_addr constant [3 x i8] c"%d\00", align 1
 ; CHECK: define [3 x si8]* @.str.3, align 1, init {
-; CHECK: #1 !entry !exit {
-; CHECK:   store @.str.3, [37, 100, 0], align 1
-; CHECK: }
-; CHECK: }
 
 declare i32 @fclose(%struct.__sFILE*) local_unnamed_addr #2
-; CHECK: declare si32 @ar.libc.fclose(opaque*)
+; CHECK: #1 !entry !exit {
 
 declare i32 @fflush(%struct.__sFILE*) local_unnamed_addr #2
-; CHECK: declare si32 @ar.libc.fflush(opaque*)
+; CHECK:   store @.str.3, [37, 100, 0], align 1
 
 declare i32 @fgetc(%struct.__sFILE*) local_unnamed_addr #2
-; CHECK: declare si32 @ar.libc.fgetc(opaque*)
+; CHECK: }
 
 declare i8* @fgets(i8*, i32, %struct.__sFILE*) local_unnamed_addr #2
-; CHECK: declare si8* @ar.libc.fgets(si8*, si32, opaque*)
+; CHECK: }
 
 declare %struct.__sFILE* @"\01_fopen"(i8*, i8*) local_unnamed_addr #2
-; CHECK: declare opaque* @ar.libc.fopen(si8*, si8*)
 
 declare i32 @"\01_fputs"(i8*, %struct.__sFILE*) local_unnamed_addr #2
-; CHECK: declare si32 @ar.libc.fputs(si8*, opaque*)
+; CHECK: declare si32 @ar.libc.fclose(opaque*)
 
 declare i32 @fscanf(%struct.__sFILE*, i8*, ...) local_unnamed_addr #2
-; CHECK: declare si32 @ar.libc.fscanf(opaque*, si8*, ...)
 
 ; Function Attrs: noinline nounwind ssp uwtable
 define i32 @main() local_unnamed_addr #0 !dbg !8 {
@@ -82,32 +76,26 @@ define i32 @main() local_unnamed_addr #0 !dbg !8 {
   %14 = call i32 @fclose(%struct.__sFILE* %5) #3, !dbg !90
   ret i32 0, !dbg !91
 }
+; CHECK: declare si32 @ar.libc.fflush(opaque*)
+; CHECK: declare si32 @ar.libc.fgetc(opaque*)
+; CHECK: declare si8* @ar.libc.fgets(si8*, si32, opaque*)
+; CHECK: declare opaque* @ar.libc.fopen(si8*, si8*)
+; CHECK: declare si32 @ar.libc.fputs(si8*, opaque*)
+; CHECK: declare si32 @ar.libc.fscanf(opaque*, si8*, ...)
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   [1025 x si8]* $1 = allocate [1025 x si8], 1, align 16
-; CHECK:   si32* $2 = allocate si32, 1, align 4
+; CHECK:   opaque* $2 = allocate opaque, 1, align 4
 ; CHECK:   si8* %3 = ptrshift @.str, 10 * 0, 1 * 0
 ; CHECK:   si8* %4 = ptrshift @.str.1, 3 * 0, 1 * 0
-; CHECK:   opaque* %5 = call @ar.libc.fopen(%3, %4)
-; CHECK:   {0: ui8*, 8: si32, 12: si32, 16: si16, 18: si16, 24: {0: ui8*, 8: si32}, 40: si32, 48: si8*, 56: si32 (si8*)*, 64: si32 (si8*, si8*, si32)*, 72: si64 (si8*, si64, si32)*, 80: si32 (si8*, si8*, si32)*, 88: {0: ui8*, 8: si32}, 104: opaque*, 112: si32, 116: [3 x ui8], 119: [1 x ui8], 120: {0: ui8*, 8: si32}, 136: si32, 144: si64}* %6 = bitcast %5
-; CHECK:   si8* %7 = ptrshift $1, 1025 * 0, 1 * 0
-; CHECK:   opaque* %8 = bitcast %6
-; CHECK:   si8* %9 = call @ar.libc.fgets(%7, 1024, %8)
-; CHECK:   opaque* %10 = bitcast %6
-; CHECK:   si32 %11 = call @ar.libc.fgetc(%10)
-; CHECK:   si8* %12 = ptrshift @.str.2, 12 * 0, 1 * 0
-; CHECK:   opaque* %13 = bitcast %6
-; CHECK:   si32 %14 = call @ar.libc.fputs(%12, %13)
-; CHECK:   si8* %15 = ptrshift @.str.3, 3 * 0, 1 * 0
-; CHECK:   opaque* %16 = bitcast %6
-; CHECK:   si32 %17 = call @ar.libc.fscanf(%16, %15, $2)
-; CHECK:   opaque* %18 = bitcast %6
-; CHECK:   si32 %19 = call @ar.libc.fflush(%18)
-; CHECK:   opaque* %20 = bitcast %6
-; CHECK:   si32 %21 = call @ar.libc.fclose(%20)
-; CHECK:   return 0
-; CHECK: }
-; CHECK: }
+; CHECK:   opaque* (opaque*, opaque*)* %5 = bitcast @ar.libc.fopen
+; CHECK:   opaque* %6 = bitcast %3
+; CHECK:   opaque* %7 = bitcast %4
+; CHECK:   opaque* %8 = call %5(%6, %7)
+; CHECK:   opaque* %9 = bitcast %8
+; CHECK:   si8* %10 = ptrshift $1, 1025 * 0, 1 * 0
+; CHECK:   opaque* (opaque*, si32, opaque*)* %11 = bitcast @ar.libc.fgets
+; CHECK:   opaque* %12 = bitcast %10
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1

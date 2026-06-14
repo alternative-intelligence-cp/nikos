@@ -49,7 +49,7 @@ bb_9:                                             ; preds = %bb_8, %bb_7
 
 bb_10:                                            ; No predecessors!
 ; CHECK-NOT: bb_10:
-; CHECK-NOT:  %_15 = load i32, i32* %_1, align 4
+; CHECK-NOT:  %_15 = load i32, ptr %_1, align 4
 ; CHECK-NOT:  ret i32 %_15
   %_15 = load i32, i32* %_1, align 4
   ret i32 %_15

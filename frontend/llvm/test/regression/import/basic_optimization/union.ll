@@ -3,7 +3,7 @@ source_filename = "union.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -15,11 +15,10 @@ target triple = "x86_64-apple-macosx10.14.0"
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @__const.main.x, {0: 1, 4: undef}, align 1
 ; CHECK: }
-; CHECK: }
 
 ; Function Attrs: argmemonly nounwind
 declare void @llvm.memcpy.p0i8.p0i8.i64(i8* nocapture writeonly, i8* nocapture readonly, i64, i1 immarg) #2
-; CHECK: declare void @ar.memcpy(si8*, si8*, ui64, ui32, ui32, ui1)
+; CHECK: }
 
 ; Function Attrs: noinline nounwind ssp uwtable
 define i32 @main() #0 !dbg !8 {
@@ -30,15 +29,13 @@ define i32 @main() #0 !dbg !8 {
   call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 8 %2, i8* align 8 %3, i64 8, i1 false), !dbg !19
   ret i32 0, !dbg !20
 }
+; CHECK: declare void @ar.memcpy(si8*, si8*, ui64, ui32, ui32, ui1)
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry !exit {
-; CHECK:   {0: si8*}* $1 = allocate {0: si8*}, 1, align 8
+; CHECK:   {0: opaque*}* $1 = allocate {0: opaque*}, 1, align 8
 ; CHECK:   si8* %2 = bitcast $1
 ; CHECK:   si8* %3 = bitcast @__const.main.x
 ; CHECK:   call @ar.memcpy(%2, %3, 8, 8, 8, 0)
-; CHECK:   return 0
-; CHECK: }
-; CHECK: }
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1

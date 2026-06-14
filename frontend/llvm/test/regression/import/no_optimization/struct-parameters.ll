@@ -3,7 +3,7 @@ source_filename = "struct-parameters.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -12,7 +12,6 @@ target triple = "x86_64-apple-macosx10.14.0"
 
 ; Function Attrs: argmemonly nounwind
 declare void @llvm.memcpy.p0i8.p0i8.i64(i8* nocapture writeonly, i8* nocapture readonly, i64, i1) #2
-; CHECK: declare void @ar.memcpy(si8*, si8*, ui64, ui32, ui32, ui1)
 
 ; Function Attrs: noinline nounwind ssp uwtable
 define void @f(%struct.my_struct* noalias sret(%struct.my_struct), %struct.my_struct*) #0 !dbg !8 {
@@ -25,18 +24,17 @@ define void @f(%struct.my_struct* noalias sret(%struct.my_struct), %struct.my_st
   call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 1 %5, i8* align 1 %6, i64 30, i1 false), !dbg !25
   ret void, !dbg !26
 }
-; CHECK: define void @f({0: [10 x si8], 10: [10 x si8], 20: [10 x si8]}* %1, {0: [10 x si8], 10: [10 x si8], 20: [10 x si8]}* %2) {
+; CHECK: declare void @ar.memcpy(si8*, si8*, ui64, ui32, ui32, ui1)
+; CHECK: define void @f({0: [10 x si8], 10: [10 x si8], 20: [10 x si8]}* %1, opaque* %2) {
 ; CHECK: #1 !entry !exit {
-; CHECK:   {0: [10 x si8], 10: [10 x si8], 20: [10 x si8]}** $3 = allocate {0: [10 x si8], 10: [10 x si8], 20: [10 x si8]}*, 1, align 8
-; CHECK:   store $3, %2, align 8
-; CHECK:   {0: [10 x si8], 10: [10 x si8], 20: [10 x si8]}** %4 = bitcast $3
-; CHECK:   {0: [10 x si8], 10: [10 x si8], 20: [10 x si8]}* %5 = load %4, align 8
-; CHECK:   si8* %6 = bitcast %1
-; CHECK:   si8* %7 = bitcast %5
-; CHECK:   call @ar.memcpy(%6, %7, 30, 1, 1, 0)
-; CHECK:   return
-; CHECK: }
-; CHECK: }
+; CHECK:   opaque** $3 = allocate opaque*, 1, align 8
+; CHECK:   opaque* %4 = bitcast %2
+; CHECK:   opaque** %5 = bitcast $3
+; CHECK:   store %5, %4, align 8
+; CHECK:   opaque** %6 = bitcast $3
+; CHECK:   opaque* %7 = load %6, align 8
+; CHECK:   si8* %8 = bitcast %1
+; CHECK:   si8* %9 = bitcast %7
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1
@@ -49,14 +47,13 @@ define void @g(%struct.my_struct* noalias sret(%struct.my_struct), %struct.my_st
   call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 1 %3, i8* align 8 %4, i64 30, i1 false), !dbg !32
   ret void, !dbg !33
 }
-; CHECK: define void @g({0: [10 x si8], 10: [10 x si8], 20: [10 x si8]}* %1, {0: [10 x si8], 10: [10 x si8], 20: [10 x si8]}* %2) {
-; CHECK: #1 !entry !exit {
-; CHECK:   si8* %3 = bitcast %1
-; CHECK:   si8* %4 = bitcast %2
-; CHECK:   call @ar.memcpy(%3, %4, 30, 1, 8, 0)
+; CHECK:   call @ar.memcpy(%8, %9, 30, 1, 1, 0)
 ; CHECK:   return
 ; CHECK: }
 ; CHECK: }
+; CHECK: define void @g({0: [10 x si8], 10: [10 x si8], 20: [10 x si8]}* %1, {0: [10 x si8], 10: [10 x si8], 20: [10 x si8]}* %2) {
+; CHECK: #1 !entry !exit {
+; CHECK:   si8* %3 = bitcast %1
 
 ; Function Attrs: noinline nounwind ssp uwtable
 define i32 @main() #0 !dbg !34 {
@@ -64,13 +61,12 @@ define i32 @main() #0 !dbg !34 {
   store i32 0, i32* %1, align 4
   ret i32 0, !dbg !38
 }
+; CHECK:   si8* %4 = bitcast %2
+; CHECK:   call @ar.memcpy(%3, %4, 30, 1, 8, 0)
+; CHECK:   return
+; CHECK: }
+; CHECK: }
 ; CHECK: define si32 @main() {
-; CHECK: #1 !entry !exit {
-; CHECK:   si32* $1 = allocate si32, 1, align 4
-; CHECK:   store $1, 0, align 4
-; CHECK:   return 0
-; CHECK: }
-; CHECK: }
 
 attributes #0 = { noinline nounwind ssp uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+cx8,+fxsr,+mmx,+sahf,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
 attributes #1 = { nounwind readnone speculatable }

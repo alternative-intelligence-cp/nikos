@@ -263,6 +263,7 @@ private:
   /// \brief Check that the given type is an exception structure type
   ///
   /// Checks that the type is equivalent to {ui8*, ui32}
+  /// LLVM 20 opaque pointers may produce {opaque*, si32} instead
   bool check_exception_struct(Statement* s, Type* ty, const char* desc) {
     if (ty->is_struct()) {
       auto sty = cast< StructType >(ty);
@@ -271,9 +272,15 @@ private:
         Type* first_ty = it->type;
         ++it;
         Type* second_ty = it->type;
-        if (first_ty == PointerType::get(s->context(),
-                                         IntegerType::si8(s->context())) &&
-            second_ty == IntegerType::si32(s->context())) {
+        bool first_ok =
+            first_ty == PointerType::get(s->context(),
+                                         IntegerType::si8(s->context()));
+        // LLVM 20 opaque pointers: also accept opaque* as first field
+        if (!first_ok && first_ty->is_pointer()) {
+          auto ptr_ty = cast< PointerType >(first_ty);
+          first_ok = ptr_ty->pointee()->is_opaque();
+        }
+        if (first_ok && second_ty == IntegerType::si32(s->context())) {
           return true;
         }
       }
@@ -444,10 +451,12 @@ public:
         // Valid bitcasts are:
         //   * pointer casts: A* to B*
         //   * primitive type casts with the same bit-width
+        //   * any cast involving an opaque type (LLVM 20 opaque pointers)
         //
         // A primitive type is either an integer, a floating point or a vector
         // of integers or floating points.
-        if ((result_ty->is_pointer() && operand_ty->is_pointer()) ||
+        if (result_ty->is_opaque() || operand_ty->is_opaque() ||
+            (result_ty->is_pointer() && operand_ty->is_pointer()) ||
             (result_ty->is_primitive() && operand_ty->is_primitive() &&
              result_ty->primitive_bit_width() ==
                  operand_ty->primitive_bit_width())) {
@@ -604,6 +613,10 @@ public:
       return false;
     }
     auto ptr_operand_ty = cast< PointerType >(operand_ty);
+    // LLVM 20 opaque pointers: allow load from opaque* regardless of result type
+    if (ptr_operand_ty->pointee()->is_opaque()) {
+      return true;
+    }
     return this->check_equals(s,
                               result_ty,
                               ptr_operand_ty->pointee(),
@@ -617,6 +630,10 @@ public:
       return false;
     }
     auto ptr_pointer_ty = cast< PointerType >(pointer_ty);
+    // LLVM 20 opaque pointers: allow store to opaque* regardless of value type
+    if (ptr_pointer_ty->pointee()->is_opaque()) {
+      return true;
+    }
     return this->check_equals(s,
                               value_ty,
                               ptr_pointer_ty->pointee(),

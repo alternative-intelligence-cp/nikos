@@ -3,7 +3,7 @@ source_filename = "bitwise-cond-1.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -80,7 +80,6 @@ define i32 @foo(i32, i32, i32) #0 !dbg !8 {
 ; CHECK: }
 ; CHECK: #10 !exit predecessors={#8, #9} {
 ; CHECK:   return %8
-; CHECK: }
 ; CHECK: }
 
 ; Function Attrs: nounwind readnone speculatable

@@ -3,7 +3,7 @@ source_filename = "phi-4.cpp"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -16,10 +16,9 @@ define i32 @main(i32, i8**) local_unnamed_addr #0 !dbg !8 {
   call void @llvm.dbg.value(metadata i32 undef, metadata !18, metadata !DIExpression()), !dbg !16
   ret i32 0, !dbg !19
 }
-; CHECK: define si32 @main(si32 %1, si8** %2) {
+; CHECK: define si32 @main(si32 %1, opaque* %2) {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   return 0
-; CHECK: }
 ; CHECK: }
 
 ; Function Attrs: nounwind readnone speculatable

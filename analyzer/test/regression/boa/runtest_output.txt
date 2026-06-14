@@ -1,0 +1,137 @@
+Running tests...
+  test-1.c ... Passed
+  test-1-unsafe.c ... Passed
+  test-2.c ... Passed
+  test-2-unsafe.c ... Passed
+  test-3.c ... Passed
+  test-3-unsafe.c ... Passed
+  test-4.c ... Passed
+  test-4-unsafe-1.c ... Passed
+  test-4-unsafe-2.c ... Passed
+  test-5.c ... Passed
+  test-5-unsafe-1.c ... Passed
+  test-5-unsafe-2.c ... Passed
+  test-5-unsafe-3.c ... Passed
+  test-5-unsafe-4.c ... Passed
+  test-6.c ... Passed
+  test-6-unsafe.c ... Passed
+  test-7.c ... Passed
+  test-7-unsafe.c ... Passed
+  test-8.c ... Passed
+  test-8-unsafe.c ... Passed
+  test-9a.c ... Passed
+  test-9a-unsafe.c ... Passed
+  test-9b.c ... Passed
+  test-9b-unsafe.c ... Passed
+  test-10.c (intraprocedural) ... Passed
+  test-10.c (interprocedural) ... Passed
+  test-10-unsafe.c ... Passed
+  test-11.c (intraprocedural) ... Passed
+  test-11.c (interprocedural) ... Passed
+  test-11-unsafe.c ... Passed
+  test-12-unsafe.c ... Passed
+  test-13.c ... Passed
+  test-14.c ... Passed
+  test-15.c (interval) ... Passed
+  test-15.c (interval-congruence) ... Passed
+  test-16.c ... Passed
+  test-17.c ... Passed
+  test-17-simpler.c ... Passed
+  test-18.c ... Passed
+  test-18-unsafe.c ... Passed
+  test-19a.c (interval) ... Passed
+  test-19a.c (gauge-interval-congruence) ... Passed
+  test-19b.c (interval) ... Passed
+  test-19b.c (gauge-interval-congruence) ... Passed
+  test-20.c ... Passed
+  test-21.c ... Passed
+  test-22-safe.c ... Passed
+  test-22-unsafe.c ... Passed
+  test-23-safe.c ... Passed
+  test-23-unsafe-1.c ... Passed
+  test-23-unsafe-2.c ... Passed
+  test-23-unsafe-3.c ... Passed
+  test-24-safe.c ... Passed
+  test-25.c (interval) ... Passed
+  test-25.c (dbm) ... Passed
+  test-26-volatile-safe.c ... Passed
+  test-26-volatile-unsafe.c ... Passed
+  test-27.c ... Passed
+  test-27.c (no simplify upcast comparison) ... Passed
+  test-27.c (no widening hints) ... Passed
+  test-28.c (hardware addresses) ... Passed
+  test-28.c (hardware addresses) ... Passed
+  test-28.c (hardware addresses) ... Passed
+  test-29.c (hardware addresses) ... Passed
+  test-30-use-after-free.c ... Passed
+  test-31-use-after-free.c ... Passed
+  test-32-use-after-return.c ... Passed
+  test-33.c ... Passed
+  test-34.c ... Passed
+  test-35.c ... Passed
+  test-36.c ... Passed
+  test-37.c ... Passed
+  test-38-argv.c ... Passed
+  test-39.c ... Passed
+  test-40.c ... Passed
+  test-41.c ... Passed
+  test-42.c ... Passed
+  test-43.c ... Passed
+  test-44.c ... Passed
+  test-44-unsafe.c ... Passed
+  test-45.c ... Passed
+  test-45-unsafe.c ... Passed
+  test-46.c ... Passed
+  test-46-unsafe.c ... Passed
+  test-47.cpp ... Passed
+  test-47-unsafe.cpp ... Passed
+  test-48.c ... Passed
+  test-48-unsafe-1.c ... Passed
+  test-48-unsafe-2.c ... Passed
+  test-49.c ... Passed
+  test-49-unsafe-1.c ... Passed
+  test-49-unsafe-2.c ... Passed
+  test-50.c ... Passed
+  test-50-unsafe.c ... Passed
+  test-51.c ... Passed
+  test-51-unsafe.c ... Passed
+  test-52.c ... Passed
+  test-53.c (interval) ... Passed
+  test-53.c (gauge-interval-congruence) ... Passed
+  test-54.c ... Passed
+  test-55.cpp ... Passed
+  test-56.cpp ... Passed
+  astree-ex.c ... Passed
+  test-57.c ... Passed
+  test-57-unsafe.c ... Passed
+  test-58.c ... Passed
+  test-59.c ... Passed
+  test-59-unsafe.c ... Passed
+  test-60.c ... Passed
+  test-61.c ... Passed
+  test-62.c ... Failed
+    Running ['/home/randy/Workspace/REPOS/nikos/build/analyzer/ikos-analyzer', '-a=boa', '-d=interval', '-entry-points=main', '-proc=inter', '/tmp/ikos-test-62.cjx7xr9ux/test-62.c.pp.bc', '-o', '/tmp/ikos-output-om83i2bs.db']
+    Got 0 errors and 2 warnings, was expecting "error".
+    Got status "warning" for line 15, was expecting "error".
+  test-63.c ... Passed
+  test-64.c ... Passed
+  test-65.c (interval) ... Passed
+  test-65.c (var-pack-dbm) ... Passed
+  test-65.c (dbm) ... Passed
+  test-66.c (interval) ... Passed
+  test-66.c (var-pack-dbm) ... Passed
+  test-66.c (dbm) ... Passed
+  test-67.c (interval) ... Passed
+  test-67.c (var-pack-dbm) ... Passed
+  test-67.c (dbm) ... Passed
+  test-68.c (interval) ... Passed
+  test-68.c (interval-congruence) ... Passed
+  test-68.c (interval-congruence, widening delay 10) ... Passed
+  test-68.c (interval-congruence, widening delay 100) ... Passed
+  test-68.c (interval-congruence, widening delay f1=10) ... Passed
+  test-68.c (interval-congruence, widening delay f2=100) ... Passed
+  test-69.c ... Passed
+  test-69.c (partitioning=return) ... Passed
+  test-70.c ... Passed
+Results:
+  1/131 tests failed.

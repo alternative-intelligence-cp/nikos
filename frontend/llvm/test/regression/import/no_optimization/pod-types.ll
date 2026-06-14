@@ -3,7 +3,7 @@ source_filename = "pod-types.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -13,62 +13,55 @@ target triple = "x86_64-apple-macosx10.14.0"
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @b, 0, align 1
 ; CHECK: }
-; CHECK: }
 
 @d = common global double 0.000000e+00, align 8, !dbg !9
+; CHECK: }
 ; CHECK: define double* @d, align 8, init {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @d, 0.0E+0, align 1
-; CHECK: }
-; CHECK: }
 
 @f = common global float 0.000000e+00, align 4, !dbg !6
+; CHECK: }
+; CHECK: }
 ; CHECK: define float* @f, align 4, init {
 ; CHECK: #1 !entry !exit {
+
+@i = common global i32 0, align 4, !dbg !0
 ; CHECK:   store @f, 0.0E+0, align 1
 ; CHECK: }
 ; CHECK: }
-
-@i = common global i32 0, align 4, !dbg !0
 ; CHECK: define ui32* @i, align 4, init {
+
+@p = common global i8* null, align 8, !dbg !12
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @i, 0, align 1
 ; CHECK: }
 ; CHECK: }
 
-@p = common global i8* null, align 8, !dbg !12
-; CHECK: define si8** @p, align 8, init {
+@q = common global i32* null, align 8, !dbg !15
+; CHECK: define opaque** @p, align 8, init {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @p, null, align 1
 ; CHECK: }
 ; CHECK: }
 
-@q = common global i32* null, align 8, !dbg !15
-; CHECK: define si32** @q, align 8, init {
+@tab = common global [10 x [12 x i16]] zeroinitializer, align 16, !dbg !22
+; CHECK: define opaque** @q, align 8, init {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @q, null, align 1
-; CHECK: }
-; CHECK: }
-
-@tab = common global [10 x [12 x i16]] zeroinitializer, align 16, !dbg !22
-; CHECK: define [10 x [12 x si16]]* @tab, align 16, init {
-; CHECK: #1 !entry !exit {
-; CHECK:   store @tab, aggregate_zero, align 1
-; CHECK: }
 ; CHECK: }
 
 ; Function Attrs: argmemonly nounwind
 declare void @llvm.memset.p0i8.i64(i8* nocapture writeonly, i8, i64, i1) #2
-; CHECK: declare void @ar.memset(si8*, si8, ui64, ui32, ui1)
+; CHECK: }
 
 ; Function Attrs: noinline nounwind ssp uwtable
 define void @fun() #0 !dbg !35 {
   ret void, !dbg !38
 }
-; CHECK: define void @fun() {
+; CHECK: define [10 x [12 x si16]]* @tab, align 16, init {
 ; CHECK: #1 !entry !exit {
-; CHECK:   return
-; CHECK: }
+; CHECK:   store @tab, aggregate_zero, align 1
 ; CHECK: }
 
 ; Function Attrs: noinline nounwind ssp uwtable
@@ -96,29 +89,26 @@ define i32 @main(i32, i8**) #0 !dbg !39 {
   store i32 42, i32* %12, align 4, !dbg !52
   ret i32 0, !dbg !53
 }
-; CHECK: define si32 @main(si32 %1, si8** %2) {
+; CHECK: }
+; CHECK: declare void @ar.memset(si8*, si8, ui64, ui32, ui1)
+; CHECK: define void @fun() {
 ; CHECK: #1 !entry !exit {
-; CHECK:   si32* $3 = allocate si32, 1, align 4
+; CHECK:   return
+; CHECK: }
+; CHECK: }
+; CHECK: define si32 @main(si32 %1, opaque* %2) {
+; CHECK: #1 !entry !exit {
+; CHECK:   opaque* $3 = allocate opaque, 1, align 4
 ; CHECK:   si32* $4 = allocate si32, 1, align 4
-; CHECK:   si8*** $5 = allocate si8**, 1, align 8
+; CHECK:   opaque** $5 = allocate opaque*, 1, align 8
 ; CHECK:   [10 x si32]* $6 = allocate [10 x si32], 1, align 16
-; CHECK:   store $3, 0, align 4
+; CHECK:   si32* %7 = bitcast $3
+; CHECK:   store %7, 0, align 4
 ; CHECK:   store $4, %1, align 4
-; CHECK:   store $5, %2, align 8
-; CHECK:   si8* %7 = bitcast $6
-; CHECK:   call @ar.memset(%7, 0, 40, 16, 0)
-; CHECK:   [10 x si32]* %8 = bitcast %7
-; CHECK:   si32* %9 = ptrshift %8, 40 * 0, 4 * 0
-; CHECK:   store %9, 1, align 16
-; CHECK:   si32* %10 = ptrshift %8, 40 * 0, 4 * 1
-; CHECK:   store %10, -1, align 4
-; CHECK:   si32* %11 = ptrshift %8, 40 * 0, 4 * 2
-; CHECK:   store %11, 255, align 8
-; CHECK:   si32* %12 = ptrshift %8, 40 * 0, 4 * 3
-; CHECK:   store %12, 42, align 4
-; CHECK:   return 0
-; CHECK: }
-; CHECK: }
+; CHECK:   opaque* %8 = bitcast %2
+; CHECK:   opaque** %9 = bitcast $5
+; CHECK:   store %9, %8, align 8
+; CHECK:   si8* %10 = bitcast $6
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1

@@ -678,9 +678,20 @@ ar::Type* TypeWithDebugInfoImporter::translate_array_di_type(
     auto subrange = llvm::cast< llvm::DISubrange >(di_element);
     auto count = subrange->getCount();
 
-    if (count.is< llvm::ConstantInt* >() != 0 &&
-        !count.get< llvm::ConstantInt* >()->isMinusOne()) {
-      auto count_int = count.get< llvm::ConstantInt* >();
+    // LLVM 20 VLA handling: when count is a DIVariable or DIExpression
+    // (not a ConstantInt), this is a variable-length array. The LLVM type
+    // is the element type (not an array type), so we can't match the
+    // debug info array structure. Fall back to TypeDebugInfoMismatch
+    // which will cause the caller to use signedness-based type inference.
+    if (!count.is< llvm::ConstantInt* >()) {
+      throw TypeDebugInfoMismatch(
+          "llvm DICompositeType with array tag has variable-length count "
+          "(VLA), cannot match with llvm type");
+    }
+
+    auto count_int = count.get< llvm::ConstantInt* >();
+
+    if (!count_int->isMinusOne()) {
       check_import(!count_int->isNegative(),
                    "unexpected negative count for llvm DICompositeType with "
                    "array tag");

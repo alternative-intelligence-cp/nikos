@@ -3,7 +3,7 @@ source_filename = "local-array-1.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -13,10 +13,9 @@ target triple = "x86_64-apple-macosx10.14.0"
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @.str, [37, 100, 10, 0], align 1
 ; CHECK: }
-; CHECK: }
 
 declare i32 @printf(i8*, ...) #2
-; CHECK: declare si32 @ar.libc.printf(si8*, ...)
+; CHECK: }
 
 ; Function Attrs: noinline nounwind ssp uwtable
 define i32 @main(i32, i8**) #0 !dbg !8 {
@@ -53,7 +52,8 @@ define i32 @main(i32, i8**) #0 !dbg !8 {
   %17 = call i32 (i8*, ...) @printf(i8* %16, i32 %15), !dbg !40
   ret i32 0, !dbg !41
 }
-; CHECK: define si32 @main(si32 %1, si8** %2) {
+; CHECK: declare si32 @ar.libc.printf(si8*, ...)
+; CHECK: define si32 @main(si32 %1, opaque* %2) {
 ; CHECK: #1 !entry successors={#2} {
 ; CHECK:   [10 x si32]* $3 = allocate [10 x si32], 1, align 16
 ; CHECK:   si32 %.0 = 0
@@ -72,13 +72,10 @@ define i32 @main(i32, i8**) #0 !dbg !8 {
 ; CHECK:   %.0 sige 10
 ; CHECK:   si32 %7 = %.0 ssub.nw 1
 ; CHECK:   si64 %8 = sext %7
-; CHECK:   si32* %9 = ptrshift $3, 40 * 0, 4 * %8
-; CHECK:   si32 %10 = load %9, align 4
-; CHECK:   si8* %11 = ptrshift @.str, 4 * 0, 1 * 0
-; CHECK:   si32 %12 = call @ar.libc.printf(%11, %10)
-; CHECK:   return 0
-; CHECK: }
-; CHECK: }
+; CHECK:   opaque* %9 = ptrshift $3, 40 * 0, 4 * %8
+; CHECK:   si32* %10 = bitcast %9
+; CHECK:   si32 %11 = load %10, align 4
+; CHECK:   si8* %12 = ptrshift @.str, 4 * 0, 1 * 0
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1

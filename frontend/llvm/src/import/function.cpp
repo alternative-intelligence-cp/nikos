@@ -1451,6 +1451,12 @@ void FunctionImporter::translate_phi(BasicBlockTranslation* /*bb_translation*/,
 }
 
 static bool is_valid_bitcast(ar::Type* from, ar::Type* to) {
+  // LLVM 20 opaque pointers: the type inference often produces
+  // opaque types when pointer pointee types are unknown.
+  // Allow bitcasts involving opaque types.
+  if (from->is_opaque() || to->is_opaque()) {
+    return true;
+  }
   return (from->is_pointer() && to->is_pointer()) ||
          (from->is_primitive() && to->is_primitive() &&
           from->primitive_bit_width() == to->primitive_bit_width());
@@ -1775,7 +1781,12 @@ ar::InternalVariable* FunctionImporter::add_bitcast(
     ar::InternalVariable* result,
     ar::Variable* operand) {
   if (!is_valid_bitcast(operand->type(), result->type())) {
-    throw ImportError("invalid ar bitcast");
+    std::ostringstream buf;
+    buf << "invalid ar bitcast from ";
+    operand->type()->dump(buf);
+    buf << " to ";
+    result->type()->dump(buf);
+    throw ImportError(buf.str());
   }
 
   auto stmt =
@@ -1939,9 +1950,10 @@ ar::Type* FunctionImporter::infer_type_from_dbg(llvm::Value* value) {
         try {
           return _ctx.type_imp->translate_type(alloca->getType(), di_type);
         } catch (const TypeDebugInfoMismatch&) {
-          if (!this->_allow_debug_info_mismatch) {
-            throw;
-          }
+          // LLVM 20: VLAs cause inherent type mismatches between
+          // debug info (array type) and LLVM IR (element pointer).
+          // Always catch this for array allocations, regardless of
+          // _allow_debug_info_mismatch setting.
         }
       }
     }

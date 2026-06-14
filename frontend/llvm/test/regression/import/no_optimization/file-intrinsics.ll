@@ -3,7 +3,7 @@ source_filename = "file-intrinsics.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -17,52 +17,46 @@ target triple = "x86_64-apple-macosx10.14.0"
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @.str, [47, 116, 109, 112, 47, 116, 101, 115, 116, 0], align 1
 ; CHECK: }
-; CHECK: }
 
 @.str.1 = private unnamed_addr constant [3 x i8] c"rw\00", align 1
+; CHECK: }
 ; CHECK: define [3 x si8]* @.str.1, align 1, init {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @.str.1, [114, 119, 0], align 1
-; CHECK: }
-; CHECK: }
 
 @.str.2 = private unnamed_addr constant [12 x i8] c"hello world\00", align 1
+; CHECK: }
+; CHECK: }
 ; CHECK: define [12 x si8]* @.str.2, align 1, init {
 ; CHECK: #1 !entry !exit {
+
+@.str.3 = private unnamed_addr constant [3 x i8] c"%d\00", align 1
 ; CHECK:   store @.str.2, [104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 0], align 1
 ; CHECK: }
 ; CHECK: }
-
-@.str.3 = private unnamed_addr constant [3 x i8] c"%d\00", align 1
 ; CHECK: define [3 x si8]* @.str.3, align 1, init {
-; CHECK: #1 !entry !exit {
-; CHECK:   store @.str.3, [37, 100, 0], align 1
-; CHECK: }
-; CHECK: }
 
 declare i32 @fclose(%struct.__sFILE*) #2
-; CHECK: declare si32 @ar.libc.fclose(opaque*)
+; CHECK: #1 !entry !exit {
 
 declare i32 @fflush(%struct.__sFILE*) #2
-; CHECK: declare si32 @ar.libc.fflush(opaque*)
+; CHECK:   store @.str.3, [37, 100, 0], align 1
 
 declare i32 @fgetc(%struct.__sFILE*) #2
-; CHECK: declare si32 @ar.libc.fgetc(opaque*)
+; CHECK: }
 
 declare i8* @fgets(i8*, i32, %struct.__sFILE*) #2
-; CHECK: declare si8* @ar.libc.fgets(si8*, si32, opaque*)
+; CHECK: }
 
 declare %struct.__sFILE* @"\01_fopen"(i8*, i8*) #2
-; CHECK: declare opaque* @ar.libc.fopen(si8*, si8*)
 
 declare i32 @fprintf(%struct.__sFILE*, i8*, ...) #2
-; CHECK: declare si32 @ar.libc.fprintf(opaque*, si8*, ...)
+; CHECK: declare si32 @ar.libc.fclose(opaque*)
 
 declare i32 @"\01_fputs"(i8*, %struct.__sFILE*) #2
-; CHECK: declare si32 @ar.libc.fputs(si8*, opaque*)
 
 declare i32 @fscanf(%struct.__sFILE*, i8*, ...) #2
-; CHECK: declare si32 @ar.libc.fscanf(opaque*, si8*, ...)
+; CHECK: declare si32 @ar.libc.fflush(opaque*)
 
 ; Function Attrs: noinline nounwind ssp uwtable
 define i32 @main() #0 !dbg !8 {
@@ -96,44 +90,37 @@ define i32 @main() #0 !dbg !8 {
   %24 = call i32 @fclose(%struct.__sFILE* %23), !dbg !99
   ret i32 0, !dbg !100
 }
+; CHECK: declare si32 @ar.libc.fgetc(opaque*)
+; CHECK: declare si8* @ar.libc.fgets(si8*, si32, opaque*)
+; CHECK: declare opaque* @ar.libc.fopen(si8*, si8*)
+; CHECK: declare si32 @ar.libc.fprintf(opaque*, si8*, ...)
+; CHECK: declare si32 @ar.libc.fputs(si8*, opaque*)
+; CHECK: declare si32 @ar.libc.fscanf(opaque*, si8*, ...)
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry !exit {
-; CHECK:   {0: ui8*, 8: si32, 12: si32, 16: si16, 18: si16, 24: {0: ui8*, 8: si32}, 40: si32, 48: si8*, 56: si32 (si8*)*, 64: si32 (si8*, si8*, si32)*, 72: si64 (si8*, si64, si32)*, 80: si32 (si8*, si8*, si32)*, 88: {0: ui8*, 8: si32}, 104: opaque*, 112: si32, 116: [3 x ui8], 119: [1 x ui8], 120: {0: ui8*, 8: si32}, 136: si32, 144: si64}** $1 = allocate {0: ui8*, 8: si32, 12: si32, 16: si16, 18: si16, 24: {0: ui8*, 8: si32}, 40: si32, 48: si8*, 56: si32 (si8*)*, 64: si32 (si8*, si8*, si32)*, 72: si64 (si8*, si64, si32)*, 80: si32 (si8*, si8*, si32)*, 88: {0: ui8*, 8: si32}, 104: opaque*, 112: si32, 116: [3 x ui8], 119: [1 x ui8], 120: {0: ui8*, 8: si32}, 136: si32, 144: si64}*, 1, align 8
+; CHECK:   opaque** $1 = allocate opaque*, 1, align 8
 ; CHECK:   [1025 x si8]* $2 = allocate [1025 x si8], 1, align 16
 ; CHECK:   si32* $3 = allocate si32, 1, align 4
 ; CHECK:   si8* %4 = ptrshift @.str, 10 * 0, 1 * 0
 ; CHECK:   si8* %5 = ptrshift @.str.1, 3 * 0, 1 * 0
-; CHECK:   opaque* %6 = call @ar.libc.fopen(%4, %5)
-; CHECK:   {0: ui8*, 8: si32, 12: si32, 16: si16, 18: si16, 24: {0: ui8*, 8: si32}, 40: si32, 48: si8*, 56: si32 (si8*)*, 64: si32 (si8*, si8*, si32)*, 72: si64 (si8*, si64, si32)*, 80: si32 (si8*, si8*, si32)*, 88: {0: ui8*, 8: si32}, 104: opaque*, 112: si32, 116: [3 x ui8], 119: [1 x ui8], 120: {0: ui8*, 8: si32}, 136: si32, 144: si64}* %7 = bitcast %6
-; CHECK:   store $1, %7, align 8
-; CHECK:   si8* %8 = ptrshift $2, 1025 * 0, 1 * 0
-; CHECK:   opaque** %9 = bitcast $1
-; CHECK:   opaque* %10 = load %9, align 8
-; CHECK:   si8* %11 = call @ar.libc.fgets(%8, 1024, %10)
+; CHECK:   opaque* (opaque*, opaque*)* %6 = bitcast @ar.libc.fopen
+; CHECK:   opaque* %7 = bitcast %4
+; CHECK:   opaque* %8 = bitcast %5
+; CHECK:   opaque* %9 = call %6(%7, %8)
+; CHECK:   opaque* %10 = bitcast %9
+; CHECK:   opaque* %11 = bitcast %10
 ; CHECK:   opaque** %12 = bitcast $1
-; CHECK:   opaque* %13 = load %12, align 8
-; CHECK:   si32 %14 = call @ar.libc.fgetc(%13)
-; CHECK:   opaque** %15 = bitcast $1
-; CHECK:   opaque* %16 = load %15, align 8
-; CHECK:   si8* %17 = ptrshift @.str.2, 12 * 0, 1 * 0
-; CHECK:   si32 %18 = call @ar.libc.fputs(%17, %16)
-; CHECK:   opaque** %19 = bitcast $1
-; CHECK:   opaque* %20 = load %19, align 8
-; CHECK:   si8* %21 = ptrshift @.str.3, 3 * 0, 1 * 0
-; CHECK:   si32 %22 = call @ar.libc.fprintf(%20, %21, 1)
-; CHECK:   opaque** %23 = bitcast $1
-; CHECK:   opaque* %24 = load %23, align 8
-; CHECK:   si8* %25 = ptrshift @.str.3, 3 * 0, 1 * 0
-; CHECK:   si32 %26 = call @ar.libc.fscanf(%24, %25, $3)
-; CHECK:   opaque** %27 = bitcast $1
-; CHECK:   opaque* %28 = load %27, align 8
-; CHECK:   si32 %29 = call @ar.libc.fflush(%28)
-; CHECK:   opaque** %30 = bitcast $1
-; CHECK:   opaque* %31 = load %30, align 8
-; CHECK:   si32 %32 = call @ar.libc.fclose(%31)
-; CHECK:   return 0
-; CHECK: }
-; CHECK: }
+; CHECK:   store %12, %11, align 8
+; CHECK:   si8* %13 = ptrshift $2, 1025 * 0, 1 * 0
+; CHECK:   opaque** %14 = bitcast $1
+; CHECK:   opaque* %15 = load %14, align 8
+; CHECK:   opaque* (opaque*, si32, opaque*)* %16 = bitcast @ar.libc.fgets
+; CHECK:   opaque* %17 = bitcast %13
+; CHECK:   opaque* %18 = bitcast %15
+; CHECK:   opaque* %19 = call %16(%17, 1024, %18)
+; CHECK:   si8* %20 = bitcast %19
+; CHECK:   opaque** %21 = bitcast $1
+; CHECK:   opaque* %22 = load %21, align 8
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1

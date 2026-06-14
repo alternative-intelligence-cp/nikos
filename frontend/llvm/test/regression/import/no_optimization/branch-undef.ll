@@ -3,7 +3,7 @@ source_filename = "branch-undef.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -36,22 +36,21 @@ define i32 @main() #0 !dbg !8 {
 }
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry successors={#2, #3} {
-; CHECK:   si32* $1 = allocate si32, 1, align 4
-; CHECK:   store $1, 0, align 4
+; CHECK:   opaque* $1 = allocate opaque, 1, align 4
+; CHECK:   si32* %2 = bitcast $1
+; CHECK:   store %2, 0, align 4
 ; CHECK: }
 ; CHECK: #2 predecessors={#1} successors={#4} {
-; CHECK:   si32 %2 = undef
+; CHECK:   si32 %3 = undef
 ; CHECK: }
 ; CHECK: #3 predecessors={#1} successors={#4} {
-; CHECK:   si32 %2 = 1
+; CHECK:   si32 %3 = 1
 ; CHECK: }
 ; CHECK: #5 !exit predecessors={#4} {
-; CHECK:   return %3
+; CHECK:   return %4
 ; CHECK: }
 ; CHECK: #4 predecessors={#2, #3} successors={#5} {
-; CHECK:   si32 %3 = %2
-; CHECK: }
-; CHECK: }
+; CHECK:   si32 %4 = %3
 
 attributes #0 = { noinline nounwind ssp uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+cx8,+fxsr,+mmx,+sahf,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
 

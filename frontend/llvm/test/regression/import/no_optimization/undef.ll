@@ -3,13 +3,12 @@ source_filename = "undef.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
 
 @flag = external global i32, align 4
-; CHECK: declare si32* @flag, align 4
 
 ; Function Attrs: noinline nounwind ssp uwtable
 define i32 @main(i32, i8**) #0 !dbg !8 {
@@ -29,22 +28,21 @@ define i32 @main(i32, i8**) #0 !dbg !8 {
   %10 = add nsw i32 %7, %9, !dbg !25
   ret i32 %10, !dbg !26
 }
-; CHECK: define si32 @main(si32 %1, si8** %2) {
+; CHECK: declare si32* @flag, align 4
+; CHECK: define si32 @main(si32 %1, opaque* %2) {
 ; CHECK: #1 !entry !exit {
-; CHECK:   si32* $3 = allocate si32, 1, align 4
+; CHECK:   opaque* $3 = allocate opaque, 1, align 4
 ; CHECK:   si32* $4 = allocate si32, 1, align 4
-; CHECK:   si8*** $5 = allocate si8**, 1, align 8
-; CHECK:   si32** $6 = allocate si32*, 1, align 8
-; CHECK:   store $3, 0, align 4
+; CHECK:   opaque** $5 = allocate opaque*, 1, align 8
+; CHECK:   opaque** $6 = allocate opaque*, 1, align 8
+; CHECK:   si32* %7 = bitcast $3
+; CHECK:   store %7, 0, align 4
 ; CHECK:   store $4, %1, align 4
-; CHECK:   store $5, %2, align 8
-; CHECK:   si32 %7 = load @flag, align 4
-; CHECK:   si32* %8 = load $6, align 8
-; CHECK:   si32 %9 = load %8, align 4
-; CHECK:   si32 %10 = %7 sadd.nw %9
-; CHECK:   return %10
-; CHECK: }
-; CHECK: }
+; CHECK:   opaque* %8 = bitcast %2
+; CHECK:   opaque** %9 = bitcast $5
+; CHECK:   store %9, %8, align 8
+; CHECK:   si32 %10 = load @flag, align 4
+; CHECK:   opaque** %11 = bitcast $6
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1

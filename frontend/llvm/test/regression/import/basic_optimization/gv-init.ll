@@ -3,7 +3,7 @@ source_filename = "gv-init.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -13,31 +13,27 @@ target triple = "x86_64-apple-macosx10.14.0"
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @a, aggregate_zero, align 1
 ; CHECK: }
-; CHECK: }
 
 @b = global [2 x i32] [i32 1, i32 2], align 4, !dbg !0
+; CHECK: }
 ; CHECK: define [2 x si32]* @b, align 4, init {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @b, [1, 2], align 1
-; CHECK: }
-; CHECK: }
 
 @c = common global i32 0, align 4, !dbg !14
+; CHECK: }
+; CHECK: }
 ; CHECK: define si32* @c, align 4, init {
 ; CHECK: #1 !entry !exit {
+
+@d = global i32 5, align 4, !dbg !6
 ; CHECK:   store @c, 0, align 1
 ; CHECK: }
 ; CHECK: }
-
-@d = global i32 5, align 4, !dbg !6
 ; CHECK: define si32* @d, align 4, init {
-; CHECK: #1 !entry !exit {
-; CHECK:   store @d, 5, align 1
-; CHECK: }
-; CHECK: }
 
 @e = external global i32, align 4
-; CHECK: declare si32* @e, align 4
+; CHECK: #1 !entry !exit {
 
 ; Function Attrs: noinline nounwind ssp uwtable
 define i32 @main(i32, i8**) #0 !dbg !24 {
@@ -116,7 +112,11 @@ define i32 @main(i32, i8**) #0 !dbg !24 {
 39:                                               ; preds = %3
   ret i32 0, !dbg !73
 }
-; CHECK: define si32 @main(si32 %1, si8** %2) {
+; CHECK:   store @d, 5, align 1
+; CHECK: }
+; CHECK: }
+; CHECK: declare si32* @e, align 4
+; CHECK: define si32 @main(si32 %1, opaque* %2) {
 ; CHECK: #1 !entry successors={#2} {
 ; CHECK:   si32 %.01 = 0
 ; CHECK:   si32 %.0 = 0
@@ -145,37 +145,31 @@ define i32 @main(i32, i8**) #0 !dbg !24 {
 ; CHECK: }
 ; CHECK: #8 predecessors={#6} successors={#10} {
 ; CHECK:   %3 sieq 0
-; CHECK:   si32* %5 = ptrshift @b, 8 * 0, 4 * 0
-; CHECK:   si32 %6 = load %5, align 4
-; CHECK:   si32 %7 = load @c, align 4
-; CHECK:   si32 %8 = %6 sadd.nw %7
-; CHECK:   si32 %9 = load @e, align 4
-; CHECK:   si32 %10 = %8 ssub.nw %9
-; CHECK:   si64 %11 = sext %.01
-; CHECK:   [100 x si32]* %12 = ptrshift @a, 40000 * 0, 400 * %11
-; CHECK:   si64 %13 = sext %.1
-; CHECK:   si32* %14 = ptrshift %12, 400 * 0, 4 * %13
-; CHECK:   store %14, %10, align 4
+; CHECK:   opaque* %5 = ptrshift @b, 8 * 0, 4 * 0
+; CHECK:   si32* %6 = bitcast %5
+; CHECK:   si32 %7 = load %6, align 4
+; CHECK:   si32 %8 = load @c, align 4
+; CHECK:   si32 %9 = %7 sadd.nw %8
+; CHECK:   si32 %10 = load @e, align 4
+; CHECK:   si32 %11 = %9 ssub.nw %10
+; CHECK:   si64 %12 = sext %.01
+; CHECK:   opaque* %13 = ptrshift @a, 40000 * 0, 400 * %12
+; CHECK:   si64 %14 = sext %.1
+; CHECK:   [100 x si32]* %15 = bitcast %13
+; CHECK:   si32* %16 = ptrshift %15, 400 * 0, 4 * %14
+; CHECK:   store %16, %11, align 4
 ; CHECK: }
 ; CHECK: #9 predecessors={#6} successors={#10} {
 ; CHECK:   %3 sine 0
-; CHECK:   si32* %15 = ptrshift @b, 8 * 0, 4 * 1
-; CHECK:   si32 %16 = load %15, align 4
-; CHECK:   si32 %17 = load @d, align 4
-; CHECK:   si32 %18 = %16 sadd.nw %17
-; CHECK:   si32 %19 = load @e, align 4
-; CHECK:   si32 %20 = %18 ssub.nw %19
-; CHECK:   si64 %21 = sext %.01
-; CHECK:   [100 x si32]* %22 = ptrshift @a, 40000 * 0, 400 * %21
-; CHECK:   si64 %23 = sext %.1
-; CHECK:   si32* %24 = ptrshift %22, 400 * 0, 4 * %23
-; CHECK:   store %24, %20, align 4
-; CHECK: }
-; CHECK: #10 predecessors={#8, #9} successors={#5} {
-; CHECK:   si32 %25 = %.1 sadd.nw 1
-; CHECK:   si32 %.1 = %25
-; CHECK: }
-; CHECK: }
+; CHECK:   opaque* %17 = ptrshift @b, 8 * 0, 4 * 1
+; CHECK:   si32* %18 = bitcast %17
+; CHECK:   si32 %19 = load %18, align 4
+; CHECK:   si32 %20 = load @d, align 4
+; CHECK:   si32 %21 = %19 sadd.nw %20
+; CHECK:   si32 %22 = load @e, align 4
+; CHECK:   si32 %23 = %21 ssub.nw %22
+; CHECK:   si64 %24 = sext %.01
+; CHECK:   opaque* %25 = ptrshift @a, 40000 * 0, 400 * %24
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.value(metadata, metadata, metadata) #1

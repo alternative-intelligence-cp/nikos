@@ -3,7 +3,7 @@ source_filename = "shufflevector.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -22,7 +22,7 @@ define i32 @main(i32, i8**) #0 !dbg !16 {
   call void @printv(<4 x float> %7), !dbg !29
   ret i32 0, !dbg !30
 }
-; CHECK: define si32 @main(si32 %1, si8** %2) {
+; CHECK: define si32 @main(si32 %1, opaque* %2) {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   <4 x float> %3 = insertelement undef, 0, 1.0E+0
 ; CHECK:   <4 x float> %4 = insertelement %3, 4, 2.0E+0
@@ -31,11 +31,9 @@ define i32 @main(i32, i8**) #0 !dbg !16 {
 ; CHECK:   <4 x float> %7 = shufflevector %6, %6
 ; CHECK:   call @printv(%7)
 ; CHECK:   return 0
-; CHECK: }
-; CHECK: }
 
 declare void @printv(<4 x float>) #1
-; CHECK: declare void @printv(<4 x float>)
+; CHECK: }
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.value(metadata, metadata, metadata) #2

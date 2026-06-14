@@ -3,7 +3,7 @@ source_filename = "bitwise-cond-2.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -12,7 +12,6 @@ target triple = "x86_64-apple-macosx10.14.0"
 ; CHECK: define si32* @g, align 4, init {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @g, 0, align 1
-; CHECK: }
 ; CHECK: }
 
 ; Function Attrs: noinline nounwind ssp uwtable
@@ -45,6 +44,7 @@ define i32 @foo(i32, i32) #0 !dbg !12 {
   %13 = mul nsw i32 %.0, 42, !dbg !31
   ret i32 %13, !dbg !32
 }
+; CHECK: }
 ; CHECK: define si32 @foo(si32 %1, si32 %2) {
 ; CHECK: #1 !entry successors={#2, #3} {
 ; CHECK:   si32 %3 = %1 ssub.nw %2
@@ -71,8 +71,6 @@ define i32 @foo(i32, i32) #0 !dbg !12 {
 ; CHECK: #7 !exit predecessors={#4, #6} {
 ; CHECK:   si32 %7 = %.0 smul.nw 42
 ; CHECK:   return %7
-; CHECK: }
-; CHECK: }
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.value(metadata, metadata, metadata) #1

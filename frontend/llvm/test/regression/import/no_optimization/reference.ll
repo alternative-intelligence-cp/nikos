@@ -3,7 +3,7 @@ source_filename = "reference.cpp"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -17,15 +17,14 @@ define void @_Z1fRi(i32* dereferenceable(4)) #0 !dbg !8 {
   store i32 1, i32* %3, align 4, !dbg !16
   ret void, !dbg !17
 }
-; CHECK: define void @_Z1fRi(si32* %1) {
+; CHECK: define void @_Z1fRi(opaque* %1) {
 ; CHECK: #1 !entry !exit {
-; CHECK:   si32** $2 = allocate si32*, 1, align 8
-; CHECK:   store $2, %1, align 8
-; CHECK:   si32* %3 = load $2, align 8
-; CHECK:   store %3, 1, align 4
-; CHECK:   return
-; CHECK: }
-; CHECK: }
+; CHECK:   opaque** $2 = allocate opaque*, 1, align 8
+; CHECK:   opaque* %3 = bitcast %1
+; CHECK:   opaque** %4 = bitcast $2
+; CHECK:   store %4, %3, align 8
+; CHECK:   opaque** %5 = bitcast $2
+; CHECK:   opaque* %6 = load %5, align 8
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1
@@ -41,17 +40,16 @@ define i32 @main() #2 !dbg !18 {
   %3 = load i32, i32* %2, align 4, !dbg !24
   ret i32 %3, !dbg !25
 }
+; CHECK:   si32* %7 = bitcast %6
+; CHECK:   store %7, 1, align 4
+; CHECK:   return
+; CHECK: }
+; CHECK: }
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry !exit {
-; CHECK:   si32* $1 = allocate si32, 1, align 4
+; CHECK:   opaque* $1 = allocate opaque, 1, align 4
 ; CHECK:   si32* $2 = allocate si32, 1, align 4
-; CHECK:   store $1, 0, align 4
-; CHECK:   store $2, 0, align 4
-; CHECK:   call @_Z1fRi($2)
-; CHECK:   si32 %3 = load $2, align 4
-; CHECK:   return %3
-; CHECK: }
-; CHECK: }
+; CHECK:   si32* %3 = bitcast $1
 
 attributes #0 = { noinline nounwind ssp uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+cx8,+fxsr,+mmx,+sahf,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
 attributes #1 = { nounwind readnone speculatable }

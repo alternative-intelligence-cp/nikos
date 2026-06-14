@@ -3,7 +3,7 @@ source_filename = "phi-2.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -79,70 +79,69 @@ define i32 @main(i32, i8**) local_unnamed_addr #0 !dbg !8 {
 22:                                               ; preds = %.preheader
   ret i32 0, !dbg !64
 }
-; CHECK: define si32 @main(si32 %1, si8** %2) {
+; CHECK: define si32 @main(si32 %1, opaque* %2) {
 ; CHECK: #1 !entry successors={#2} {
-; CHECK:   {0: si32, 4: {0: si32, 4: float}, 12: [10 x [10 x [9 x si32]]]}* $3 = allocate {0: si32, 4: {0: si32, 4: float}, 12: [10 x [10 x [9 x si32]]]}, 1, align 4
-; CHECK:   si32* %4 = ptrshift $3, 3612 * 0, 1 * 4, 1 * 0
-; CHECK:   store %4, %1, align 4
+; CHECK:   opaque* $3 = allocate opaque, 1, align 4
+; CHECK:   {0: si32, 4: {0: si32, 4: float}, 12: [10 x [10 x [9 x si32]]]}* %4 = bitcast $3
+; CHECK:   si32* %5 = ptrshift %4, 3612 * 0, 1 * 4, 1 * 0
+; CHECK:   store %5, %1, align 4
 ; CHECK:   si32 %.02 = 0
 ; CHECK: }
 ; CHECK: #2 predecessors={#1, #6} successors={#3, #4} {
-; CHECK:   ui32 %5 = bitcast %.02
+; CHECK:   ui32 %6 = bitcast %.02
 ; CHECK: }
 ; CHECK: #3 predecessors={#2} successors={#.preheader4} {
-; CHECK:   %5 uilt 10
-; CHECK:   ui32 %6 = bitcast %.02
-; CHECK:   ui64 %7 = zext %6
+; CHECK:   %6 uilt 10
+; CHECK:   ui32 %7 = bitcast %.02
+; CHECK:   ui64 %8 = zext %7
 ; CHECK:   si32 %.01 = 0
 ; CHECK: }
 ; CHECK: #4 predecessors={#2} successors={#.preheader} {
-; CHECK:   %5 uige 10
+; CHECK:   %6 uige 10
 ; CHECK:   si32 %.1 = 0
 ; CHECK: }
 ; CHECK: #.preheader predecessors={#4, #7} successors={#7, #8} {
-; CHECK:   ui32 %9 = bitcast %.1
+; CHECK:   ui32 %10 = bitcast %.1
 ; CHECK: }
 ; CHECK: #7 predecessors={#.preheader} successors={#.preheader} {
-; CHECK:   %9 uilt 10
-; CHECK:   si32 %13 = %.1 sadd.nw 1
-; CHECK:   si32 %.1 = %13
+; CHECK:   %10 uilt 10
+; CHECK:   si32 %14 = %.1 sadd.nw 1
+; CHECK:   si32 %.1 = %14
 ; CHECK: }
 ; CHECK: #8 !exit predecessors={#.preheader} {
-; CHECK:   %9 uige 10
+; CHECK:   %10 uige 10
 ; CHECK:   return 0
 ; CHECK: }
 ; CHECK: #.preheader4 predecessors={#3, #10} successors={#5, #6} {
-; CHECK:   ui32 %8 = bitcast %.01
+; CHECK:   ui32 %9 = bitcast %.01
 ; CHECK: }
 ; CHECK: #5 predecessors={#.preheader4} successors={#.preheader3} {
-; CHECK:   %8 uilt 10
-; CHECK:   ui32 %10 = bitcast %.01
-; CHECK:   ui64 %11 = zext %10
+; CHECK:   %9 uilt 10
+; CHECK:   ui32 %11 = bitcast %.01
+; CHECK:   ui64 %12 = zext %11
 ; CHECK:   si32 %.0 = 0
 ; CHECK: }
 ; CHECK: #6 predecessors={#.preheader4} successors={#2} {
-; CHECK:   %8 uige 10
-; CHECK:   si32 %12 = %.02 sadd.nw 1
-; CHECK:   si32 %.02 = %12
+; CHECK:   %9 uige 10
+; CHECK:   si32 %13 = %.02 sadd.nw 1
+; CHECK:   si32 %.02 = %13
 ; CHECK: }
 ; CHECK: #.preheader3 predecessors={#5, #9} successors={#9, #10} {
-; CHECK:   ui32 %14 = bitcast %.0
+; CHECK:   ui32 %15 = bitcast %.0
 ; CHECK: }
 ; CHECK: #9 predecessors={#.preheader3} successors={#.preheader3} {
-; CHECK:   %14 uilt 9
-; CHECK:   ui32 %15 = bitcast %.0
-; CHECK:   ui64 %16 = zext %15
-; CHECK:   si32* %17 = ptrshift $3, 3612 * 0, 1 * 12, 360 * %7, 36 * %11, 4 * %16
-; CHECK:   store %17, %1, align 4
-; CHECK:   si32 %18 = %.0 sadd.nw 1
-; CHECK:   si32 %.0 = %18
+; CHECK:   %15 uilt 9
+; CHECK:   ui32 %16 = bitcast %.0
+; CHECK:   ui64 %17 = zext %16
+; CHECK:   {0: si32, 4: {0: si32, 4: float}, 12: [10 x [10 x [9 x si32]]]}* %18 = bitcast $3
+; CHECK:   si32* %19 = ptrshift %18, 3612 * 0, 1 * 12, 360 * %8, 36 * %12, 4 * %17
+; CHECK:   store %19, %1, align 4
+; CHECK:   si32 %20 = %.0 sadd.nw 1
+; CHECK:   si32 %.0 = %20
 ; CHECK: }
 ; CHECK: #10 predecessors={#.preheader3} successors={#.preheader4} {
-; CHECK:   %14 uige 9
-; CHECK:   si32 %19 = %.01 sadd.nw 1
-; CHECK:   si32 %.01 = %19
-; CHECK: }
-; CHECK: }
+; CHECK:   %15 uige 9
+; CHECK:   si32 %21 = %.01 sadd.nw 1
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.value(metadata, metadata, metadata) #1

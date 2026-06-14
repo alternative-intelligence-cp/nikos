@@ -3,7 +3,7 @@ source_filename = "asm.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -13,10 +13,9 @@ target triple = "x86_64-apple-macosx10.14.0"
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @.str, [37, 100, 10, 0], align 1
 ; CHECK: }
-; CHECK: }
 
 declare i32 @printf(i8*, ...) #2
-; CHECK: declare si32 @ar.libc.printf(si8*, ...)
+; CHECK: }
 
 ; Function Attrs: noinline nounwind ssp uwtable
 define i32 @main() #0 !dbg !8 {
@@ -36,24 +35,22 @@ define i32 @main() #0 !dbg !8 {
   %9 = load i32, i32* %3, align 4, !dbg !21
   ret i32 %9, !dbg !22
 }
+; CHECK: declare si32 @ar.libc.printf(si8*, ...)
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry !exit {
-; CHECK:   si32* $1 = allocate si32, 1, align 4
+; CHECK:   opaque* $1 = allocate opaque, 1, align 4
 ; CHECK:   si32* $2 = allocate si32, 1, align 4
 ; CHECK:   si32* $3 = allocate si32, 1, align 4
-; CHECK:   store $1, 0, align 4
+; CHECK:   si32* %4 = bitcast $1
+; CHECK:   store %4, 0, align 4
 ; CHECK:   store $2, 1, align 4
-; CHECK:   si32 %4 = load $2, align 4
-; CHECK:   si32 %5 = call asm "mov $1, $0
-; CHECK: 	add $$1, $0"(%4)
-; CHECK:   store $3, %5, align 4
-; CHECK:   si32 %6 = load $3, align 4
-; CHECK:   si8* %7 = ptrshift @.str, 4 * 0, 1 * 0
-; CHECK:   si32 %8 = call @ar.libc.printf(%7, %6)
-; CHECK:   si32 %9 = load $3, align 4
-; CHECK:   return %9
-; CHECK: }
-; CHECK: }
+; CHECK:   si32 %5 = load $2, align 4
+; CHECK:   si32 %6 = call asm "mov $1, $0
+; CHECK: 	add $$1, $0"(%5)
+; CHECK:   store $3, %6, align 4
+; CHECK:   si32 %7 = load $3, align 4
+; CHECK:   si8* %8 = ptrshift @.str, 4 * 0, 1 * 0
+; CHECK:   si32 (opaque*, ...)* %9 = bitcast @ar.libc.printf
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1

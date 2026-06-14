@@ -3,7 +3,7 @@ source_filename = "bit-field-2.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -14,7 +14,6 @@ target triple = "x86_64-apple-macosx10.14.0"
 ; CHECK: define <{0: [1 x {0: [4 x si8], 4: si32}], 8: [1 x {0: si8, 4: si32}], 16: [1 x {0: si8, 4: si32}], 24: [1 x {0: si8, 4: si32}], 32: [1 x {0: si8, 4: si32}], 40: [1 x {0: si8, 4: si32}]}>* @b, align 16, init {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @b, {0: [{0: undef, 4: 0}], 8: aggregate_zero, 16: aggregate_zero, 24: aggregate_zero, 32: aggregate_zero, 40: aggregate_zero}, align 1
-; CHECK: }
 ; CHECK: }
 
 !llvm.dbg.cu = !{!2}

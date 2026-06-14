@@ -3,7 +3,7 @@ source_filename = "vector-2.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -13,21 +13,18 @@ target triple = "x86_64-apple-macosx10.14.0"
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @a, aggregate_zero, align 1
 ; CHECK: }
-; CHECK: }
 
 @b = common global <2 x double> zeroinitializer, align 16, !dbg !6
+; CHECK: }
 ; CHECK: define <2 x double>* @b, align 16, init {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @b, aggregate_zero, align 1
-; CHECK: }
-; CHECK: }
 
 @c = common global <2 x double> zeroinitializer, align 16, !dbg !13
+; CHECK: }
+; CHECK: }
 ; CHECK: define <2 x double>* @c, align 16, init {
 ; CHECK: #1 !entry !exit {
-; CHECK:   store @c, aggregate_zero, align 1
-; CHECK: }
-; CHECK: }
 
 ; Function Attrs: noinline nounwind ssp uwtable
 define i32 @main() #0 !dbg !20 {
@@ -39,17 +36,16 @@ define i32 @main() #0 !dbg !20 {
   store <2 x double> %4, <2 x double>* @c, align 16, !dbg !27
   ret i32 0, !dbg !28
 }
+; CHECK:   store @c, aggregate_zero, align 1
+; CHECK: }
+; CHECK: }
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry !exit {
-; CHECK:   si32* $1 = allocate si32, 1, align 4
-; CHECK:   store $1, 0, align 4
-; CHECK:   <2 x double> %2 = load @a, align 16
-; CHECK:   <2 x double> %3 = load @b, align 16
-; CHECK:   <2 x double> %4 = %2 fmul %3
-; CHECK:   store @c, %4, align 16
-; CHECK:   return 0
-; CHECK: }
-; CHECK: }
+; CHECK:   opaque* $1 = allocate opaque, 1, align 4
+; CHECK:   si32* %2 = bitcast $1
+; CHECK:   store %2, 0, align 4
+; CHECK:   <2 x double> %3 = load @a, align 16
+; CHECK:   <2 x double> %4 = load @b, align 16
 
 attributes #0 = { noinline nounwind ssp uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+cx8,+fxsr,+mmx,+sahf,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
 

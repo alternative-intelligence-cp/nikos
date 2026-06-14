@@ -3,7 +3,7 @@ source_filename = "phi-2.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -16,10 +16,9 @@ target triple = "x86_64-apple-macosx10.14.0"
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @.str, [37, 100, 10, 0], align 1
 ; CHECK: }
-; CHECK: }
 
 declare i32 @printf(i8*, ...) #2
-; CHECK: declare si32 @ar.libc.printf(si8*, ...)
+; CHECK: }
 
 ; Function Attrs: noinline nounwind ssp uwtable
 define i32 @main(i32, i8**) #0 !dbg !8 {
@@ -153,113 +152,111 @@ define i32 @main(i32, i8**) #0 !dbg !8 {
 79:                                               ; preds = %58
   ret i32 0, !dbg !115
 }
-; CHECK: define si32 @main(si32 %1, si8** %2) {
+; CHECK: declare si32 @ar.libc.printf(si8*, ...)
+; CHECK: define si32 @main(si32 %1, opaque* %2) {
 ; CHECK: #1 !entry successors={#2} {
-; CHECK:   si32* $3 = allocate si32, 1, align 4
+; CHECK:   opaque* $3 = allocate opaque, 1, align 4
 ; CHECK:   si32* $4 = allocate si32, 1, align 4
-; CHECK:   si8*** $5 = allocate si8**, 1, align 8
+; CHECK:   opaque** $5 = allocate opaque*, 1, align 8
 ; CHECK:   si32* $6 = allocate si32, 1, align 4
 ; CHECK:   si32* $7 = allocate si32, 1, align 4
 ; CHECK:   si32* $8 = allocate si32, 1, align 4
 ; CHECK:   {0: si32, 4: {0: si32, 4: float}, 12: [10 x [10 x [9 x si32]]]}* $9 = allocate {0: si32, 4: {0: si32, 4: float}, 12: [10 x [10 x [9 x si32]]]}, 1, align 4
-; CHECK:   store $3, 0, align 4
+; CHECK:   si32* %10 = bitcast $3
+; CHECK:   store %10, 0, align 4
 ; CHECK:   store $4, %1, align 4
-; CHECK:   store $5, %2, align 8
+; CHECK:   opaque* %11 = bitcast %2
+; CHECK:   opaque** %12 = bitcast $5
+; CHECK:   store %12, %11, align 8
 ; CHECK:   store $6, 0, align 4
 ; CHECK: }
 ; CHECK: #2 predecessors={#1, #8} successors={#3, #4} {
-; CHECK:   si32 %10 = load $6, align 4
+; CHECK:   si32 %13 = load $6, align 4
 ; CHECK: }
 ; CHECK: #3 predecessors={#2} successors={#5} {
-; CHECK:   %10 silt 10
+; CHECK:   %13 silt 10
 ; CHECK:   store $7, 0, align 4
 ; CHECK: }
 ; CHECK: #4 predecessors={#2} successors={#6} {
-; CHECK:   %10 sige 10
+; CHECK:   %13 sige 10
 ; CHECK:   store $6, 0, align 4
 ; CHECK: }
 ; CHECK: #5 predecessors={#3, #13} successors={#7, #8} {
-; CHECK:   si32 %11 = load $7, align 4
+; CHECK:   si32 %14 = load $7, align 4
 ; CHECK: }
 ; CHECK: #7 predecessors={#5} successors={#11} {
-; CHECK:   %11 silt 10
+; CHECK:   %14 silt 10
 ; CHECK:   store $8, 0, align 4
 ; CHECK: }
 ; CHECK: #8 predecessors={#5} successors={#2} {
-; CHECK:   %11 sige 10
-; CHECK:   si32 %13 = load $6, align 4
-; CHECK:   si32 %14 = %13 sadd.nw 1
-; CHECK:   store $6, %14, align 4
+; CHECK:   %14 sige 10
+; CHECK:   si32 %16 = load $6, align 4
+; CHECK:   si32 %17 = %16 sadd.nw 1
+; CHECK:   store $6, %17, align 4
 ; CHECK: }
 ; CHECK: #6 predecessors={#4, #9} successors={#9, #10} {
-; CHECK:   si32 %12 = load $6, align 4
+; CHECK:   si32 %15 = load $6, align 4
 ; CHECK: }
 ; CHECK: #9 predecessors={#6} successors={#6} {
-; CHECK:   %12 silt 10
-; CHECK:   [10 x [10 x [9 x si32]]]* %15 = ptrshift $9, 3612 * 0, 1 * 12
-; CHECK:   si32 %16 = load $6, align 4
-; CHECK:   si64 %17 = sext %16
-; CHECK:   [10 x [9 x si32]]* %18 = ptrshift %15, 3600 * 0, 360 * %17
-; CHECK:   si32 %19 = load $6, align 4
-; CHECK:   si64 %20 = sext %19
-; CHECK:   [9 x si32]* %21 = ptrshift %18, 360 * 0, 36 * %20
-; CHECK:   si32 %22 = load $6, align 4
-; CHECK:   si32 %23 = %22 ssub.nw 1
-; CHECK:   si64 %24 = sext %23
-; CHECK:   si32* %25 = ptrshift %21, 36 * 0, 4 * %24
-; CHECK:   si32 %26 = load %25, align 4
-; CHECK:   si8* %27 = ptrshift @.str, 4 * 0, 1 * 0
-; CHECK:   si32 %28 = call @ar.libc.printf(%27, %26)
-; CHECK:   si32 %29 = load $6, align 4
-; CHECK:   si32 %30 = %29 sadd.nw 1
-; CHECK:   store $6, %30, align 4
+; CHECK:   %15 silt 10
+; CHECK:   {0: si32, 4: {0: si32, 4: float}, 12: [10 x [10 x [9 x si32]]]}* %18 = bitcast $9
+; CHECK:   opaque* %19 = ptrshift %18, 3612 * 0, 1 * 12
+; CHECK:   si32 %20 = load $6, align 4
+; CHECK:   si64 %21 = sext %20
+; CHECK:   [10 x [10 x [9 x si32]]]* %22 = bitcast %19
+; CHECK:   opaque* %23 = ptrshift %22, 3600 * 0, 360 * %21
+; CHECK:   si32 %24 = load $6, align 4
+; CHECK:   si64 %25 = sext %24
+; CHECK:   [10 x [9 x si32]]* %26 = bitcast %23
+; CHECK:   opaque* %27 = ptrshift %26, 360 * 0, 36 * %25
+; CHECK:   si32 %28 = load $6, align 4
+; CHECK:   si32 %29 = %28 ssub.nw 1
+; CHECK:   si64 %30 = sext %29
+; CHECK:   [9 x si32]* %31 = bitcast %27
+; CHECK:   opaque* %32 = ptrshift %31, 36 * 0, 4 * %30
+; CHECK:   si32* %33 = bitcast %32
+; CHECK:   si32 %34 = load %33, align 4
+; CHECK:   si8* %35 = ptrshift @.str, 4 * 0, 1 * 0
+; CHECK:   si32 (opaque*, ...)* %36 = bitcast @ar.libc.printf
+; CHECK:   opaque* %37 = bitcast %35
+; CHECK:   si32 %38 = call %36(%37, %34)
+; CHECK:   si32 %39 = load $6, align 4
+; CHECK:   si32 %40 = %39 sadd.nw 1
+; CHECK:   store $6, %40, align 4
 ; CHECK: }
 ; CHECK: #10 !exit predecessors={#6} {
-; CHECK:   %12 sige 10
+; CHECK:   %15 sige 10
 ; CHECK:   return 0
 ; CHECK: }
 ; CHECK: #11 predecessors={#7, #12} successors={#12, #13} {
-; CHECK:   si32 %31 = load $8, align 4
+; CHECK:   si32 %41 = load $8, align 4
 ; CHECK: }
 ; CHECK: #12 predecessors={#11} successors={#11} {
-; CHECK:   %31 silt 9
-; CHECK:   si32 %32 = load $4, align 4
-; CHECK:   [10 x [10 x [9 x si32]]]* %33 = ptrshift $9, 3612 * 0, 1 * 12
-; CHECK:   si32 %34 = load $6, align 4
-; CHECK:   si64 %35 = sext %34
-; CHECK:   [10 x [9 x si32]]* %36 = ptrshift %33, 3600 * 0, 360 * %35
-; CHECK:   si32 %37 = load $7, align 4
-; CHECK:   si64 %38 = sext %37
-; CHECK:   [9 x si32]* %39 = ptrshift %36, 360 * 0, 36 * %38
-; CHECK:   si32 %40 = load $8, align 4
-; CHECK:   si64 %41 = sext %40
-; CHECK:   si32* %42 = ptrshift %39, 36 * 0, 4 * %41
-; CHECK:   store %42, %32, align 4
-; CHECK:   [10 x [10 x [9 x si32]]]* %43 = ptrshift $9, 3612 * 0, 1 * 12
-; CHECK:   si32 %44 = load $6, align 4
-; CHECK:   si64 %45 = sext %44
-; CHECK:   [10 x [9 x si32]]* %46 = ptrshift %43, 3600 * 0, 360 * %45
-; CHECK:   si32 %47 = load $7, align 4
-; CHECK:   si64 %48 = sext %47
-; CHECK:   [9 x si32]* %49 = ptrshift %46, 360 * 0, 36 * %48
-; CHECK:   si32 %50 = load $8, align 4
-; CHECK:   si64 %51 = sext %50
-; CHECK:   si32* %52 = ptrshift %49, 36 * 0, 4 * %51
-; CHECK:   si32 %53 = load %52, align 4
-; CHECK:   {0: si32, 4: float}* %54 = ptrshift $9, 3612 * 0, 1 * 4
-; CHECK:   si32* %55 = ptrshift %54, 8 * 0, 1 * 0
-; CHECK:   store %55, %53, align 4
-; CHECK:   si32 %56 = load $8, align 4
-; CHECK:   si32 %57 = %56 sadd.nw 1
-; CHECK:   store $8, %57, align 4
-; CHECK: }
-; CHECK: #13 predecessors={#11} successors={#5} {
-; CHECK:   %31 sige 9
-; CHECK:   si32 %58 = load $7, align 4
-; CHECK:   si32 %59 = %58 sadd.nw 1
-; CHECK:   store $7, %59, align 4
-; CHECK: }
-; CHECK: }
+; CHECK:   %41 silt 9
+; CHECK:   si32 %42 = load $4, align 4
+; CHECK:   {0: si32, 4: {0: si32, 4: float}, 12: [10 x [10 x [9 x si32]]]}* %43 = bitcast $9
+; CHECK:   opaque* %44 = ptrshift %43, 3612 * 0, 1 * 12
+; CHECK:   si32 %45 = load $6, align 4
+; CHECK:   si64 %46 = sext %45
+; CHECK:   [10 x [10 x [9 x si32]]]* %47 = bitcast %44
+; CHECK:   opaque* %48 = ptrshift %47, 3600 * 0, 360 * %46
+; CHECK:   si32 %49 = load $7, align 4
+; CHECK:   si64 %50 = sext %49
+; CHECK:   [10 x [9 x si32]]* %51 = bitcast %48
+; CHECK:   opaque* %52 = ptrshift %51, 360 * 0, 36 * %50
+; CHECK:   si32 %53 = load $8, align 4
+; CHECK:   si64 %54 = sext %53
+; CHECK:   [9 x si32]* %55 = bitcast %52
+; CHECK:   si32* %56 = ptrshift %55, 36 * 0, 4 * %54
+; CHECK:   store %56, %42, align 4
+; CHECK:   {0: si32, 4: {0: si32, 4: float}, 12: [10 x [10 x [9 x si32]]]}* %57 = bitcast $9
+; CHECK:   opaque* %58 = ptrshift %57, 3612 * 0, 1 * 12
+; CHECK:   si32 %59 = load $6, align 4
+; CHECK:   si64 %60 = sext %59
+; CHECK:   [10 x [10 x [9 x si32]]]* %61 = bitcast %58
+; CHECK:   opaque* %62 = ptrshift %61, 3600 * 0, 360 * %60
+; CHECK:   si32 %63 = load $7, align 4
+; CHECK:   si64 %64 = sext %63
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1

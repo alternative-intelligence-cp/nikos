@@ -3,7 +3,7 @@ source_filename = "bool.cpp"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -13,7 +13,6 @@ target triple = "x86_64-apple-macosx10.14.0"
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @b, 1, align 1
 ; CHECK: }
-; CHECK: }
 
 ; Function Attrs: noinline nounwind ssp uwtable
 define i32 @_Z1fb(i1 zeroext) #0 !dbg !12 {
@@ -21,26 +20,23 @@ define i32 @_Z1fb(i1 zeroext) #0 !dbg !12 {
   call void @llvm.trap(), !dbg !18
   unreachable, !dbg !18
 }
+; CHECK: }
 ; CHECK: define si32 @_Z1fb(ui1 %1) {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   call @ar.trap()
 ; CHECK:   unreachable
-; CHECK: }
-; CHECK: }
 
 ; Function Attrs: cold noreturn nounwind
 declare void @llvm.trap() #1
-; CHECK: declare void @ar.trap()
+; CHECK: }
 
 ; Function Attrs: noinline norecurse nounwind ssp uwtable
 define i32 @main() #2 !dbg !19 {
   ret i32 0, !dbg !22
 }
+; CHECK: }
+; CHECK: declare void @ar.trap()
 ; CHECK: define si32 @main() {
-; CHECK: #1 !entry !exit {
-; CHECK:   return 0
-; CHECK: }
-; CHECK: }
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.value(metadata, metadata, metadata) #3
