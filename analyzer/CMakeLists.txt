@@ -89,7 +89,7 @@ if (CUSTOM_BOOST_ROOT)
 endif()
 
 find_package(Boost 1.55.0 REQUIRED
-             COMPONENTS filesystem system thread)
+             COMPONENTS filesystem thread)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 
 find_package(GMP REQUIRED)
@@ -108,7 +108,8 @@ if (APRON_FOUND)
   add_definitions("-DHAS_APRON")
 endif()
 
-find_package(PythonInterp REQUIRED)
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+set(PYTHON_EXECUTABLE "${Python3_EXECUTABLE}")
 
 find_package(Core REQUIRED)
 include_directories(${CORE_INCLUDE_DIR})
