@@ -1,0 +1,89 @@
+app-id: com.alternativeintelligence.nikos
+runtime: org.freedesktop.Platform
+runtime-version: "24.08"
+sdk: org.freedesktop.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.llvm20
+command: ikos-analyzer
+separate-locales: false
+
+finish-args:
+  # Host filesystem access needed for analyzing user files
+  - --filesystem=host
+  # Required for IPC with the host
+  - --share=ipc
+  # No network access needed for analysis
+  - --unshare=network
+
+build-options:
+  append-path: /usr/lib/sdk/llvm20/bin
+  prepend-ld-library-path: /usr/lib/sdk/llvm20/lib
+  env:
+    LLVM_CONFIG: /usr/lib/sdk/llvm20/bin/llvm-config
+
+modules:
+  # ---- Boost ----------------------------------------------------------------
+  - name: boost
+    buildsystem: simple
+    build-commands:
+      - ./bootstrap.sh --prefix=/app --with-libraries=filesystem,graph,regex,thread,system,program_options,date_time,chrono,atomic
+      - ./b2 -j$(nproc) install
+    sources:
+      - type: archive
+        url: https://archives.boost.io/release/1.84.0/source/boost_1_84_0.tar.gz
+        sha256: a5800f405508f5df8114558ca9855d2640a2de8f0d6060b3d19e1b728e34ef17
+
+  # ---- GMP ------------------------------------------------------------------
+  - name: gmp
+    builddir: true
+    sources:
+      - type: archive
+        url: https://gmplib.org/download/gmp/gmp-6.3.0.tar.xz
+        sha256: a3c2b80201b89e68616f4ad30bc66aee4927c3ce50e33929ca819d5c43538898
+
+  # ---- SQLite3 --------------------------------------------------------------
+  - name: sqlite3
+    builddir: true
+    config-opts:
+      - --enable-shared=yes
+    sources:
+      - type: archive
+        url: https://www.sqlite.org/2024/sqlite-autoconf-3450200.tar.gz
+        sha256: bc9067442eedf3dd39989b5c5cfbfff37ae66cc9c99274e0c3052dc4d4a8f6ae
+
+  # ---- TBB (oneTBB) ---------------------------------------------------------
+  - name: tbb
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DTBB_TEST=OFF
+      - -DCMAKE_INSTALL_PREFIX=/app
+    sources:
+      - type: archive
+        url: https://github.com/oneapi-src/oneTBB/archive/refs/tags/v2021.12.0.tar.gz
+        sha256: c7bb7aa69c254d91b8f0041a71c5bcc3936acb64408a1719aec0b2b7639dd84f
+
+  # ---- libedit --------------------------------------------------------------
+  - name: libedit
+    sources:
+      - type: archive
+        url: https://thrysoee.dk/editline/libedit-20240517-3.1.tar.gz
+        sha256: 3a489097bb4115495f3bd85dc6d75e909db8a9f7f571e2efc1f1b98c34456cdf
+
+  # ---- NIKOS ----------------------------------------------------------------
+  - name: nikos
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DLLVM_CONFIG_EXECUTABLE=/usr/lib/sdk/llvm20/bin/llvm-config
+    build-options:
+      append-path: /usr/lib/sdk/llvm20/bin
+      prepend-ld-library-path: /usr/lib/sdk/llvm20/lib
+    post-install:
+      # LLVM shared lib must be bundled since it's not in the runtime
+      - install -d /app/lib
+      - cp /usr/lib/sdk/llvm20/lib/libLLVM-20.so /app/lib/ || true
+      - cp /usr/lib/sdk/llvm20/lib/libclang-20.so* /app/lib/ || true
+    sources:
+      - type: git
+        url: https://github.com/alternative-intelligence-cp/nikos.git
+        tag: v1.0.0

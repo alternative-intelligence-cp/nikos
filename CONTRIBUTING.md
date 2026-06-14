@@ -26,24 +26,24 @@ Ensure the following dependencies are installed:
 git clone https://github.com/<your-fork>/nikos.git
 cd nikos
 mkdir build && cd build
-cmake ..
+cmake -DLLVM_CONFIG_EXECUTABLE=$(which llvm-config-20) ..
 make -j$(nproc)
 ```
 
 ### Running Tests
 
 ```bash
-make check
+ctest --test-dir build --output-on-failure
 ```
 
-All tests must pass before submitting a pull request.
+All 64 tests must pass before submitting a pull request.
 
 ## How to Contribute
 
 1. **Fork** the repository on GitHub.
 2. **Create a branch** from `main` (see [Branch Naming](#branch-naming) below).
 3. **Make your changes** — keep commits focused and well-described.
-4. **Run `make check`** and verify all tests pass.
+4. **Run `ctest`** and verify all 64 tests pass.
 5. **Submit a pull request** against `main` with a clear description of your changes.
 
 ## Branch Naming
@@ -73,8 +73,8 @@ std::vector<Warning> analyzeNullDeref(const CFG& cfg);
 ## Testing
 
 - **Add tests** for every new feature or bug fix.
-- **Run `make check`** locally before pushing.
-- **Ensure no regressions** — existing tests must continue to pass.
+- **Run `ctest`** locally before pushing: `ctest --test-dir build --output-on-failure`
+- **Ensure no regressions** — all 64 existing tests must continue to pass.
 
 ## Reporting Issues
 

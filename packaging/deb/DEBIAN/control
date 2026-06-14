@@ -1,0 +1,30 @@
+Package: nikos
+Version: 1.0.0
+Architecture: amd64
+Maintainer: Alternative Intelligence <contact@alternativeintelligence.co>
+Installed-Size: 32768
+Depends: libboost-filesystem1.74.0 | libboost-filesystem1.81.0 | libboost-filesystem1.83.0,
+ libboost-graph1.74.0 | libboost-graph1.81.0 | libboost-graph1.83.0,
+ libboost-regex1.74.0 | libboost-regex1.81.0 | libboost-regex1.83.0,
+ libboost-thread1.74.0 | libboost-thread1.81.0 | libboost-thread1.83.0,
+ libgmp10 (>= 2:6.1),
+ libsqlite3-0 (>= 3.27),
+ libtbb12 | libtbb2,
+ libedit2,
+ zlib1g,
+ python3 (>= 3.8)
+Recommends: clang-20, llvm-20
+Section: devel
+Priority: optional
+Homepage: https://github.com/alternative-intelligence-cp/nikos
+Description: NIKOS — Static Analyzer for C/C++ (LLVM 20)
+ NIKOS (New Inference Kernel for Open Static Analyzers) is a production-ready
+ static analyzer for C/C++ based on Abstract Interpretation. It is a modernized
+ fork of NASA's IKOS, upgraded from LLVM 14 to LLVM 20.
+ .
+ NIKOS detects buffer overflows, null pointer dereferences, division by zero,
+ use of uninitialized variables, double-frees, and 10 other defect categories
+ with 64 regression tests passing.
+ .
+ Optional APRON support (13 relational abstract domains) can be enabled by
+ building from source with -DAPRON_ROOT=/path/to/apron.

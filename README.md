@@ -5,6 +5,7 @@
 A modernized fork of [NASA's IKOS](https://github.com/NASA-SW-VnV/ikos), upgraded from LLVM 14 to **LLVM 20**.
 Detect and prove the absence of runtime errors in C/C++ using Abstract Interpretation.
 
+![Version](https://img.shields.io/badge/version-1.0.0-purple?style=flat-square)
 ![LLVM 20](https://img.shields.io/badge/LLVM-20-blue?style=flat-square&logo=llvm)
 ![C++17](https://img.shields.io/badge/C%2B%2B-17-blue?style=flat-square&logo=cplusplus)
 ![Tests](https://img.shields.io/badge/tests-64%2F64%20passing-brightgreen?style=flat-square)
@@ -23,6 +24,7 @@ Detect and prove the absence of runtime errors in C/C++ using Abstract Interpret
 - [APRON Support (Optional)](#apron-support-optional)
 - [Usage](#usage)
 - [Library Integration](#library-integration)
+- [Installation](#installation)
 - [Releases](#releases)
 - [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
@@ -251,10 +253,46 @@ target_link_libraries(mytool
 
 **Production example:** [Nitpick](https://github.com/alternative-intelligence-cp/nitpick) uses NIKOS for cross-validation between abstract interpretation and SMT solving.
 
+## Installation
+
+NIKOS v1.0.0 provides multiple installation methods:
+
+### One-line Install Script (Ubuntu 22.04 / 24.04)
+
+```bash
+bash <(curl -sSf https://raw.githubusercontent.com/alternative-intelligence-cp/nikos/main/script/install.sh)
+```
+
+With APRON support:
+```bash
+bash <(curl -sSf .../install.sh) --with-apron
+```
+
+### Debian Package
+
+```bash
+# Download from releases, then:
+sudo dpkg -i nikos_1.0.0_amd64.deb
+```
+
+### Docker
+
+```bash
+docker build -t nikos:1.0.0 .
+docker run --rm -v $(pwd):/work nikos:1.0.0 -a=boa,nullity -d=interval \
+  -entry-points=main -proc=inter /work/my_program.pp.bc -o /work/results.db
+```
+See [doc/DOCKER.md](doc/DOCKER.md) for full usage.
+
+### From Source
+
+See [doc/install/1.0/UBUNTU_22.04.md](doc/install/1.0/UBUNTU_22.04.md) or [doc/install/1.0/UBUNTU_24.04.md](doc/install/1.0/UBUNTU_24.04.md) for step-by-step guides.
+
 ## Releases
 
 | Tag | Milestone |
 |---|---|
+| **`v1.0.0`** | **🚀 Official Production Release** — install.sh, .deb, Docker, RPM, Flatpak, full docs (64/64 tests) |
 | `v0.13.1` | **0.13 Series Final** — install verification, benchmark docs, series close |
 | `v0.13.0` | **APRON Support** — 13 relational abstract domains (64/64 tests passing) |
 | `v0.12.0` | **Production Ready** — 59/59 tests passing, opaque pointer type system fixes, VLA support, `--opt=custom` restored |
