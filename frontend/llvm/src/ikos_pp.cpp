@@ -237,6 +237,13 @@ int main(int argc, char** argv) {
 
   /*
    * Build a PassManager
+   *
+   * NOTE: ikos-pp currently uses llvm::legacy::PassManager, which is deprecated
+   * in LLVM 20 but still fully functional. Migrating to the new PassManager API
+   * (llvm::PassBuilder + llvm::ModulePassManager + llvm::FunctionPassManager)
+   * requires porting all IKOS-specific passes in frontend/llvm/src/pass/ from
+   * the legacy llvm::FunctionPass / llvm::ModulePass base classes to the new
+   * PassInfoMixin<> style. This is planned for a future release (v0.4.x+).
    */
 
   llvm::legacy::PassManager pass_manager;
