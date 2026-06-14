@@ -7,6 +7,7 @@ Detect and prove the absence of runtime errors in C/C++ using Abstract Interpret
 
 ![LLVM 20](https://img.shields.io/badge/LLVM-20-blue?style=flat-square&logo=llvm)
 ![C++17](https://img.shields.io/badge/C%2B%2B-17-blue?style=flat-square&logo=cplusplus)
+![Tests](https://img.shields.io/badge/tests-59%2F59%20passing-brightgreen?style=flat-square)
 ![License: NOSA 1.3](https://img.shields.io/badge/License-NOSA%201.3-green?style=flat-square)
 
 ---
@@ -195,6 +196,7 @@ target_link_libraries(mytool
 
 | Tag | Milestone |
 |---|---|
+| `v0.12.0` | **Production Ready** — 59/59 tests passing, opaque pointer type system fixes, VLA support, `--opt=custom` restored |
 | `v0.6.1` | Checker `llvm::Optional` migration; `operands.cpp` header hygiene |
 | `v0.6.0` | `ikos-pp` LLVM 20 Port (hybrid PassManager) |
 | `v0.5.1` | Automated Z3 SMT Generation |
