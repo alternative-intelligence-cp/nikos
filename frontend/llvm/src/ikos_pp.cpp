@@ -131,7 +131,7 @@ static llvm::cl::opt< bool > PreserveAssemblyUseListOrder(
     llvm::cl::init(false),
     llvm::cl::Hidden);
 
-enum OptLevelType { None, Basic, Aggressive };
+enum OptLevelType { None, Basic, Aggressive, Custom };
 
 static llvm::cl::opt< OptLevelType > OptLevel(
     "opt",
@@ -143,8 +143,42 @@ static llvm::cl::opt< OptLevelType > OptLevel(
         clEnumValN(Basic, "basic", "Basic set of optimizations (recommended)"),
         clEnumValN(Aggressive,
                    "aggressive",
-                   "Aggressive optimizations (not recommended)")),
+                   "Aggressive optimizations (not recommended)"),
+        clEnumValN(Custom,
+                   "custom",
+                   "Run only the passes specified by flags")),
     llvm::cl::init(Basic));
+
+// Per-pass CLI flags for --opt=custom mode
+static llvm::cl::opt< bool > LowerCstExpr(
+    "lower-cst-expr",
+    llvm::cl::desc("Lower constant expressions to instructions"),
+    llvm::cl::init(false));
+
+static llvm::cl::opt< bool > LowerSelect(
+    "lower-select",
+    llvm::cl::desc("Lower select instructions"),
+    llvm::cl::init(false));
+
+static llvm::cl::opt< bool > RemovePrintfCalls(
+    "remove-printf-calls",
+    llvm::cl::desc("Remove printf-like function calls"),
+    llvm::cl::init(false));
+
+static llvm::cl::opt< bool > RemoveUnreachableBlocks(
+    "remove-unreachable-blocks",
+    llvm::cl::desc("Remove unreachable blocks including dead cycles"),
+    llvm::cl::init(false));
+
+static llvm::cl::opt< bool > NameValues(
+    "name-values",
+    llvm::cl::desc("Name all unnamed values"),
+    llvm::cl::init(false));
+
+static llvm::cl::opt< bool > MarkInternalInline(
+    "mark-internal-inline",
+    llvm::cl::desc("Mark internal functions with AlwaysInline attribute"),
+    llvm::cl::init(false));
 
 // ============================================================================
 // Helper: Run new-style (PassInfoMixin) passes via PassBuilder
@@ -378,9 +412,7 @@ int main(int argc, char** argv) {
       // Lower down select instructions (ikos-pp -lower-select)
       pass_manager.add(ikos_pp::create_lower_select_pass());
 
-    } else {
-      ikos_assert(OptLevel == Aggressive);
-
+    } else if (OptLevel == Aggressive) {
       // Remove unreachable blocks
       pass_manager.add(ikos_pp::create_remove_unreachable_blocks_pass());
 
@@ -473,6 +505,20 @@ int main(int argc, char** argv) {
 
       // Lower down select instructions (ikos-pp -lower-select)
       pass_manager.add(ikos_pp::create_lower_select_pass());
+    } else if (OptLevel == Custom) {
+      // Custom mode: run only the passes requested by per-pass CLI flags
+      if (LowerCstExpr)
+        pass_manager.add(ikos_pp::create_lower_cst_expr_pass());
+      if (LowerSelect)
+        pass_manager.add(ikos_pp::create_lower_select_pass());
+      if (RemovePrintfCalls)
+        pass_manager.add(ikos_pp::create_remove_printf_calls_pass());
+      if (RemoveUnreachableBlocks)
+        pass_manager.add(ikos_pp::create_remove_unreachable_blocks_pass());
+      if (NameValues)
+        pass_manager.add(ikos_pp::create_name_values_pass());
+      if (MarkInternalInline)
+        pass_manager.add(ikos_pp::create_mark_internal_inline_pass());
     }
 
     // Run all legacy passes
@@ -482,7 +528,10 @@ int main(int argc, char** argv) {
   // ========================================================================
   // Phase 2: New PassManager (passes whose legacy creators were removed)
   // ========================================================================
-  run_new_pm_passes(*module, OptLevel, exclude_set, InlineAll);
+  // Custom mode only runs the explicitly requested legacy passes — skip Phase 2
+  if (OptLevel != Custom) {
+    run_new_pm_passes(*module, OptLevel, exclude_set, InlineAll);
+  }
 
   // ========================================================================
   // Verification and output
