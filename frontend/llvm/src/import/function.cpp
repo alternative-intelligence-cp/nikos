@@ -1950,9 +1950,10 @@ ar::Type* FunctionImporter::infer_type_from_dbg(llvm::Value* value) {
         try {
           return _ctx.type_imp->translate_type(alloca->getType(), di_type);
         } catch (const TypeDebugInfoMismatch&) {
-          if (!this->_allow_debug_info_mismatch) {
-            throw;
-          }
+          // LLVM 20: VLAs cause inherent type mismatches between
+          // debug info (array type) and LLVM IR (element pointer).
+          // Always catch this for array allocations, regardless of
+          // _allow_debug_info_mismatch setting.
         }
       }
     }
