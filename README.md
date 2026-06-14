@@ -1,6 +1,6 @@
 # NIKOS
 
-**New Inference Kernel for Open Static Analyzers**
+**Nitpick Inference Kernel for Open Static Analyzers**
 
 A modernized fork of [NASA's IKOS](https://github.com/NASA-SW-VnV/ikos), upgraded from LLVM 14 to **LLVM 20**.
 Detect and prove the absence of runtime errors in C/C++ using Abstract Interpretation.

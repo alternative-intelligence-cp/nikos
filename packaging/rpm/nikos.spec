@@ -30,7 +30,7 @@ Requires:       zlib
 Requires:       python3
 
 %description
-NIKOS (New Inference Kernel for Open Static Analyzers) is a production-ready
+NIKOS (Nitpick Inference Kernel for Open Static Analyzers) is a production-ready
 static analyzer for C/C++ based on Abstract Interpretation. It is a modernized
 fork of NASA's IKOS, ported from LLVM 14 to LLVM 20.
 

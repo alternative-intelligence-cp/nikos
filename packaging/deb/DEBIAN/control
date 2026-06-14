@@ -18,7 +18,7 @@ Section: devel
 Priority: optional
 Homepage: https://github.com/alternative-intelligence-cp/nikos
 Description: NIKOS — Static Analyzer for C/C++ (LLVM 20)
- NIKOS (New Inference Kernel for Open Static Analyzers) is a production-ready
+ NIKOS (Nitpick Inference Kernel for Open Static Analyzers) is a production-ready
  static analyzer for C/C++ based on Abstract Interpretation. It is a modernized
  fork of NASA's IKOS, upgraded from LLVM 14 to LLVM 20.
  .
