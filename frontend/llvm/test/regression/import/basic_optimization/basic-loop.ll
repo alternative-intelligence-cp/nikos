@@ -3,7 +3,7 @@ source_filename = "basic-loop.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -12,7 +12,6 @@ target triple = "x86_64-apple-macosx10.14.0"
 ; CHECK: define [10 x double]* @a, align 16, init {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @a, aggregate_zero, align 1
-; CHECK: }
 ; CHECK: }
 
 ; Function Attrs: noinline nounwind ssp uwtable
@@ -48,7 +47,8 @@ define i32 @main(i32, i8**) #0 !dbg !15 {
   store double %13, double* %15, align 8, !dbg !44
   ret i32 0, !dbg !45
 }
-; CHECK: define si32 @main(si32 %1, si8** %2) {
+; CHECK: }
+; CHECK: define si32 @main(si32 %1, opaque* %2) {
 ; CHECK: #1 !entry successors={#2} {
 ; CHECK:   si32 %.0 = 0
 ; CHECK: }
@@ -71,8 +71,6 @@ define i32 @main(i32, i8**) #0 !dbg !15 {
 ; CHECK:   double* %10 = ptrshift @a, 80 * 0, 8 * %9
 ; CHECK:   store %10, %8, align 8
 ; CHECK:   return 0
-; CHECK: }
-; CHECK: }
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.value(metadata, metadata, metadata) #1

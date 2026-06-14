@@ -3,7 +3,7 @@ source_filename = "gv-init.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -45,7 +45,7 @@ define i32 @main(i32, i8**) local_unnamed_addr #0 !dbg !24 {
 10:                                               ; preds = %3
   ret i32 0, !dbg !53
 }
-; CHECK: define si32 @main(si32 %1, si8** %2) {
+; CHECK: define si32 @main(si32 %1, opaque* %2) {
 ; CHECK: #1 !entry successors={#2} {
 ; CHECK:   si32 %.01 = 0
 ; CHECK:   si32 %.0 = 0
@@ -74,7 +74,6 @@ define i32 @main(i32, i8**) local_unnamed_addr #0 !dbg !24 {
 ; CHECK:   si32 %5 = %.01 sadd.nw 1
 ; CHECK:   si32 %.01 = %5
 ; CHECK:   si32 %.0 = %.1.lcssa
-; CHECK: }
 ; CHECK: }
 
 ; Function Attrs: nounwind readnone speculatable

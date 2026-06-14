@@ -3,7 +3,7 @@ source_filename = "atomic.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -12,7 +12,6 @@ target triple = "x86_64-apple-macosx10.14.0"
 ; CHECK: define ui32* @x, align 4, init {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @x, 0, align 1
-; CHECK: }
 ; CHECK: }
 
 ; Function Attrs: noinline nounwind ssp uwtable
@@ -23,16 +22,15 @@ define i32 @main() #0 !dbg !16 {
   %2 = load volatile i32, i32* @x, align 4, !dbg !19
   ret i32 %2, !dbg !20
 }
+; CHECK: }
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry !exit {
-; CHECK:   si32* $1 = allocate si32, 1, align 4
-; CHECK:   store $1, 0, align 4
-; CHECK:   store volatile @x, 42, align 4
-; CHECK:   si32* %2 = bitcast @x
-; CHECK:   si32 %3 = load volatile %2, align 4
-; CHECK:   return %3
-; CHECK: }
-; CHECK: }
+; CHECK:   opaque* $1 = allocate opaque, 1, align 4
+; CHECK:   si32* %2 = bitcast $1
+; CHECK:   store %2, 0, align 4
+; CHECK:   si32* %3 = bitcast @x
+; CHECK:   store volatile %3, 42, align 4
+; CHECK:   si32* %4 = bitcast @x
 
 attributes #0 = { noinline nounwind ssp uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+cx8,+fxsr,+mmx,+sahf,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
 

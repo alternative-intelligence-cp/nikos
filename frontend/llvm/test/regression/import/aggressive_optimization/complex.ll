@@ -3,7 +3,7 @@ source_filename = "complex.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -17,7 +17,6 @@ define i32 @main() local_unnamed_addr #0 !dbg !8 {
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   return 1
-; CHECK: }
 ; CHECK: }
 
 ; Function Attrs: nounwind readnone speculatable

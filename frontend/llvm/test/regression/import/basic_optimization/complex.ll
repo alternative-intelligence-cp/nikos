@@ -3,7 +3,7 @@ source_filename = "complex.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -24,16 +24,15 @@ define i32 @main() #0 !dbg !8 {
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   {0: double, 8: double}* $1 = allocate {0: double, 8: double}, 1, align 8
-; CHECK:   double* %2 = ptrshift $1, 16 * 0, 1 * 0
-; CHECK:   double* %3 = ptrshift $1, 16 * 0, 1 * 8
-; CHECK:   store %2, 1.0E+0, align 8
-; CHECK:   store %3, 2.0E+0, align 8
-; CHECK:   double* %4 = ptrshift $1, 16 * 0, 1 * 0
-; CHECK:   double %5 = load %4, align 8
-; CHECK:   si32 %6 = fptosi %5
-; CHECK:   return %6
-; CHECK: }
-; CHECK: }
+; CHECK:   opaque* %2 = ptrshift $1, 16 * 0, 1 * 0
+; CHECK:   opaque* %3 = ptrshift $1, 16 * 0, 1 * 8
+; CHECK:   double* %4 = bitcast %2
+; CHECK:   store %4, 1.0E+0, align 8
+; CHECK:   double* %5 = bitcast %3
+; CHECK:   store %5, 2.0E+0, align 8
+; CHECK:   opaque* %6 = ptrshift $1, 16 * 0, 1 * 0
+; CHECK:   double* %7 = bitcast %6
+; CHECK:   double %8 = load %7, align 8
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1

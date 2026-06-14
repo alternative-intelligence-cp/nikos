@@ -3,13 +3,12 @@ source_filename = "phi-3.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
 
 declare void @__ikos_assert(i32) local_unnamed_addr #2
-; CHECK: declare void @ar.ikos.assert(ui32)
 
 ; Function Attrs: noinline nounwind ssp uwtable
 define internal fastcc i32 @foo(i32*, i32*, i32*) unnamed_addr #0 !dbg !8 {
@@ -63,78 +62,77 @@ define internal fastcc i32 @foo(i32*, i32*, i32*) unnamed_addr #0 !dbg !8 {
   store i32 555, i32* %25, align 4, !dbg !35
   ret i32 %26, !dbg !36
 }
-; CHECK: define si32 @foo(si32* %1, si32* %2, si32* %3) {
+; CHECK: declare void @ar.ikos.assert(ui32)
+; CHECK: define si32 @foo(opaque* %1, opaque* %2, opaque* %3) {
 ; CHECK: #1 !entry successors={#2, #3} {
-; CHECK:   si32* %4 = ptrshift %1, 4 * 1
-; CHECK:   si32* %5 = ptrshift %2, 4 * 2
+; CHECK:   si32* %4 = bitcast %1
+; CHECK:   opaque* %5 = ptrshift %4, 4 * 1
+; CHECK:   si32* %6 = bitcast %2
+; CHECK:   opaque* %7 = ptrshift %6, 4 * 2
 ; CHECK: }
 ; CHECK: #2 predecessors={#1} successors={#4} {
-; CHECK:   %4 peq %5
-; CHECK:   ui1 %6 = 1
+; CHECK:   %5 peq %7
+; CHECK:   ui1 %8 = 1
 ; CHECK: }
 ; CHECK: #3 predecessors={#1} successors={#4} {
-; CHECK:   %4 pne %5
-; CHECK:   ui1 %6 = 0
+; CHECK:   %5 pne %7
+; CHECK:   ui1 %8 = 0
 ; CHECK: }
 ; CHECK: #4 predecessors={#2, #3} successors={#5, #6} {
-; CHECK:   si32* %7 = ptrshift %2, 4 * -8
-; CHECK:   si32* %8 = ptrshift %1, 4 * 43
+; CHECK:   si32* %9 = bitcast %2
+; CHECK:   opaque* %10 = ptrshift %9, 4 * -8
+; CHECK:   si32* %11 = bitcast %1
+; CHECK:   opaque* %12 = ptrshift %11, 4 * 43
 ; CHECK: }
 ; CHECK: #5 predecessors={#4} successors={#7} {
-; CHECK:   %6 uieq 1
-; CHECK:   si32* %.01.phi = %8
+; CHECK:   %8 uieq 1
+; CHECK:   opaque* %.01.phi = %12
 ; CHECK: }
 ; CHECK: #6 predecessors={#4} successors={#7} {
-; CHECK:   %6 uieq 0
-; CHECK:   si32* %.01.phi = %4
+; CHECK:   %8 uieq 0
+; CHECK:   opaque* %.01.phi = %5
 ; CHECK: }
 ; CHECK: #7 predecessors={#5, #6} successors={#8, #9} {
 ; CHECK: }
 ; CHECK: #8 predecessors={#7} successors={#10} {
-; CHECK:   %6 uieq 1
-; CHECK:   si32* %.0.phi = %7
+; CHECK:   %8 uieq 1
+; CHECK:   opaque* %.0.phi = %10
 ; CHECK: }
 ; CHECK: #9 predecessors={#7} successors={#10} {
-; CHECK:   %6 uieq 0
-; CHECK:   si32* %.0.phi = %5
+; CHECK:   %8 uieq 0
+; CHECK:   opaque* %.0.phi = %7
 ; CHECK: }
 ; CHECK: #10 predecessors={#8, #9} successors={#11, #12} {
-; CHECK:   si32 %9 = load %.01.phi, align 4
+; CHECK:   si32* %13 = bitcast %.01.phi
+; CHECK:   si32 %14 = load %13, align 4
+; CHECK:   void (si32)* %15 = bitcast @ar.ikos.assert
+; CHECK:   void (si32)* %16 = bitcast @ar.ikos.assert
 ; CHECK: }
 ; CHECK: #11 predecessors={#10} successors={#13} {
-; CHECK:   %9 sieq 3
-; CHECK:   ui1 %10 = 1
+; CHECK:   %14 sieq 3
+; CHECK:   ui1 %17 = 1
 ; CHECK: }
 ; CHECK: #12 predecessors={#10} successors={#13} {
-; CHECK:   %9 sine 3
-; CHECK:   ui1 %10 = 0
+; CHECK:   %14 sine 3
+; CHECK:   ui1 %17 = 0
 ; CHECK: }
 ; CHECK: #13 predecessors={#11, #12} successors={#14, #15} {
-; CHECK:   ui32 %11 = zext %10
-; CHECK:   call @ar.ikos.assert(%11)
-; CHECK:   si32 %12 = load %.0.phi, align 4
+; CHECK:   ui32 %18 = zext %17
+; CHECK:   si32 %19 = bitcast %18
+; CHECK:   call %15(%19)
+; CHECK:   si32* %20 = bitcast %.0.phi
+; CHECK:   si32 %21 = load %20, align 4
 ; CHECK: }
 ; CHECK: #14 predecessors={#13} successors={#16} {
-; CHECK:   %12 sieq 6
-; CHECK:   ui1 %13 = 1
+; CHECK:   %21 sieq 6
+; CHECK:   ui1 %22 = 1
 ; CHECK: }
 ; CHECK: #15 predecessors={#13} successors={#16} {
-; CHECK:   %12 sine 6
-; CHECK:   ui1 %13 = 0
+; CHECK:   %21 sine 6
+; CHECK:   ui1 %22 = 0
 ; CHECK: }
 ; CHECK: #16 !exit predecessors={#14, #15} {
-; CHECK:   ui32 %14 = zext %13
-; CHECK:   call @ar.ikos.assert(%14)
-; CHECK:   si32 %15 = load %.01.phi, align 4
-; CHECK:   si32 %16 = load %.0.phi, align 4
-; CHECK:   si32 %17 = %15 sadd.nw %16
-; CHECK:   si64 %18 = sext %17
-; CHECK:   si32* %19 = ptrshift %3, 4 * %18
-; CHECK:   si32 %20 = load %19, align 4
-; CHECK:   store %19, 555, align 4
-; CHECK:   return %20
-; CHECK: }
-; CHECK: }
+; CHECK:   ui32 %23 = zext %22
 
 ; Function Attrs: noinline nounwind ssp uwtable
 define i32 @main(i32, i8**) local_unnamed_addr #0 !dbg !37 {
@@ -170,53 +168,52 @@ define i32 @main(i32, i8**) local_unnamed_addr #0 !dbg !37 {
   call void @__ikos_assert(i32 %18) #3, !dbg !80
   ret i32 %13, !dbg !81
 }
-; CHECK: define si32 @main(si32 %1, si8** %2) {
+; CHECK:   si32 %24 = bitcast %23
+; CHECK:   call %16(%24)
+; CHECK:   si32* %25 = bitcast %.01.phi
+; CHECK:   si32 %26 = load %25, align 4
+; CHECK:   si32* %27 = bitcast %.0.phi
+; CHECK:   si32 %28 = load %27, align 4
+; CHECK:   si32 %29 = %26 sadd.nw %28
+; CHECK:   si64 %30 = sext %29
+; CHECK:   si32* %31 = bitcast %3
+; CHECK:   si32* %32 = ptrshift %31, 4 * %30
+; CHECK:   si32 %33 = load %32, align 4
+; CHECK:   store %32, 555, align 4
+; CHECK:   return %33
+; CHECK: }
+; CHECK: }
+; CHECK: define si32 @main(si32 %1, opaque* %2) {
 ; CHECK: #1 !entry successors={#2, #3} {
 ; CHECK:   [2 x si32]* $3 = allocate [2 x si32], 1, align 4
 ; CHECK:   [3 x si32]* $4 = allocate [3 x si32], 1, align 4
 ; CHECK:   [10 x si32]* $5 = allocate [10 x si32], 1, align 16
-; CHECK:   si32* %6 = ptrshift $5, 40 * 0, 4 * 9
-; CHECK:   store %6, 666, align 4
-; CHECK:   si32* %7 = ptrshift $3, 8 * 0, 4 * 0
-; CHECK:   store %7, 1, align 4
-; CHECK:   si32* %8 = ptrshift $3, 8 * 0, 4 * 1
-; CHECK:   store %8, 3, align 4
-; CHECK:   si32* %9 = ptrshift $4, 12 * 0, 4 * 0
-; CHECK:   store %9, 4, align 4
-; CHECK:   si32* %10 = ptrshift $4, 12 * 0, 4 * 1
-; CHECK:   store %10, 5, align 4
-; CHECK:   si32* %11 = ptrshift $4, 12 * 0, 4 * 2
-; CHECK:   store %11, 6, align 4
-; CHECK:   si32* %12 = ptrshift $5, 40 * 0, 4 * 0
-; CHECK:   si32 %13 = call @foo(%7, %9, %12)
-; CHECK: }
-; CHECK: #2 predecessors={#1} successors={#4} {
-; CHECK:   %13 sieq 666
-; CHECK:   ui1 %14 = 1
-; CHECK: }
-; CHECK: #3 predecessors={#1} successors={#4} {
-; CHECK:   %13 sine 666
-; CHECK:   ui1 %14 = 0
-; CHECK: }
-; CHECK: #4 predecessors={#2, #3} successors={#5, #6} {
-; CHECK:   ui32 %15 = zext %14
-; CHECK:   call @ar.ikos.assert(%15)
-; CHECK:   si32 %16 = load %6, align 4
-; CHECK: }
-; CHECK: #5 predecessors={#4} successors={#7} {
-; CHECK:   %16 sieq 555
-; CHECK:   ui1 %17 = 1
-; CHECK: }
-; CHECK: #6 predecessors={#4} successors={#7} {
-; CHECK:   %16 sine 555
-; CHECK:   ui1 %17 = 0
-; CHECK: }
-; CHECK: #7 !exit predecessors={#5, #6} {
-; CHECK:   ui32 %18 = zext %17
-; CHECK:   call @ar.ikos.assert(%18)
-; CHECK:   return %13
-; CHECK: }
-; CHECK: }
+; CHECK:   opaque* %6 = ptrshift $5, 40 * 0, 4 * 9
+; CHECK:   si32* %7 = bitcast %6
+; CHECK:   store %7, 666, align 4
+; CHECK:   opaque* %8 = ptrshift $3, 8 * 0, 4 * 0
+; CHECK:   si32* %9 = bitcast %8
+; CHECK:   store %9, 1, align 4
+; CHECK:   opaque* %10 = ptrshift $3, 8 * 0, 4 * 1
+; CHECK:   si32* %11 = bitcast %10
+; CHECK:   store %11, 3, align 4
+; CHECK:   opaque* %12 = ptrshift $4, 12 * 0, 4 * 0
+; CHECK:   si32* %13 = bitcast %12
+; CHECK:   store %13, 4, align 4
+; CHECK:   opaque* %14 = ptrshift $4, 12 * 0, 4 * 1
+; CHECK:   si32* %15 = bitcast %14
+; CHECK:   store %15, 5, align 4
+; CHECK:   opaque* %16 = ptrshift $4, 12 * 0, 4 * 2
+; CHECK:   si32* %17 = bitcast %16
+; CHECK:   store %17, 6, align 4
+; CHECK:   opaque* %18 = ptrshift $5, 40 * 0, 4 * 0
+; CHECK:   si32 (opaque*, opaque*, opaque*)* %19 = bitcast @foo
+; CHECK:   opaque* %20 = bitcast %8
+; CHECK:   opaque* %21 = bitcast %12
+; CHECK:   opaque* %22 = bitcast %18
+; CHECK:   si32 %23 = call %19(%20, %21, %22)
+; CHECK:   void (si32)* %24 = bitcast @ar.ikos.assert
+; CHECK:   void (si32)* %25 = bitcast @ar.ikos.assert
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1

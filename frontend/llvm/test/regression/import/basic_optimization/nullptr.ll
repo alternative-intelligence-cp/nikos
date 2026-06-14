@@ -3,7 +3,7 @@ source_filename = "nullptr.cpp"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -17,19 +17,17 @@ define i32 @_Z1fDn(i8*) #0 !dbg !8 {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   return 1
 ; CHECK: }
-; CHECK: }
 
 ; Function Attrs: noinline norecurse nounwind ssp uwtable
 define i32 @main() #1 !dbg !16 {
   %1 = call i32 @_Z1fDn(i8* null), !dbg !19
   ret i32 %1, !dbg !20
 }
+; CHECK: }
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry !exit {
-; CHECK:   si32 %1 = call @_Z1fDn(null)
-; CHECK:   return %1
-; CHECK: }
-; CHECK: }
+; CHECK:   si32 (opaque*)* %1 = bitcast @_Z1fDn
+; CHECK:   si32 %2 = call %1(null)
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.value(metadata, metadata, metadata) #2

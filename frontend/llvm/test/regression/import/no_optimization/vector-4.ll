@@ -3,7 +3,7 @@ source_filename = "vector-4.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -28,7 +28,6 @@ define <2 x i64> @f(<2 x i64>) #0 !dbg !8 {
 ; CHECK:   <4 x si32> %5 = shufflevector %4, undef
 ; CHECK:   <2 x si64> %6 = bitcast %5
 ; CHECK:   return %6
-; CHECK: }
 ; CHECK: }
 
 ; Function Attrs: nounwind readnone speculatable

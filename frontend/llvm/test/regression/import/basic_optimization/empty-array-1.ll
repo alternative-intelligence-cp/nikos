@@ -3,7 +3,7 @@ source_filename = "empty-array-1.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -11,11 +11,10 @@ target triple = "x86_64-apple-macosx10.14.0"
 %struct.anon = type { [0 x i8], i32*, double }
 
 @d = global %struct.anon { [0 x i8] zeroinitializer, i32* inttoptr (i64 1 to i32*), double 0.000000e+00 }, align 8, !dbg !0
-; CHECK: define {0: [0 x si8], 0: si32*, 8: double}* @d, align 8, init {
+; CHECK: define {0: [0 x si8], 0: opaque*, 8: double}* @d, align 8, init {
 ; CHECK: #1 !entry !exit {
-; CHECK:   si32* %1 = sitoptr 1
+; CHECK:   opaque* %1 = sitoptr 1
 ; CHECK:   store @d, {0: aggregate_zero, 0: %1, 8: 0.0E+0}, align 1
-; CHECK: }
 ; CHECK: }
 
 !llvm.dbg.cu = !{!2}

@@ -3,7 +3,7 @@ source_filename = "call-args.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -19,7 +19,6 @@ define i32 @foo(i32) #0 !dbg !8 {
 ; CHECK:   si32 %2 = %1 sadd.nw 1
 ; CHECK:   return %2
 ; CHECK: }
-; CHECK: }
 
 ; Function Attrs: noinline nounwind ssp uwtable
 define i32 @main(i32, i8**) #0 !dbg !16 {
@@ -28,12 +27,11 @@ define i32 @main(i32, i8**) #0 !dbg !16 {
   %3 = call i32 @foo(i32 %0), !dbg !25
   ret i32 %3, !dbg !26
 }
-; CHECK: define si32 @main(si32 %1, si8** %2) {
+; CHECK: }
+; CHECK: define si32 @main(si32 %1, opaque* %2) {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   si32 %3 = call @foo(%1)
 ; CHECK:   return %3
-; CHECK: }
-; CHECK: }
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.value(metadata, metadata, metadata) #1

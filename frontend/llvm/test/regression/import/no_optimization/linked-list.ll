@@ -3,7 +3,7 @@ source_filename = "linked-list.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -11,10 +11,9 @@ target triple = "x86_64-apple-macosx10.14.0"
 %struct.node = type { i32, %struct.node* }
 
 @head = common global %struct.node zeroinitializer, align 8, !dbg !0
-; CHECK: define {0: si32, 8: {...}*}* @head, align 8, init {
+; CHECK: define {0: si32, 8: opaque*}* @head, align 8, init {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @head, aggregate_zero, align 1
-; CHECK: }
 ; CHECK: }
 
 ; Function Attrs: noinline nounwind ssp uwtable
@@ -29,17 +28,16 @@ define i32 @main(i32, i8**) #0 !dbg !17 {
   call void @llvm.dbg.declare(metadata i8*** %5, metadata !25, metadata !DIExpression()), !dbg !26
   ret i32 0, !dbg !27
 }
-; CHECK: define si32 @main(si32 %1, si8** %2) {
+; CHECK: }
+; CHECK: define si32 @main(si32 %1, opaque* %2) {
 ; CHECK: #1 !entry !exit {
-; CHECK:   si32* $3 = allocate si32, 1, align 4
+; CHECK:   opaque* $3 = allocate opaque, 1, align 4
 ; CHECK:   si32* $4 = allocate si32, 1, align 4
-; CHECK:   si8*** $5 = allocate si8**, 1, align 8
-; CHECK:   store $3, 0, align 4
+; CHECK:   opaque** $5 = allocate opaque*, 1, align 8
+; CHECK:   si32* %6 = bitcast $3
+; CHECK:   store %6, 0, align 4
 ; CHECK:   store $4, %1, align 4
-; CHECK:   store $5, %2, align 8
-; CHECK:   return 0
-; CHECK: }
-; CHECK: }
+; CHECK:   opaque* %7 = bitcast %2
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1

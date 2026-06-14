@@ -3,22 +3,20 @@ source_filename = "mem-intrinsics.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
 
 ; Function Attrs: argmemonly nounwind
 declare void @llvm.memcpy.p0i8.p0i8.i64(i8* nocapture writeonly, i8* nocapture readonly, i64, i1) #2
-; CHECK: declare void @ar.memcpy(si8*, si8*, ui64, ui32, ui32, ui1)
 
 ; Function Attrs: argmemonly nounwind
 declare void @llvm.memmove.p0i8.p0i8.i64(i8* nocapture, i8* nocapture readonly, i64, i1) #2
-; CHECK: declare void @ar.memmove(si8*, si8*, ui64, ui32, ui32, ui1)
+; CHECK: declare void @ar.memcpy(si8*, si8*, ui64, ui32, ui32, ui1)
 
 ; Function Attrs: argmemonly nounwind
 declare void @llvm.memset.p0i8.i64(i8* nocapture writeonly, i8, i64, i1) #2
-; CHECK: declare void @ar.memset(si8*, si8, ui64, ui32, ui1)
 
 ; Function Attrs: noinline nounwind ssp uwtable
 define i32 @cst() #0 !dbg !11 {
@@ -28,14 +26,12 @@ define i32 @cst() #0 !dbg !11 {
   %2 = load i32, i32* %1, align 4, !dbg !16
   ret i32 %2, !dbg !17
 }
+; CHECK: declare void @ar.memmove(si8*, si8*, ui64, ui32, ui32, ui1)
+; CHECK: declare void @ar.memset(si8*, si8, ui64, ui32, ui1)
 ; CHECK: define si32 @cst() {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   si32* $1 = allocate si32, 1, align 4
 ; CHECK:   store $1, 10, align 4
-; CHECK:   si32 %2 = load $1, align 4
-; CHECK:   return %2
-; CHECK: }
-; CHECK: }
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1
@@ -69,33 +65,32 @@ define i32 @main() #0 !dbg !18 {
   store i32* %16, i32** %3, align 8, !dbg !38
   ret i32 0, !dbg !39
 }
+; CHECK:   si32 %2 = load $1, align 4
+; CHECK:   return %2
+; CHECK: }
+; CHECK: }
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry !exit {
-; CHECK:   si32** $1 = allocate si32*, 1, align 8
-; CHECK:   si32** $2 = allocate si32*, 1, align 8
-; CHECK:   si32** $3 = allocate si32*, 1, align 8
-; CHECK:   si32* %4 = load $1, align 8
-; CHECK:   si8* %5 = bitcast %4
-; CHECK:   si32* %6 = load $2, align 8
-; CHECK:   si8* %7 = bitcast %6
-; CHECK:   call @ar.memcpy(%5, %7, 10, 4, 4, 0)
-; CHECK:   si32* %8 = bitcast %5
-; CHECK:   store $3, %8, align 8
-; CHECK:   si32* %9 = load $1, align 8
-; CHECK:   si8* %10 = bitcast %9
-; CHECK:   si32* %11 = load $2, align 8
-; CHECK:   si8* %12 = bitcast %11
-; CHECK:   call @ar.memmove(%10, %12, 50, 4, 4, 0)
-; CHECK:   si32* %13 = bitcast %10
-; CHECK:   store $3, %13, align 8
-; CHECK:   si32* %14 = load $1, align 8
+; CHECK:   opaque** $1 = allocate opaque*, 1, align 8
+; CHECK:   opaque** $2 = allocate opaque*, 1, align 8
+; CHECK:   opaque** $3 = allocate opaque*, 1, align 8
+; CHECK:   opaque** %4 = bitcast $1
+; CHECK:   opaque* %5 = load %4, align 8
+; CHECK:   si8* %6 = bitcast %5
+; CHECK:   opaque** %7 = bitcast $2
+; CHECK:   opaque* %8 = load %7, align 8
+; CHECK:   si8* %9 = bitcast %8
+; CHECK:   call @ar.memcpy(%6, %9, 10, 4, 4, 0)
+; CHECK:   opaque* %10 = bitcast %6
+; CHECK:   opaque* %11 = bitcast %10
+; CHECK:   opaque** %12 = bitcast $3
+; CHECK:   store %12, %11, align 8
+; CHECK:   opaque** %13 = bitcast $1
+; CHECK:   opaque* %14 = load %13, align 8
 ; CHECK:   si8* %15 = bitcast %14
-; CHECK:   call @ar.memset(%15, 1, 50, 4, 0)
-; CHECK:   si32* %16 = bitcast %15
-; CHECK:   store $3, %16, align 8
-; CHECK:   return 0
-; CHECK: }
-; CHECK: }
+; CHECK:   opaque** %16 = bitcast $2
+; CHECK:   opaque* %17 = load %16, align 8
+; CHECK:   si8* %18 = bitcast %17
 
 attributes #0 = { noinline nounwind ssp uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+fxsr,+mmx,+sahf,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
 attributes #1 = { nounwind readnone speculatable }

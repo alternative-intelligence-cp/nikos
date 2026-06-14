@@ -3,7 +3,7 @@ source_filename = "phi-4.cpp"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -72,71 +72,70 @@ define i32 @main(i32, i8**) #0 !dbg !8 {
 35:                                               ; preds = %13
   ret i32 0, !dbg !57
 }
-; CHECK: define si32 @main(si32 %1, si8** %2) {
+; CHECK: define si32 @main(si32 %1, opaque* %2) {
 ; CHECK: #1 !entry successors={#2, #3} {
-; CHECK:   si32* $3 = allocate si32, 1, align 4
+; CHECK:   opaque* $3 = allocate opaque, 1, align 4
 ; CHECK:   si32* $4 = allocate si32, 1, align 4
-; CHECK:   si8*** $5 = allocate si8**, 1, align 8
+; CHECK:   opaque** $5 = allocate opaque*, 1, align 8
 ; CHECK:   si32* $6 = allocate si32, 1, align 4
 ; CHECK:   [10 x si32]* $7 = allocate [10 x si32], 1, align 16
 ; CHECK:   ui8* $8 = allocate ui8, 1, align 1
-; CHECK:   store $3, 0, align 4
+; CHECK:   si32* %9 = bitcast $3
+; CHECK:   store %9, 0, align 4
 ; CHECK:   store $4, %1, align 4
-; CHECK:   store $5, %2, align 8
+; CHECK:   opaque* %10 = bitcast %2
+; CHECK:   opaque** %11 = bitcast $5
+; CHECK:   store %11, %10, align 8
 ; CHECK:   store $6, 0, align 4
-; CHECK:   si32 %9 = load $4, align 4
-; CHECK:   si32 %10 = %9 srem 5
+; CHECK:   si32 %12 = load $4, align 4
+; CHECK:   si32 %13 = %12 srem 5
 ; CHECK: }
 ; CHECK: #2 predecessors={#1} successors={#4} {
-; CHECK:   %10 sieq 0
-; CHECK:   ui1 %11 = 1
+; CHECK:   %13 sieq 0
+; CHECK:   ui1 %14 = 1
 ; CHECK: }
 ; CHECK: #3 predecessors={#1} successors={#4} {
-; CHECK:   %10 sine 0
-; CHECK:   ui1 %11 = 0
+; CHECK:   %13 sine 0
+; CHECK:   ui1 %14 = 0
 ; CHECK: }
 ; CHECK: #4 predecessors={#2, #3} successors={#5} {
-; CHECK:   ui8 %12 = zext %11
-; CHECK:   store $8, %12, align 1
+; CHECK:   ui8 %15 = zext %14
+; CHECK:   si8 %16 = bitcast %15
+; CHECK:   si8* %17 = bitcast $8
+; CHECK:   store %17, %16, align 1
 ; CHECK: }
 ; CHECK: #5 predecessors={#4, #10} successors={#6, #7} {
-; CHECK:   si32 %13 = load $6, align 4
+; CHECK:   si32 %18 = load $6, align 4
 ; CHECK: }
 ; CHECK: #6 predecessors={#5} successors={#8, #9} {
-; CHECK:   %13 silt 10
-; CHECK:   si8* %14 = bitcast $8
-; CHECK:   si8 %15 = load %14, align 1
-; CHECK:   ui8 %16 = bitcast %15
-; CHECK:   ui1 %17 = utrunc %16
+; CHECK:   %18 silt 10
+; CHECK:   si8* %19 = bitcast $8
+; CHECK:   si8 %20 = load %19, align 1
+; CHECK:   ui8 %21 = bitcast %20
+; CHECK:   ui1 %22 = utrunc %21
 ; CHECK: }
 ; CHECK: #7 !exit predecessors={#5} {
-; CHECK:   %13 sige 10
+; CHECK:   %18 sige 10
 ; CHECK:   return 0
 ; CHECK: }
 ; CHECK: #8 predecessors={#6} successors={#10} {
-; CHECK:   ui32* %18 = bitcast $6
-; CHECK:   ui32 %19 = load %18, align 4
-; CHECK:   ui32 %20 = %19 uxor 2
-; CHECK:   si32 %21 = bitcast %20
-; CHECK:   si32 %22 = load $6, align 4
-; CHECK:   si64 %23 = sext %22
-; CHECK:   si32* %24 = ptrshift $7, 40 * 0, 4 * %23
-; CHECK:   store %24, %21, align 4
-; CHECK: }
-; CHECK: #9 predecessors={#6} successors={#10} {
-; CHECK:   si32 %25 = load $6, align 4
-; CHECK:   si32 %26 = %25 smul.nw 2
+; CHECK:   %22 uieq 1
+; CHECK:   ui32* %23 = bitcast $6
+; CHECK:   ui32 %24 = load %23, align 4
+; CHECK:   ui32 %25 = %24 uxor 2
+; CHECK:   si32 %26 = bitcast %25
 ; CHECK:   si32 %27 = load $6, align 4
 ; CHECK:   si64 %28 = sext %27
 ; CHECK:   si32* %29 = ptrshift $7, 40 * 0, 4 * %28
 ; CHECK:   store %29, %26, align 4
 ; CHECK: }
-; CHECK: #10 predecessors={#8, #9} successors={#5} {
+; CHECK: #9 predecessors={#6} successors={#10} {
+; CHECK:   %22 uieq 0
 ; CHECK:   si32 %30 = load $6, align 4
-; CHECK:   si32 %31 = %30 sadd.nw 1
-; CHECK:   store $6, %31, align 4
-; CHECK: }
-; CHECK: }
+; CHECK:   si32 %31 = %30 smul.nw 2
+; CHECK:   si32 %32 = load $6, align 4
+; CHECK:   si64 %33 = sext %32
+; CHECK:   si32* %34 = ptrshift $7, 40 * 0, 4 * %33
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1

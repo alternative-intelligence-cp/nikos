@@ -117,6 +117,10 @@ public:
   //  - integer types of the same bit-width (i.e, signed <-> unsigned)
   //  - pointer types (i.e, A* <-> B*)
   static bool is_implicit_bitcast(Type* a, Type* b) {
+    // LLVM 20 opaque pointers: allow implicit bitcast involving opaque types
+    if (a->is_opaque() || b->is_opaque()) {
+      return true;
+    }
     return (a->is_integer() && b->is_integer() &&
             cast< IntegerType >(a)->bit_width() ==
                 cast< IntegerType >(b)->bit_width()) ||

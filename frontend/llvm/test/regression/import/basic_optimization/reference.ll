@@ -3,7 +3,7 @@ source_filename = "reference.cpp"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -14,12 +14,11 @@ define void @_Z1fRi(i32* dereferenceable(4)) #0 !dbg !8 {
   store i32 1, i32* %0, align 4, !dbg !15
   ret void, !dbg !16
 }
-; CHECK: define void @_Z1fRi(si32* %1) {
+; CHECK: define void @_Z1fRi(opaque* %1) {
 ; CHECK: #1 !entry !exit {
-; CHECK:   store %1, 1, align 4
+; CHECK:   si32* %2 = bitcast %1
+; CHECK:   store %2, 1, align 4
 ; CHECK:   return
-; CHECK: }
-; CHECK: }
 
 ; Function Attrs: noinline norecurse nounwind ssp uwtable
 define i32 @main() #2 !dbg !17 {
@@ -30,15 +29,14 @@ define i32 @main() #2 !dbg !17 {
   %2 = load i32, i32* %1, align 4, !dbg !23
   ret i32 %2, !dbg !24
 }
+; CHECK: }
+; CHECK: }
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   si32* $1 = allocate si32, 1, align 4
 ; CHECK:   store $1, 0, align 4
-; CHECK:   call @_Z1fRi($1)
-; CHECK:   si32 %2 = load $1, align 4
-; CHECK:   return %2
-; CHECK: }
-; CHECK: }
+; CHECK:   void (opaque*)* %2 = bitcast @_Z1fRi
+; CHECK:   opaque* %3 = bitcast $1
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1

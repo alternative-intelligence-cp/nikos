@@ -3,7 +3,7 @@ source_filename = "empty-array-3.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.14.0"
 
-; CHECK-LABEL: Bundle
+; CHECK-LABEL: // Bundle
 ; CHECK: target-endianness = little-endian
 ; CHECK: target-pointer-size = 64 bits
 ; CHECK: target-triple = x86_64-apple-macosx10.14.0
@@ -12,7 +12,6 @@ target triple = "x86_64-apple-macosx10.14.0"
 ; CHECK: define {0: [0 x si8], 0: [4 x si8]}* @c, align 4, init {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   store @c, {0: aggregate_zero, 0: undef}, align 1
-; CHECK: }
 ; CHECK: }
 
 !llvm.dbg.cu = !{!2}
