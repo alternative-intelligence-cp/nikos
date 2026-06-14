@@ -6,6 +6,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 **NIKOS** is a fork of [NASA's IKOS](https://github.com/NASA-SW-VnV/ikos), ported from LLVM 14 to LLVM 20 and integrated into the Nitpick static analysis toolchain.
 
+## [0.6.0] — 2026-06-14
+
+### Added
+
+- `ikos-pp` fully ported to LLVM 20 with hybrid legacy/new PassManager.
+- `preprocess_module()` in `NikosBridge::import()` — runs 5 mandatory
+  lowering passes before AR import (LowerSwitch, LowerAtomic, LowerCstExpr,
+  LowerSelect, UnifyFunctionExitNodes).
+- `libikos-pp.a` now linked into Nitpick for IKOS-specific pass access.
+
+### Changed
+
+- 7 LLVM passes migrated from removed legacy API to new PassInfoMixin:
+  `GlobalDCEPass`, `GlobalOptPass`, `InternalizePass`, `JumpThreadingPass`,
+  `SCCPPass`, `LoopDeletionPass`, `UnifyFunctionExitNodesPass`.
+- Removed 11 dead `initializeXxxPass()` calls for passes removed in LLVM 20.
+- `frontend/llvm/CMakeLists.txt`: added `passes` LLVM component for PassBuilder.
+
+### Fixed
+
+- `NikosBridge::import()` now handles `select`, `switch`, atomic, and constant
+  expression instructions (previously threw `ImportError`).
+- `ikos-pp` binary now compiles on LLVM 20 (was broken with 25+ errors).
+
 ## [0.5.1] — 2026-06-14
 
 ### Added
@@ -107,14 +131,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Updated CMake to find LLVM 20.
 - C++ standard from C++14 to C++17.
 
-[0.5.1]: https://github.com/user/nikos/compare/v0.5.0...v0.5.1
-[0.5.0]: https://github.com/user/nikos/compare/v0.4.2...v0.5.0
-[0.4.2]: https://github.com/user/nikos/compare/v0.4.1...v0.4.2
-[0.4.1]: https://github.com/user/nikos/compare/v0.4.0...v0.4.1
-[0.4.0]: https://github.com/user/nikos/compare/v0.3.1...v0.4.0
-[0.3.1]: https://github.com/user/nikos/compare/v0.3.0...v0.3.1
-[0.3.0]: https://github.com/user/nikos/compare/v0.2.3...v0.3.0
-[0.2.3]: https://github.com/user/nikos/compare/v0.2.2...v0.2.3
-[0.2.2]: https://github.com/user/nikos/compare/v0.2.1...v0.2.2
-[0.2.1]: https://github.com/user/nikos/compare/v0.2.0...v0.2.1
-[0.2.0]: https://github.com/user/nikos/releases/tag/v0.2.0
+[0.6.0]: https://github.com/alternative-intelligence-cp/nikos/compare/v0.5.1...v0.6.0
+[0.5.1]: https://github.com/alternative-intelligence-cp/nikos/compare/v0.5.0...v0.5.1
+[0.5.0]: https://github.com/alternative-intelligence-cp/nikos/compare/v0.4.2...v0.5.0
+[0.4.2]: https://github.com/alternative-intelligence-cp/nikos/compare/v0.4.1...v0.4.2
+[0.4.1]: https://github.com/alternative-intelligence-cp/nikos/compare/v0.4.0...v0.4.1
+[0.4.0]: https://github.com/alternative-intelligence-cp/nikos/compare/v0.3.1...v0.4.0
+[0.3.1]: https://github.com/alternative-intelligence-cp/nikos/compare/v0.3.0...v0.3.1
+[0.3.0]: https://github.com/alternative-intelligence-cp/nikos/compare/v0.2.3...v0.3.0
+[0.2.3]: https://github.com/alternative-intelligence-cp/nikos/compare/v0.2.2...v0.2.3
+[0.2.2]: https://github.com/alternative-intelligence-cp/nikos/compare/v0.2.1...v0.2.2
+[0.2.1]: https://github.com/alternative-intelligence-cp/nikos/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/alternative-intelligence-cp/nikos/releases/tag/v0.2.0
+

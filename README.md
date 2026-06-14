@@ -193,6 +193,7 @@ target_link_libraries(mytool
 
 | Tag | Milestone |
 |---|---|
+| `v0.6.0` | ikos-pp LLVM 20 Port (hybrid PassManager) |
 | `v0.5.1` | Automated Z3 SMT Generation |
 | `v0.5.0` | Cross-Validation (IKOS vs Z3) |
 | `v0.4.2` | TUI/GUI Reporting |
