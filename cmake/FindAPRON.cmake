@@ -101,6 +101,12 @@ if (NOT APRON_FOUND)
     DOC "Path to apron ap_pkgrid library"
   )
 
+  find_library(APRON_ITV_LIB
+    NAMES itvMPQ
+    HINTS ${APRON_LIBRARY_SEARCH_DIRS}
+    DOC "Path to apron itvMPQ library (needed by PPL/pkgrid)"
+  )
+
   include(FindPackageHandleStandardArgs)
   find_package_handle_standard_args(APRON
     REQUIRED_VARS
@@ -126,12 +132,15 @@ set(APRON_INCLUDE_DIRS
   ${PPL_INCLUDE_DIR})
 
 set(APRON_LIBRARIES
-  ${APRON_APRON_LIB}
+  -Wl,--start-group
   ${APRON_BOX_LIB}
   ${APRON_OCT_LIB}
   ${APRON_POLKA_LIB}
   ${APRON_PPL_LIB}
   ${APRON_PKGRID_LIB}
+  ${APRON_ITV_LIB}
+  ${APRON_APRON_LIB}
+  -Wl,--end-group
   ${GMP_LIB}
   ${GMPXX_LIB}
   ${MPFR_LIB}
