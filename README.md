@@ -44,6 +44,8 @@ NIKOS solves this. If your project uses LLVM 17–20 and you need abstract inter
 - **C++14 → C++17** — structured bindings, `std::optional`, `if constexpr`
 - **Fixed type translation** for LLVM's opaque pointer migration
 - **Updated AR factory** for LLVM 20 IR structure changes
+- **`llvm::Optional` removed** — all checker headers/sources migrated to `std::optional`/`std::nullopt` (27 files; `llvm::Optional` was dropped in LLVM 17)
+- **Explicit header includes** — LLVM 20 tightened transitive-include guarantees; `SmallString.h`, `BinaryFormat/Dwarf.h`, `GetElementPtrTypeIterator.h`, and `GlobalAlias.h` are now explicitly included in `operands.cpp`
 - **Dynamic linking support** — `libikos-ar.a` and `libikos-llvm-to-ar.a` are usable as libraries
 - **In-memory module ingestion** — analyze LLVM modules without writing bitcode to disk
 
@@ -193,7 +195,8 @@ target_link_libraries(mytool
 
 | Tag | Milestone |
 |---|---|
-| `v0.6.0` | ikos-pp LLVM 20 Port (hybrid PassManager) |
+| `v0.6.1` | Checker `llvm::Optional` migration; `operands.cpp` header hygiene |
+| `v0.6.0` | `ikos-pp` LLVM 20 Port (hybrid PassManager) |
 | `v0.5.1` | Automated Z3 SMT Generation |
 | `v0.5.0` | Cross-Validation (IKOS vs Z3) |
 | `v0.4.2` | TUI/GUI Reporting |
@@ -206,6 +209,17 @@ target_link_libraries(mytool
 ## Troubleshooting
 
 Build failures, LLVM version mismatches, and common runtime issues are covered in **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)**.
+
+### Quick LLVM 20 compile-error reference
+
+| Error message | Fix |
+|---|---|
+| `no member named 'DW_TAG_typedef' in namespace 'llvm::dwarf'` | Add `#include <llvm/BinaryFormat/Dwarf.h>` |
+| `member access into incomplete type 'llvm::GlobalAlias'` | Add `#include <llvm/IR/GlobalAlias.h>` |
+| `no member named 'toString'` on `APInt` | Add `#include <llvm/ADT/SmallString.h>` |
+| `use of undeclared 'gep_type_begin'` | Add `#include <llvm/IR/GetElementPtrTypeIterator.h>` |
+| `'llvm::Optional' is not a member of 'llvm'` | Replace with `std::optional`; `llvm::None` → `std::nullopt` |
+| `initializeXxxPass` linker errors | Remove calls — these passes were deleted in LLVM 17+ |
 
 ## Contributing
 

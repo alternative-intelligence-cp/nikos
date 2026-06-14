@@ -6,6 +6,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 **NIKOS** is a fork of [NASA's IKOS](https://github.com/NASA-SW-VnV/ikos), ported from LLVM 14 to LLVM 20 and integrated into the Nitpick static analysis toolchain.
 
+## [0.6.1] — 2026-06-14
+
+### Fixed
+
+- **`llvm::Optional` → `std::optional` migration** across all 27 checker
+  files (includes and implementations). `llvm::Optional` was removed in
+  LLVM 17; the replacement is `std::optional` / `std::nullopt` from C++17.
+  Affected files: `checker.hpp`, `buffer_overflow`, `checker`, `null_dereference`,
+  `concurrent_inliner`, `double_free`, and all remaining checker headers/sources.
+
+- **Missing transitively-included headers** in `analyzer/src/database/table/operands.cpp`.
+  LLVM 20 tightened header hygiene — four headers previously pulled in
+  transitively are now required explicitly:
+  - `llvm/ADT/SmallString.h` — for `APInt::toString(SmallVectorImpl<char>&)`
+  - `llvm/BinaryFormat/Dwarf.h` — for `dwarf::DW_TAG_*` constants
+  - `llvm/IR/GetElementPtrTypeIterator.h` — for `gep_type_begin`/`gep_type_end`
+  - `llvm/IR/GlobalAlias.h` — for complete `GlobalAlias` type (enables `.getAliasee()`)
+
+  Without these, `ikos-analyzer` failed to compile with errors like
+  `no member named 'DW_TAG_typedef' in namespace 'llvm::dwarf'` and
+  `member access into incomplete type 'llvm::GlobalAlias'`.
+
 ## [0.6.0] — 2026-06-14
 
 ### Added
@@ -131,6 +153,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Updated CMake to find LLVM 20.
 - C++ standard from C++14 to C++17.
 
+[0.6.1]: https://github.com/alternative-intelligence-cp/nikos/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/alternative-intelligence-cp/nikos/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/alternative-intelligence-cp/nikos/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/alternative-intelligence-cp/nikos/compare/v0.4.2...v0.5.0
