@@ -1,0 +1,95 @@
+#!/usr/bin/env python
+################################################################################
+# Script for testing APRON abstract domain integration
+#
+# These tests verify that all APRON domains (base and var-pack variants)
+# are correctly integrated and produce sound results: they detect known
+# errors and correctly classify safe code as safe.
+#
+# Author: NIKOS Contributors
+#
+# Contact: ikos@lists.nasa.gov
+#
+# Notices:
+#
+# Copyright (c) 2011-2019 United States Government as represented by the
+# Administrator of the National Aeronautics and Space Administration.
+# All Rights Reserved.
+#
+# Disclaimers:
+#
+# No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY OF
+# ANY KIND, EITHER EXPRESSED, IMPLIED, OR STATUTORY, INCLUDING, BUT NOT LIMITED
+# TO, ANY WARRANTY THAT THE SUBJECT SOFTWARE WILL CONFORM TO SPECIFICATIONS,
+# ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE,
+# OR FREEDOM FROM INFRINGEMENT, ANY WARRANTY THAT THE SUBJECT SOFTWARE WILL BE
+# ERROR FREE, OR ANY WARRANTY THAT DOCUMENTATION, IF PROVIDED, WILL CONFORM TO
+# THE SUBJECT SOFTWARE. THIS AGREEMENT DOES NOT, IN ANY MANNER, CONSTITUTE AN
+# ENDORSEMENT BY GOVERNMENT AGENCY OR ANY PRIOR RECIPIENT OF ANY RESULTS,
+# RESULTING DESIGNS, HARDWARE, SOFTWARE PRODUCTS OR ANY OTHER APPLICATIONS
+# RESULTING FROM USE OF THE SUBJECT SOFTWARE.  FURTHER, GOVERNMENT AGENCY
+# DISCLAIMS ALL WARRANTIES AND LIABILITIES REGARDING THIRD-PARTY SOFTWARE,
+# IF PRESENT IN THE ORIGINAL SOFTWARE, AND DISTRIBUTES IT "AS IS."
+#
+# Waiver and Indemnity:  RECIPIENT AGREES TO WAIVE ANY AND ALL CLAIMS AGAINST
+# THE UNITED STATES GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS, AS WELL
+# AS ANY PRIOR RECIPIENT.  IF RECIPIENT'S USE OF THE SUBJECT SOFTWARE RESULTS
+# IN ANY LIABILITIES, DEMANDS, DAMAGES, EXPENSES OR LOSSES ARISING FROM SUCH
+# USE, INCLUDING ANY DAMAGES FROM PRODUCTS BASED ON, OR RESULTING FROM,
+# RECIPIENT'S USE OF THE SUBJECT SOFTWARE, RECIPIENT SHALL INDEMNIFY AND HOLD
+# HARMLESS THE UNITED STATES GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS,
+# AS WELL AS ANY PRIOR RECIPIENT, TO THE EXTENT PERMITTED BY LAW.
+# RECIPIENT'S SOLE REMEDY FOR ANY SUCH MATTER SHALL BE THE IMMEDIATE,
+# UNILATERAL TERMINATION OF THIS AGREEMENT.
+#
+################################################################################
+import os
+import sys
+
+root = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(0, os.path.join(root, '..'))
+import libruntest
+
+libruntest.parse_args(description='Tests for APRON abstract domain integration')
+
+t = libruntest.TestManager(root)
+
+# =========================================================================
+# BOA (Buffer Overflow Analysis) with APRON octagon domain
+# =========================================================================
+
+# Safe: simple loop with constant bound — apron-octagon smoke test
+t.add(libruntest.Test(
+    'test-apron-1.c',
+    'test-apron-1.c (apron-octagon, safe loop)',
+    'boa', 'safe',
+    domain='apron-octagon'))
+
+# Error: out-of-bounds at index 10 — apron-octagon detects it
+t.add(libruntest.Test(
+    'test-apron-1-unsafe.c',
+    'test-apron-1-unsafe.c (apron-octagon, buf[10] OOB)',
+    'boa', 'error',
+    domain='apron-octagon',
+    line_checks=[(16, 'error')]))
+
+# Safe: interprocedural loop with var-pack-apron-octagon
+t.add(libruntest.Test(
+    'test-apron-2.c',
+    'test-apron-2.c (var-pack-apron-octagon, interprocedural)',
+    'boa', 'safe',
+    domain='var-pack-apron-octagon'))
+
+# =========================================================================
+# Nullity analysis with APRON octagon domain
+# =========================================================================
+
+# Error: unconditional null dereference — apron-octagon nullity analysis
+t.add(libruntest.Test(
+    'test-apron-3.c',
+    'test-apron-3.c (apron-octagon, null deref)',
+    'nullity', 'error',
+    domain='apron-octagon',
+    line_checks=[(13, 'error')]))
+
+t.run()

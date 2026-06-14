@@ -7,7 +7,8 @@ Detect and prove the absence of runtime errors in C/C++ using Abstract Interpret
 
 ![LLVM 20](https://img.shields.io/badge/LLVM-20-blue?style=flat-square&logo=llvm)
 ![C++17](https://img.shields.io/badge/C%2B%2B-17-blue?style=flat-square&logo=cplusplus)
-![Tests](https://img.shields.io/badge/tests-59%2F59%20passing-brightgreen?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-64%2F64%20passing-brightgreen?style=flat-square)
+![APRON](https://img.shields.io/badge/APRON-optional-blue?style=flat-square)
 ![License: NOSA 1.3](https://img.shields.io/badge/License-NOSA%201.3-green?style=flat-square)
 
 ---
@@ -19,6 +20,7 @@ Detect and prove the absence of runtime errors in C/C++ using Abstract Interpret
 - [Checkers](#checkers)
 - [Prerequisites](#prerequisites)
 - [Building from Source](#building-from-source)
+- [APRON Support (Optional)](#apron-support-optional)
 - [Usage](#usage)
 - [Library Integration](#library-integration)
 - [Releases](#releases)
@@ -97,17 +99,20 @@ NIKOS ships 16 analysis checkers:
 
 ## Prerequisites
 
-| Dependency | Minimum Version |
-|---|---|
-| LLVM + Clang | 20 |
-| CMake | 3.20 |
-| C++ compiler | GCC ≥ 9 or Clang ≥ 10 |
-| Boost | 1.71 |
-| GMP | 6.1 |
-| SQLite3 | 3.27 |
-| TBB | 2020 |
-| Python | 3.8 |
-| zlib, libedit | (system) |
+| Dependency | Minimum Version | Required |
+|---|---|---|
+| LLVM + Clang | 20 | ✅ |
+| CMake | 3.20 | ✅ |
+| C++ compiler | GCC ≥ 9 or Clang ≥ 10 | ✅ |
+| Boost | 1.71 | ✅ |
+| GMP | 6.1 | ✅ |
+| SQLite3 | 3.27 | ✅ |
+| TBB | 2020 | ✅ |
+| Python | 3.8 | ✅ |
+| zlib, libedit | (system) | ✅ |
+| MPFR | 4.0 | Optional (APRON) |
+| PPL | 1.2 | Optional (APRON) |
+| APRON | source build | Optional |
 
 ## Building from Source
 
@@ -135,6 +140,60 @@ make install
 ```
 
 The install tree will contain `bin/`, `lib/`, and `include/` directories under `nikos/install/`.
+
+## APRON Support (Optional)
+
+[APRON](https://github.com/antoinemine/apron) is a C library of numerical abstract domains for static analysis. Enabling it adds 13 additional analysis domains with stronger relational reasoning:
+
+| Domain | Flag |
+|---|---|
+| `apron-interval` | APRON interval (baseline) |
+| `apron-octagon` | Octagon domain (x±y≤c constraints) |
+| `apron-polka-polyhedra` | Convex polyhedra (maximum precision) |
+| `apron-polka-linear-equalities` | Linear equalities only |
+| `apron-ppl-polyhedra` | PPL polyhedra |
+| `apron-ppl-linear-congruences` | PPL linear congruences |
+| `apron-pkgrid-polyhedra-lin-cong` | Product of polyhedra + congruences |
+| `var-pack-apron-*` | Variable-packing variants of all above |
+
+### Build APRON from source
+
+```bash
+# Install APRON build dependencies
+sudo apt-get install -y libmpfr-dev libppl-dev ocaml ocaml-findlib camlidl m4
+
+# Clone and build APRON (C API only, no OCaml bindings)
+git clone https://github.com/antoinemine/apron.git
+cd apron
+cp Makefile.config.model Makefile.config
+# Edit Makefile.config:
+#   APRON_PREFIX = /path/to/apron/install
+#   HAS_PPL = 1
+#   HAS_OCAML =
+#   HAS_OCAMLOPT =
+make -j$(nproc)
+make install  # or manually copy headers and .a files
+```
+
+### Build NIKOS with APRON
+
+```bash
+cmake -DAPRON_ROOT=/path/to/apron/install \
+      -DLLVM_CONFIG_EXECUTABLE=$(which llvm-config-20) ..
+make -j$(nproc)
+```
+
+> **Note:** APRON is not thread-safe. Do not use `-j N` parallelism when running analysis with APRON domains.
+
+### Use an APRON domain
+
+```bash
+# Use octagon domain for stronger relational precision
+ikos-analyzer -a=boa -d=apron-octagon -entry-points=main example.pp.bc -o out.db
+
+# Use polka-polyhedra for maximum precision (slower)
+ikos-analyzer -a=boa -d=apron-polka-polyhedra -entry-points=main example.pp.bc -o out.db
+```
 
 ## Usage
 
@@ -196,6 +255,7 @@ target_link_libraries(mytool
 
 | Tag | Milestone |
 |---|---|
+| `v0.13.0` | **APRON Support** — 13 relational abstract domains (64/64 tests passing) |
 | `v0.12.0` | **Production Ready** — 59/59 tests passing, opaque pointer type system fixes, VLA support, `--opt=custom` restored |
 | `v0.6.1` | Checker `llvm::Optional` migration; `operands.cpp` header hygiene |
 | `v0.6.0` | `ikos-pp` LLVM 20 Port (hybrid PassManager) |
