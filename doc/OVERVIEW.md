@@ -1,14 +1,19 @@
-Overview of the source code
+Overview of the Source Code
 ===========================
+
+NIKOS is a modernized fork of [NASA's IKOS](https://github.com/NASA-SW-VnV/ikos), upgraded from LLVM 14 to LLVM 20.
 
 The following illustrates the content of the root directory:
 
 ```
 .
 ├── CMakeLists.txt
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── CONTRIBUTORS.md
 ├── LICENSE.pdf
+├── LICENSE.txt
 ├── README.md
-├── RELEASE_NOTES.md
 ├── TROUBLESHOOTING.md
 ├── analyzer
 ├── ar
@@ -20,27 +25,60 @@ The following illustrates the content of the root directory:
 └── test
 ```
 
+* [CMakeLists.txt](../CMakeLists.txt) is the root CMake file. Configures `project(nikos)` with C++17.
 
-* [CMakeLists.txt](../CMakeLists.txt) is the root CMake file.
+* [CHANGELOG.md](../CHANGELOG.md) contains the change log for all releases since the LLVM 20 port.
+
+* [CONTRIBUTING.md](../CONTRIBUTING.md) contains guidelines for contributing to NIKOS.
+
+* [CONTRIBUTORS.md](../CONTRIBUTORS.md) lists the original IKOS contributors.
 
 * [LICENSE.pdf](../LICENSE.pdf) contains the NOSA 1.3 license.
 
-* [RELEASE_NOTES.md](../RELEASE_NOTES.md) contains the release notes for the latest versions.
+* [TROUBLESHOOTING.md](../TROUBLESHOOTING.md) contains solutions for common issues with NIKOS.
 
-* [TROUBLESHOOTING.md](../TROUBLESHOOTING.md) contains solution for common issues with IKOS.
+* [analyzer](../analyzer) contains the implementation of various analyses for specific defect detections. These analyses are implemented on the Abstract Representation and use the fixpoint iterator and abstract domains to perform analysis.
 
-* [analyzer](../analyzer) contains the implementation of various analyses for specific defect detections. These analyses are implemented on the Abstract Representation and use the fixpoint iterator and abstract domains to perform analysis. More information can be found at [analyzer/README.md](../analyzer/README.md).
+* [ar](../ar) contains the implementation of the Abstract Representation, a generic assembly language.
 
-* [ar](../ar) contains the implementation of the Abstract Representation, a generic assembly language. More information can be found at [ar/README.md](../ar/README.md).
+* [cmake](../cmake) contains CMake modules to find dependencies (LLVM, Boost, GMP, SQLite, TBB, etc.).
 
-* [cmake](../cmake) contains CMake files to search for related software libraries.
+* [core](../core) contains the implementation of the theory of Abstract Interpretation, which includes the abstract domains, the fixpoint iterator, and various algorithms that support the implementation.
 
-* [core](../core) contains the implementation of the theory of Abstract Interpretation, which includes the abstract domains, the fixpoint iterator, and various algorithms that support the implementation. More information can be found at [core/README.md](../core/README.md).
+* [doc](../doc) contains documentation including this overview, coding standards, and installation guides.
 
-* [doc/install](../doc/install) contains installation instructions for specific operating systems.
-
-* [frontend/llvm](../frontend/llvm) contains the implementation of the translation from LLVM to AR. More information can be found at [frontend/llvm/README.md](../frontend/llvm/README.md).
+* [frontend/llvm](../frontend/llvm) contains the implementation of the translation from LLVM IR to AR. This is where the LLVM 20 porting work is concentrated.
 
 * [script](../script) contains the [bootstrap](../script/bootstrap) script for a rootless installation.
 
-* [test/install](../test/install) contains tests for the installation of IKOS on different platforms.
+* [test/install](../test/install) contains tests for the installation of NIKOS on different platforms.
+
+## Architecture
+
+```
+                 C/C++ Source
+                      │
+                      ▼
+              clang-20 (compile)
+                      │
+                      ▼
+              LLVM 20 Bitcode (.bc)
+                      │
+                      ▼
+              ikos-pp (preprocess)
+                      │
+                      ▼
+            Optimized LLVM Bitcode
+                      │
+                      ▼
+        frontend/llvm (LLVM IR → AR)
+                      │
+                      ▼
+        Abstract Representation (AR)
+                      │
+                      ▼
+         analyzer (abstract interp)
+                      │
+                      ▼
+              Analysis Results
+```

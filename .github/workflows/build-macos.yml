@@ -1,42 +1,46 @@
-name: Build tool on OSX
+name: Build NIKOS on macOS
+
 on:
   push:
+    branches: [main, dev-*]
   pull_request:
+    branches: [main]
+
 jobs:
-  build:
+  build-macos:
     runs-on: macos-latest
+
     env:
-      LDFLAGS:  "-L/opt/homebrew/opt/llvm@14/lib"
-      CPPFLAGS: "-I/opt/homebrew/opt/llvm@14/include"
+      MAKEFLAGS: -j4
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Install dependencies
         run: |
-          brew tap nasa-sw-vnv/core
-          brew install cmake gmp boost tbb llvm@14 apron sqlite
-      - name: Adjust path
-        run:
-          echo "/opt/homebrew/opt/llvm@14/bin" >> $GITHUB_PATH
-      - name: Test LLVM
+          brew update
+          brew install cmake boost gmp sqlite tbb llvm@20
+
+      - name: Build NIKOS
         run: |
-          which llvm-config
-      - name: Compile IKOS
-        run: |
-          mkdir build
-          cd build
+          export PATH="$(brew --prefix llvm@20)/bin:$PATH"
+          export LDFLAGS="-L$(brew --prefix llvm@20)/lib"
+          export CPPFLAGS="-I$(brew --prefix llvm@20)/include"
+          mkdir build && cd build
           cmake \
-            -DCMAKE_INSTALL_PREFIX="$HOME/ikos" \
-            -DCMAKE_BUILD_TYPE="Debug" \
-            -DLLVM_CONFIG_EXECUTABLE="$(which llvm-config)" \
-            -DPYTHON_EXECUTABLE:FILEPATH="$(which python3)" \
+            -DCMAKE_INSTALL_PREFIX="${GITHUB_WORKSPACE}/install" \
+            -DCMAKE_BUILD_TYPE="Release" \
+            -DLLVM_CONFIG_EXECUTABLE="$(brew --prefix llvm@20)/bin/llvm-config" \
             ..
           make
+
+      - name: Install
+        run: |
+          cd build
           make install
-      - name: Add IKOS to the path
+
+      - name: Verify installation
         run: |
-          echo "$HOME/ikos/bin" >> $GITHUB_PATH
-      - name: Confirm that it runs
-        run: |
+          export PATH="${GITHUB_WORKSPACE}/install/bin:$PATH"
           ikos --version

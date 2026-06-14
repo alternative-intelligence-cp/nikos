@@ -1,12 +1,12 @@
 Troubleshooting
 ===============
 
-This document covers some common issues with IKOS, and how to solve them.
+This document covers some common issues with NIKOS, and how to solve them.
 
 Contact
 -------
 
-ikos@lists.nasa.gov
+https://github.com/alternative-intelligence-cp/nikos/issues
 
 Installation issues
 -------------------
@@ -55,7 +55,7 @@ You are probably trying to build IKOS with shared libraries (using `-DBUILD_SHAR
 
 Unfortunately, this doesn't work because LLVM uses global constructors to register command line options, and the global constructors end up being called twice.
 
-Compiling IKOS with both `-DBUILD_SHARED_LIBS=ON` and `-DIKOS_LINK_LLVM_DYLIB=ON` should fix the issue by linking against the libLLVM shared library.
+Compiling NIKOS with both `-DBUILD_SHARED_LIBS=ON` and `-DIKOS_LINK_LLVM_DYLIB=ON` should fix the issue by linking against the libLLVM shared library.
 
 ### "/usr/bin/ld: cannot find -lLLVMCore" while running Make
 
@@ -72,13 +72,13 @@ Analysis issues
 
 ### Exited with signal SIGKILL
 
-IKOS probably ran out of memory.
+NIKOS probably ran out of memory.
 
 See [Running ouf of memory](#running-out-of-memory)
 
 ### Running out of memory
 
-IKOS might run out of memory on huge code bases.
+NIKOS might run out of memory on huge code bases.
 
 Consider using the option `--no-fixpoint-cache`. It disables the cache of fixpoint for called functions, which decreases the memory usage at the cost of run time.
 
@@ -89,8 +89,8 @@ Known issues
 
 Source code fortification aims at making your source code more robust. It replaces regular `memset()`, `memcpy()` and `memmove()` calls to `__memset_chk()`, `__memcpy_chk()` and `__memmove_chk()`. According to Linux Standard Base Core Specification 4.1, the interfaces `__memset_chk()`, `__memcpy_chk()` and `__memmove_chk()` shall function in the same way as the interface `memset()`, `memcpy()` and `memmove()`, respectively, except that `__memset_chk()`, `__memcpy_chk()` and `__memmove_chk()` shall check for buffer overflow before computing a result. If an overflow is anticipated, the function shall abort and the program calling it shall exit.
 
-The Buffer Overflow Analysis (BOA) in IKOS handles `__memset_chk()`, `__memcpy_chk()` and `__memmove_chk()` as unknown library functions, and won't report any warning. Consider using `-D_FORTIFY_SOURCE=0` when you compile your source code to LLVM bitcode manually.
+The Buffer Overflow Analysis (BOA) in NIKOS handles `__memset_chk()`, `__memcpy_chk()` and `__memmove_chk()` as unknown library functions, and won't report any warning. Consider using `-D_FORTIFY_SOURCE=0` when you compile your source code to LLVM bitcode manually.
 
 ### Analyzing multi-threaded code
 
-IKOS does not handle analyzing multi-threaded code. Handling multi-threaded code in a sound static analyzer based on Abstract Interpretation (such as IKOS) is challenging and an ongoing research topic.
+NIKOS does not handle analyzing multi-threaded code. Handling multi-threaded code in a sound static analyzer based on Abstract Interpretation (such as NIKOS) is challenging and an ongoing research topic.

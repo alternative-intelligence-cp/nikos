@@ -1,8 +1,9 @@
 #*******************************************************************************
 #
-# Author: Maxime Arthaud
+# Original Author: Maxime Arthaud (NASA)
+# NIKOS Fork: Alternative Intelligence
 #
-# Contact: ikos@lists.nasa.gov
+# Contact: https://github.com/alternative-intelligence-cp/nikos
 #
 # Notices:
 #
@@ -38,10 +39,14 @@
 #
 #*****************************************************************************/
 
-cmake_minimum_required(VERSION 3.4.3 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-project(ikos)
-set(PACKAGE_VERSION "3.5")
+project(nikos
+  VERSION 0.5.1
+  LANGUAGES C CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #
 # Build settings

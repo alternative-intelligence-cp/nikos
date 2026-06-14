@@ -1,12 +1,12 @@
 Coding Standards
 ================
 
-This document describes a few coding standards that are used in IKOS.
+This document describes a few coding standards that are used in NIKOS.
 
 C++ Standard Version
 --------------------
 
-IKOS is currently written in C++14.
+NIKOS is written in C++17.
 
 Source Code Formatting
 ----------------------
@@ -46,7 +46,7 @@ if (cond) {
 Automatic Formatting
 --------------------
 
-IKOS developers should use [clang-format](https://clang.llvm.org/docs/ClangFormat.html) to format the source code with a predefined set of style rules.
+NIKOS developers should use [clang-format](https://clang.llvm.org/docs/ClangFormat.html) to format the source code with a predefined set of style rules.
 
 See [.clang-format](../.clang-format) for the set of rules.
 
@@ -63,7 +63,7 @@ $ script/run-clang-format
 Static Analysis
 ---------------
 
-IKOS developers should use [clang-tidy](https://clang.llvm.org/extra/clang-tidy/) to perform diagnosis for typical programming errors, style violation, interface misuse, etc.
+NIKOS developers should use [clang-tidy](https://clang.llvm.org/extra/clang-tidy/) to perform diagnosis for typical programming errors, style violation, interface misuse, etc.
 
 See [.clang-tidy](../.clang-tidy) for the set of checks.
 
@@ -78,9 +78,9 @@ $ ../script/run-clang-tidy
 Dynamic Analysis
 ----------------
 
-IKOS developers should use [clang sanitizers](https://clang.llvm.org/docs/UsersManual.html#controlling-code-generation) to check for undefined behaviors at run-time.
+NIKOS developers should use [clang sanitizers](https://clang.llvm.org/docs/UsersManual.html#controlling-code-generation) to check for undefined behaviors at run-time.
 
-To build IKOS with clang sanitizers, use the following cmake options:
+To build NIKOS with clang sanitizers, use the following cmake options:
 * `-DUSE_SANITIZER=Address` to use [Address Sanitizer](https://clang.llvm.org/docs/AddressSanitizer.html)
 * `-DUSE_SANITIZER=Undefined` to use [Undefined Behavior Sanitizer](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html)
 * `-DUSE_SANITIZER=Memory` to use [Memory Sanitizer](https://clang.llvm.org/docs/MemorySanitizer.html)
