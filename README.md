@@ -255,6 +255,7 @@ target_link_libraries(mytool
 
 | Tag | Milestone |
 |---|---|
+| `v0.13.1` | **0.13 Series Final** — install verification, benchmark docs, series close |
 | `v0.13.0` | **APRON Support** — 13 relational abstract domains (64/64 tests passing) |
 | `v0.12.0` | **Production Ready** — 59/59 tests passing, opaque pointer type system fixes, VLA support, `--opt=custom` restored |
 | `v0.6.1` | Checker `llvm::Optional` migration; `operands.cpp` header hygiene |

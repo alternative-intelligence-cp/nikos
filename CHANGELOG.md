@@ -6,7 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 **NIKOS** is a fork of [NASA's IKOS](https://github.com/NASA-SW-VnV/ikos), ported from LLVM 14 to LLVM 20 and integrated into the Nitpick static analysis toolchain.
 
+## [0.13.1] — 2026-06-14
+
+### ✅ 0.13 Series Finalization — Install Verification
+
+Closes the v0.13 series. Verifies the APRON domains work correctly from the
+installed binary tree, and confirms all 64 regression tests pass end-to-end.
+
+### Verified
+
+- **Install verification (NAP-022):** `ikos-analyzer` built against the install
+  prefix correctly detects bugs with `apron-octagon` (no `LD_LIBRARY_PATH`
+  required — APRON is statically linked).
+- **64/64 tests passing** — full suite passes in 28 seconds with APRON enabled.
+- **Precision benchmark documented** — `APRON_PRECISION_BENCHMARK.md` records
+  interval vs apron-octagon comparison across 6 analysis suites (255 tests).
+
+---
+
 ## [0.13.0] — 2026-06-14
+
 
 ### 🔬 APRON Abstract Domain Library Support — 64/64 Tests Passing
 
