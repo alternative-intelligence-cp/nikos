@@ -310,7 +310,7 @@ private:
   ar::Type* translate_enum_di_type(llvm::DICompositeType*, llvm::Type*);
 
   /// \brief Translate (llvm::DISubroutineType*, llvm::Type*) into an ar::Type
-  ar::Type* translate_subroutine_di_type(llvm::DISubroutineType*, llvm::Type*);
+  ar::Type* translate_subroutine_di_type(llvm::DISubroutineType*, llvm::Type*, llvm::Function* = nullptr);
 
 public:
   /// \brief Translate a llvm::Function's type with debug info into an ar::Type*

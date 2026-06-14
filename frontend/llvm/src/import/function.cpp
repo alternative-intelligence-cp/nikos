@@ -395,9 +395,8 @@ void FunctionImporter::translate_instruction(
 void FunctionImporter::translate_alloca(BasicBlockTranslation* bb_translation,
                                         llvm::AllocaInst* alloca) {
   // Translate types
-  check_import(alloca->getType()->getPointerElementType() ==
-                   alloca->getAllocatedType(),
-               "unexpected allocated type in llvm alloca");
+  check_import(alloca->getType()->isPointerTy(),
+               "unexpected type for alloca instruction");
   auto var_type = ar::cast< ar::PointerType >(this->infer_type(alloca));
   ar::Type* allocated_type = var_type->pointee();
 
@@ -421,16 +420,18 @@ void FunctionImporter::translate_alloca(BasicBlockTranslation* bb_translation,
 
 void FunctionImporter::translate_store(BasicBlockTranslation* bb_translation,
                                        llvm::StoreInst* store) {
-  // Translate pointer
-  ar::Value* pointer = this->translate_value(bb_translation,
-                                             store->getPointerOperand(),
-                                             nullptr);
-  auto ptr_type = ar::cast< ar::PointerType >(pointer->type());
-
   // Translate stored value
+  ar::Type* value_type =
+      this->_ctx.type_imp->translate_type(store->getValueOperand()->getType(), ar::Signed);
   ar::Value* value = this->translate_value(bb_translation,
                                            store->getValueOperand(),
-                                           ptr_type->pointee());
+                                           value_type);
+
+  // Translate pointer
+  ar::PointerType* ptr_type = ar::PointerType::get(this->_context, value->type());
+  ar::Value* pointer = this->translate_value(bb_translation,
+                                             store->getPointerOperand(),
+                                             ptr_type);
 
   auto stmt = ar::Store::create(pointer,
                                 value,
@@ -656,11 +657,18 @@ void FunctionImporter::translate_call_helper(
     bool force_return_cast,
     bool force_args_cast,
     CreateStmtFun create_stmt) {
+  // Extract LLVM function type
+  llvm::FunctionType* llvm_fun_type = call->getFunctionType();
+  // Translate to AR function type
+  ar::Type* ar_fun_type_base = this->_ctx.type_imp->translate_type(llvm_fun_type, ar::Signed);
+  auto fun_type = ar::cast< ar::FunctionType >(ar_fun_type_base);
+  
+  // Create expected pointer type
+  ar::PointerType* expected_called_type = ar::PointerType::get(this->_context, fun_type);
+
   // Translate called value
   ar::Value* called =
-      this->translate_value(bb_translation, call->getCalledOperand(), nullptr);
-  auto called_type = ar::cast< ar::PointerType >(called->type());
-  auto fun_type = ar::cast< ar::FunctionType >(called_type->pointee());
+      this->translate_value(bb_translation, call->getCalledOperand(), expected_called_type);
 
   const bool has_return_value = !call->getType()->isVoidTy();
 
@@ -892,8 +900,12 @@ void FunctionImporter::translate_getelementptr(
   this->mark_variable_mapping(gep, var);
 
   // Translate base
+  ar::Type* preferred_type = nullptr;
+  if (llvm::Type* source_element_type = gep->getSourceElementType()) {
+    preferred_type = ar::PointerType::get(this->_context, this->_ctx.type_imp->translate_type(source_element_type, ar::Signed));
+  }
   ar::Value* pointer =
-      this->translate_value(bb_translation, gep->getPointerOperand(), nullptr);
+      this->translate_value(bb_translation, gep->getPointerOperand(), preferred_type);
 
   // Translate operands
   std::vector< ar::PointerShift::Term > terms;
@@ -915,7 +927,7 @@ void FunctionImporter::translate_getelementptr(
                       std::numeric_limits< unsigned >::max());
       auto uint_value = static_cast< unsigned >(value.getZExtValue());
       uint64_t offset = this->_llvm_data_layout.getStructLayout(struct_type)
-                            ->getElementOffset(uint_value);
+                            ->getElementOffset(uint_value).getFixedValue();
 
       ar::IntegerConstant* ar_op =
           ar::IntegerConstant::get(this->_context,
@@ -930,13 +942,13 @@ void FunctionImporter::translate_getelementptr(
     } else {
       // Shift in a sequential type
       uint64_t size =
-          this->_llvm_data_layout.getTypeAllocSize(it.getIndexedType());
-      ar::Type* preferred_type =
+          this->_llvm_data_layout.getTypeAllocSize(it.getIndexedType()).getFixedValue();
+      ar::Type* op_preferred_type =
           llvm::isa< llvm::Constant >(op)
               ? _ctx.type_imp->translate_type(op->getType(), ar::Signed)
               : nullptr;
       ar::Value* ar_op =
-          this->translate_value(bb_translation, op, preferred_type);
+          this->translate_value(bb_translation, op, op_preferred_type);
       terms.emplace_back(ar::MachineInt(size,
                                         size_type->bit_width(),
                                         size_type->sign()),
@@ -1546,19 +1558,19 @@ ar::IntegerConstant* FunctionImporter::translate_indexes(
 
     if (auto struct_type = llvm::dyn_cast< llvm::StructType >(indexed_type)) {
       offset += this->_llvm_data_layout.getStructLayout(struct_type)
-                    ->getElementOffset(idx);
+                    ->getElementOffset(idx).getFixedValue();
     } else if (auto array_type =
                    llvm::dyn_cast< llvm::ArrayType >(indexed_type)) {
       ar::ZNumber element_size(
           this->_llvm_data_layout.getTypeAllocSize(array_type->getElementType())
-              .getFixedSize());
+              .getFixedValue());
       offset += element_size * idx;
     } else if (auto vector_type =
                    llvm::dyn_cast< llvm::VectorType >(indexed_type)) {
       ar::ZNumber element_size(
           this->_llvm_data_layout
               .getTypeAllocSize(vector_type->getElementType())
-              .getFixedSize());
+              .getFixedValue());
       offset += element_size * idx;
     } else {
       throw ImportError("unsupported operand to llvm extractvalue");
@@ -1595,7 +1607,7 @@ void FunctionImporter::translate_extractelement(
   ar::ZNumber element_size(
       this->_llvm_data_layout
           .getTypeAllocSize(inst->getVectorOperandType()->getElementType())
-          .getFixedSize());
+          .getFixedValue());
   ar::ZNumber offset_value = index->getZExtValue() * element_size;
   auto offset = ar::IntegerConstant::get(this->_context,
                                          size_type,
@@ -1629,7 +1641,7 @@ void FunctionImporter::translate_insertelement(
   ar::ZNumber element_size(
       this->_llvm_data_layout
           .getTypeAllocSize(inst->getType()->getElementType())
-          .getFixedSize());
+          .getFixedValue());
   ar::ZNumber offset_value = index->getZExtValue() * element_size;
   auto offset = ar::IntegerConstant::get(this->_context,
                                          size_type,
@@ -1899,8 +1911,8 @@ ar::Type* FunctionImporter::infer_type(llvm::Value* value) {
 ar::Type* FunctionImporter::infer_type_from_dbg(llvm::Value* value) {
   // Check for llvm.dbg.declare and llvm.dbg.addr
   if (auto alloca = llvm::dyn_cast< llvm::AllocaInst >(value)) {
-    llvm::TinyPtrVector< llvm::DbgVariableIntrinsic* > dbg_addrs =
-        llvm::FindDbgAddrUses(alloca);
+    llvm::SmallVector< llvm::DbgVariableIntrinsic*, 1 > dbg_addrs;
+    llvm::findDbgUsers(dbg_addrs, alloca);
     auto dbg_addr =
         std::find_if(dbg_addrs.begin(),
                      dbg_addrs.end(),
