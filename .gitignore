@@ -62,3 +62,8 @@ output.db
 *.orig
 *.rej
 .pyc
+packaging/deb/staging/
+packaging/*.deb
+packaging/*.rpm
+install/
+build-deb/

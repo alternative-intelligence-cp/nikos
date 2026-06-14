@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  nikos:
+    image: nikos:1.0.0
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    volumes:
+      - .:/work
+    working_dir: /work
+    # Override default entrypoint to use the full ikos wrapper
+    entrypoint: ["/opt/nikos/bin/ikos"]
+
+  # Analyzer-only service (direct ikos-analyzer, no Python wrapper)
+  nikos-analyzer:
+    image: nikos:1.0.0
+    volumes:
+      - .:/work
+    working_dir: /work

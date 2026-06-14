@@ -1,96 +1,141 @@
-Troubleshooting
-===============
+# Troubleshooting
 
-This document covers some common issues with NIKOS, and how to solve them.
+This document covers common issues with NIKOS and how to resolve them.
 
-Contact
--------
+**Contact:** [GitHub Issues](https://github.com/alternative-intelligence-cp/nikos/issues)
 
-https://github.com/alternative-intelligence-cp/nikos/issues
+---
 
-Installation issues
--------------------
+## Build Issues
 
 ### "Could NOT find LLVM" while running cmake
 
 CMake could not find LLVM.
 
-First, install LLVM. This can usually be done with your package manager.
-
-If this message still shows up, it means cmake cannot find the `llvm-config` command.
-
-You can either add the LLVM binary directory in your PATH, or give cmake the full path to llvm-config, using `-DLLVM_CONFIG_EXECUTABLE=/path/to/llvm-config`
-
-For instance, if you installed LLVM using Homebrew on Mac OS X, you can add LLVM in your path using:
-
+First, install LLVM 20:
+```bash
+wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && sudo ./llvm.sh 20
 ```
-$ PATH="$(brew --prefix)/opt/llvm/bin:$PATH"
+
+If the error persists, give cmake the full path:
+```bash
+cmake -DLLVM_CONFIG_EXECUTABLE=/usr/bin/llvm-config-20 ..
 ```
 
 ### "Could NOT find Clang" while running cmake
 
-CMake could not find Clang.
+Install clang-20 and pass its path explicitly:
+```bash
+sudo apt-get install clang-20
+cmake -DCLANG_EXECUTABLE=/usr/bin/clang-20 ..
+```
 
-First, install Clang. This can usually be done with your package manager.
+### "/usr/bin/ld: cannot find -lLLVMCore"
 
-If this message still shows up, it means cmake cannot find the `clang` command.
+Your LLVM was built as a single shared library (`libLLVM.so`). Fix:
+```bash
+cmake -DBUILD_SHARED_LIBS=ON -DIKOS_LINK_LLVM_DYLIB=ON ..
+```
 
-You can either add the clang binary directory in your PATH, or give cmake the full path to clang, using `-DCLANG_EXECUTABLE=/path/to/clang`
+### "Two passes with the same argument (-domtree) attempted to be registered!"
+
+You are mixing shared and static LLVM libraries. Fix:
+```bash
+cmake -DBUILD_SHARED_LIBS=ON -DIKOS_LINK_LLVM_DYLIB=ON ..
+```
+
+---
+
+## LLVM 20-Specific Build Errors
+
+These errors appear when building against LLVM 20 from a stale checkout.
+All of these are already fixed in NIKOS v1.0.0.
+
+| Error | Fix |
+|---|---|
+| `no member named 'DW_TAG_typedef' in namespace 'llvm::dwarf'` | Add `#include <llvm/BinaryFormat/Dwarf.h>` |
+| `member access into incomplete type 'llvm::GlobalAlias'` | Add `#include <llvm/IR/GlobalAlias.h>` |
+| `no member named 'toString'` on `APInt` | Add `#include <llvm/ADT/SmallString.h>` |
+| `use of undeclared 'gep_type_begin'` | Add `#include <llvm/IR/GetElementPtrTypeIterator.h>` |
+| `'llvm::Optional' is not a member of 'llvm'` | Replace with `std::optional`; `llvm::None` → `std::nullopt` |
+| `initializeXxxPass` linker errors | Remove calls — legacy passes were deleted in LLVM 17+ |
+| Opaque pointer type assertion failures | These are handled by `OPAQUE_PTR_TOLERANCE` in the test runner |
+
+---
+
+## APRON Build Issues
+
+### "memory access violation at address: 0x00000088"
+
+This is a bug in system-provided APRON packages. Always build APRON from source:
+```bash
+git clone https://github.com/antoinemine/apron.git
+```
+See `doc/install/1.0/APRON.md` for the full build guide.
+
+### APRON linker errors ("undefined reference to `ap_interval_alloc`")
+
+The APRON libraries require a specific link order and the `libitvMPQ` archive.
+NIKOS's `cmake/FindAPRON.cmake` handles this automatically. Ensure you pass:
+```bash
+cmake -DAPRON_ROOT=/path/to/apron/install ..
+```
+
+### ikos-analyzer crashes when using APRON domains with multiple threads
+
+APRON is **not thread-safe**. Never use APRON domains with the `-j N` parallel
+flag. For analysis, run single-threaded.
+
+---
+
+## Installation Issues
 
 ### "Could not find ikos python module" while running ikos
 
-The ikos command could not import the ikos python module.
-
-The module should be under `/path/to/ikos-install/lib/python*/site-packages`
-
-If the ikos python module is in another directory, make sure it is in your PYTHONPATH:
-
-```
-export PYTHONPATH=/path/to/ikos-python-module
+The `ikos` front-end wrapper needs the Python module on the path:
+```bash
+export PYTHONPATH=/path/to/nikos/install/lib/python*/ikos
 ```
 
-### "Two passes with the same argument (-domtree) attempted to be registered!" while running ikos
+Or add it permanently to your shell profile.
 
-You are probably trying to build IKOS with shared libraries (using `-DBUILD_SHARED_LIBS=ON`) and LLVM was linked statically (using `libLLVMxxx.a`).
+---
 
-Unfortunately, this doesn't work because LLVM uses global constructors to register command line options, and the global constructors end up being called twice.
+## Analysis Issues
 
-Compiling NIKOS with both `-DBUILD_SHARED_LIBS=ON` and `-DIKOS_LINK_LLVM_DYLIB=ON` should fix the issue by linking against the libLLVM shared library.
+### Exited with signal SIGKILL (out of memory)
 
-### "/usr/bin/ld: cannot find -lLLVMCore" while running Make
+NIKOS ran out of memory. Options:
 
-Your LLVM library was built as one single shared library `libLLVM.so` (`LLVM_BUILD_LLVM_DYLIB=1`), but CMake was configured to query specific library components and match link flags against them.
+1. Disable the fixpoint cache (reduces memory at the cost of speed):
+   ```bash
+   ikos-analyzer --no-fixpoint-cache ...
+   ```
+2. Use intraprocedural analysis (no cross-function summary):
+   ```bash
+   ikos-analyzer --proc=intra ...
+   ```
+3. Analyze individual translation units separately.
 
-Compiling IKOS with both `-DBUILD_SHARED_LIBS=ON` and `-DIKOS_LINK_LLVM_DYLIB=ON` should fix the issue by linking against the single libLLVM shared library.
+### False positives from external library functions
 
-### `memory access violation at address: 0x00000088: no mapping at fault address` while running tests
+NIKOS treats unknown library functions as returning unconstrained values,
+which can cause spurious warnings at call sites. Limit the analysis scope:
+```bash
+ikos-analyzer -a=boa,nullity --entry-points=my_func ...
+```
 
-This is a bug in the APRON library. Some OS distributions provide outdated versions of APRON. Building APRON from source (https://github.com/antoinemine/apron), instead of relying on a version made available via the OS' package repository, should fix the issue.
+### Source Code Fortification (`__memset_chk`, `__memcpy_chk`)
 
-Analysis issues
----------------
-
-### Exited with signal SIGKILL
-
-NIKOS probably ran out of memory.
-
-See [Running ouf of memory](#running-out-of-memory)
-
-### Running out of memory
-
-NIKOS might run out of memory on huge code bases.
-
-Consider using the option `--no-fixpoint-cache`. It disables the cache of fixpoint for called functions, which decreases the memory usage at the cost of run time.
-
-Known issues
-------------
-
-### Source Code Fortification
-
-Source code fortification aims at making your source code more robust. It replaces regular `memset()`, `memcpy()` and `memmove()` calls to `__memset_chk()`, `__memcpy_chk()` and `__memmove_chk()`. According to Linux Standard Base Core Specification 4.1, the interfaces `__memset_chk()`, `__memcpy_chk()` and `__memmove_chk()` shall function in the same way as the interface `memset()`, `memcpy()` and `memmove()`, respectively, except that `__memset_chk()`, `__memcpy_chk()` and `__memmove_chk()` shall check for buffer overflow before computing a result. If an overflow is anticipated, the function shall abort and the program calling it shall exit.
-
-The Buffer Overflow Analysis (BOA) in NIKOS handles `__memset_chk()`, `__memcpy_chk()` and `__memmove_chk()` as unknown library functions, and won't report any warning. Consider using `-D_FORTIFY_SOURCE=0` when you compile your source code to LLVM bitcode manually.
+With `-D_FORTIFY_SOURCE=2`, glibc replaces `memset`/`memcpy` with
+`__memset_chk`/`__memcpy_chk`. NIKOS treats these as unknown functions.
+Fix by disabling fortification at compile time:
+```bash
+clang-20 -D_FORTIFY_SOURCE=0 -c -emit-llvm -g -O0 myfile.c -o myfile.bc
+```
 
 ### Analyzing multi-threaded code
 
-NIKOS does not handle analyzing multi-threaded code. Handling multi-threaded code in a sound static analyzer based on Abstract Interpretation (such as NIKOS) is challenging and an ongoing research topic.
+NIKOS does not model multi-threaded execution. Concurrent programs will
+produce unsound results. This is a known limitation of single-threaded
+abstract interpretation.

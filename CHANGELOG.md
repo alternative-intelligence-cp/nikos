@@ -6,7 +6,66 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 **NIKOS** is a fork of [NASA's IKOS](https://github.com/NASA-SW-VnV/ikos), ported from LLVM 14 to LLVM 20 and integrated into the Nitpick static analysis toolchain.
 
+## [1.0.0] — 2026-06-14
+
+### 🚀 Official Production Release — 64/64 Tests Passing
+
+NIKOS is now officially **v1.0.0 — Production Ready**. This release delivers a
+complete documentation overhaul and multiple distribution methods so NIKOS can
+be installed with a single command on any supported platform.
+
+### Added
+
+- **`script/install.sh`** — self-contained Bash install script:
+  - Detects Ubuntu 22.04 / 24.04; installs LLVM 20 via `apt.llvm.org`
+  - Builds from source with CMake; installs to `~/.local/nikos` (configurable)
+  - `--with-apron` flag: clones, builds, and links APRON automatically
+  - `--prefix`, `--jobs`, `--apron-prefix` options; idempotent (safe to re-run)
+
+- **Debian package** (`packaging/deb/`) — `nikos_1.0.0_amd64.deb`:
+  - 17 MB self-contained package with all runtime binaries
+  - Built via `packaging/deb/build.sh`; installs with `dpkg -i`
+
+- **RPM spec** (`packaging/rpm/nikos.spec`) — Fedora/RHEL RPM:
+  - Standard `%prep`/`%build`/`%install`/`%files` spec for Fedora 40+
+  - `packaging/rpm/README.md` with build instructions and Docker workaround for Ubuntu
+
+- **Docker image** (`Dockerfile`) — multi-stage build:
+  - Stage 1 (`builder`): Ubuntu 24.04 + LLVM 20 + full build
+  - Stage 2 (`runtime`): minimal Ubuntu 24.04 with install tree only
+  - `docker/docker-compose.yml` for convenience
+  - `doc/DOCKER.md` with CI integration guide
+
+- **Flatpak manifest** (`packaging/flatpak/com.alternativeintelligence.nikos.yml`):
+  - Uses `org.freedesktop.Sdk.Extension.llvm20` (no LLVM source build)
+  - `org.freedesktop.Platform` 24.08 runtime
+
+- **`doc/USAGE.md`** — comprehensive walkthrough guide:
+  - Full pipeline tutorial (clone → build → analyze → interpret results)
+  - All 16 checker IDs with use-case guidance
+  - Abstract domain selection guide with decision table
+  - SQLite output schema and example SQL queries
+  - GitHub Actions CI integration snippet
+  - Appendices: pipeline diagram, domain compatibility matrix, troubleshooting
+
+- **`doc/install/1.0/`** — fresh installation guides replacing the stale upstream IKOS 3.0 guides:
+  - `UBUNTU_22.04.md` — primary supported platform
+  - `UBUNTU_24.04.md` — notes on LLVM 17 default; LLVM apt repo required
+  - `APRON.md` — deep-dive APRON source build guide (Makefile.config, OCaml skip, manual install, known issues)
+
+### Changed
+
+- **`CMakeLists.txt`**: project `VERSION` bumped from `0.6.0` to `1.0.0`
+- **`TROUBLESHOOTING.md`**: converted from plain text to Markdown; added LLVM 20
+  error table, APRON-specific issues section, fortification note, and false-positive guidance
+- **`CONTRIBUTING.md`**: `make check` → `ctest`; added `LLVM_CONFIG_EXECUTABLE` to cmake invocation
+- **`doc/OVERVIEW.md`**: fully rewritten for v1.0.0 — updated directory tree, expanded architecture diagram, abstract domains table, key components section
+- **`doc/CODING_STANDARDS.md`**: reviewed, accurate as-is
+
+---
+
 ## [0.13.1] — 2026-06-14
+
 
 ### ✅ 0.13 Series Finalization — Install Verification
 

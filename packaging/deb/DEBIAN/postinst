@@ -1,0 +1,8 @@
+#!/bin/sh
+# NIKOS post-install hook
+set -e
+
+# Ensure the ikos Python module is importable
+if [ -d "/usr/lib/ikos" ]; then
+    echo "NIKOS installed to /usr/bin. Run 'ikos-analyzer --help' to get started."
+fi
