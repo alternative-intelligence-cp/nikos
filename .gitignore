@@ -43,3 +43,21 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 build/
+
+# Debug and scratch files
+*.db
+*.bc
+*.pp.bc
+*.ll.tmp
+debug_analyzer.gdb
+fix_passes.py
+patch.diff
+patch2.diff
+test-2-inv.txt
+test-2-output.txt
+test-2.ar
+test_gep.cpp
+astree-ex.db
+output.db
+*.orig
+*.rej
