@@ -6,6 +6,47 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 **NIKOS** is a fork of [NASA's IKOS](https://github.com/NASA-SW-VnV/ikos), ported from LLVM 14 to LLVM 20 and integrated into the Nitpick static analysis toolchain.
 
+## [1.0.1] — 2026-06-14
+
+### 🔧 Patch Release — CI Compatibility Fixes
+
+Post-release patch addressing build failures discovered when CI ran against
+current toolchain versions (CMake 4.3.3, AppleClang 17, Homebrew Boost 1.90).
+No functional changes to the analyzer itself.
+
+### Fixed
+
+- **CMake 4.x compatibility** — bumped `cmake_minimum_required` from `3.4.3`
+  to `3.14` in all four sub-project `CMakeLists.txt` files (`core/`, `ar/`,
+  `frontend/llvm/`, `analyzer/`) and in `analyzer/python/settings.cmake.in`.
+  CMake 4.3.3 removed support for `VERSION < 3.5` entirely.
+
+- **Boost 1.90 `boost_system` removed** — `boost_system` became header-only
+  in Boost 1.69 and is no longer a findable library component in Boost's own
+  `BoostConfig.cmake` (shipped by Homebrew since 1.86). Removed `system` from
+  `COMPONENTS` in `frontend/llvm/CMakeLists.txt` and `analyzer/CMakeLists.txt`.
+
+- **Deprecated `FindPythonInterp`** — replaced with `find_package(Python3
+  COMPONENTS Interpreter)` in `analyzer/CMakeLists.txt`. `FindPythonInterp`
+  was deprecated in CMake 3.12 and removed in CMake 3.27+.
+
+- **`wpo.hpp` member name typo** — `WpoNode::is_successor_lifted()` referenced
+  `this->_successor_lifted` (non-existent); corrected to `_successors_lifted`.
+  Latent bug from upstream IKOS; GCC silently accepts it via lazy template
+  instantiation but AppleClang 17 hard-rejects it. Reported upstream as
+  [NASA-SW-VnV/ikos#336](https://github.com/NASA-SW-VnV/ikos/issues/336).
+
+- **`gauge.hpp` `operator=(Number)` member name typo** — `GaugeBound::operator=`
+  assigned to `this->_n` (non-existent); corrected to `this->_cst`. Equivalent
+  to upstream fix in [NASA-SW-VnV/ikos#332](https://github.com/NASA-SW-VnV/ikos/pull/332)
+  which merged after our fork point.
+
+- **CI workflows** — `ikos --version` verification step replaced with
+  `ikos-analyzer --help` (the Python wrapper's shebang is baked to the
+  install-time prefix and is not portable across CI runners). Added explicit
+  `make build-*-tests` step before `ctest` since test targets are
+  `EXCLUDE_FROM_ALL`.
+
 ## [1.0.0] — 2026-06-14
 
 ### 🚀 Official Production Release — 64/64 Tests Passing
