@@ -61,3 +61,4 @@ astree-ex.db
 output.db
 *.orig
 *.rej
+.pyc

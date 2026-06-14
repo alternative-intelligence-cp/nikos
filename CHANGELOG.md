@@ -6,7 +6,63 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 **NIKOS** is a fork of [NASA's IKOS](https://github.com/NASA-SW-VnV/ikos), ported from LLVM 14 to LLVM 20 and integrated into the Nitpick static analysis toolchain.
 
+## [0.13.0] — 2026-06-14
+
+### 🔬 APRON Abstract Domain Library Support — 64/64 Tests Passing
+
+This release adds optional support for the [APRON](https://github.com/antoinemine/apron)
+numerical abstract domain library, enabling 13 additional analysis domains with
+stronger relational reasoning capabilities.
+
+### Added
+
+- **APRON integration** — `cmake/FindAPRON.cmake` updated with:
+  - `APRON_ITV_LIB` (`libitvMPQ`) added to required libraries (needed by
+    `libap_ppl` and `libap_pkgrid` at link time — missing from original find module).
+  - `-Wl,--start-group`/`-Wl,--end-group` linker groups to resolve circular
+    dependencies between APRON domain libs and `libapron` core (static linking).
+  - Domain libraries reordered: consumers (`box`, `oct`, `polka`, `ppl`,
+    `pkgrid`) before `libapron` core.
+
+- **13 APRON abstract domains** — all verified functional:
+  - Base: `apron-interval`, `apron-octagon`, `apron-polka-polyhedra`,
+    `apron-polka-linear-equalities`, `apron-ppl-polyhedra`,
+    `apron-ppl-linear-congruences`, `apron-pkgrid-polyhedra-lin-cong`
+  - Variable-packing variants: `var-pack-apron-{octagon,polka-polyhedra,
+    polka-linear-equalities,ppl-polyhedra,ppl-linear-congruences,
+    pkgrid-polyhedra-lin-cong}`
+
+- **APRON regression test suite** (`analyzer/test/regression/apron/`) — 4 tests:
+  - Safe loop with `apron-octagon` (BOA smoke test)
+  - Buffer overflow detection with `apron-octagon` (BOA error test)
+  - Interprocedural safe loop with `var-pack-apron-octagon`
+  - Null dereference detection with `apron-octagon` (nullity checker)
+
+- **`--domain` CLI override** in `libruntest.py` — run the full regression suite
+  with any abstract domain via `python3 runtest --domain apron-octagon`.
+
+- **Precision benchmark** — `apron-octagon` passes 251/255 regression tests
+  with 138 `PASS_IMPROVE` results (stronger precision than default `interval`).
+  4 false positives on tests designed for `interval-congruence`/`gauge` domains.
+
+### Build notes
+
+- APRON is an **optional** dependency. NIKOS builds without it; APRON support
+  activates automatically when `-DAPRON_ROOT=/path/to/apron/install` is passed.
+- APRON must be built from source (`antoinemine/apron`) — not available via apt.
+- Build with C API only (`HAS_OCAML=`; `HAS_OCAMLOPT=`). OCaml bindings
+  require `mlgmpidl` and are not needed by NIKOS.
+- APRON libs are statically linked — no `LD_LIBRARY_PATH` required.
+
+### Test results
+
+- **64/64** tests passing (59 existing + 4 APRON core unit tests + 1 APRON
+  regression suite)
+
+---
+
 ## [0.12.0] — 2026-06-14
+
 
 ### 🎉 Production Ready — 59/59 Tests Passing
 

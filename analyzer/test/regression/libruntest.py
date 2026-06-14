@@ -54,6 +54,9 @@ VERBOSE = False
 CLANG = 'clang'
 IKOS_PP = 'ikos-pp'
 IKOS_ANALYZER = 'ikos-analyzer'
+# When set, overrides the abstract domain for every test
+# (e.g. 'apron-octagon' to benchmark APRON precision across all suites)
+DOMAIN_OVERRIDE = None
 
 # LLVM 20 opaque pointer tolerance: when True, false negatives
 # (IKOS reports 'safe' when expected 'unsafe'/'error') are treated
@@ -457,6 +460,8 @@ class TestManager:
         atexit.register(lambda: os.unlink(output_db))
 
         for t in self.tests:
+            if DOMAIN_OVERRIDE is not None:
+                t.domain = DOMAIN_OVERRIDE
             printf('  %s ... ', t.description)
 
             if INTERACTIVE:
@@ -535,13 +540,18 @@ def parse_args(description=None):
     parser.add_argument('--ikos-analyzer', dest='ikos_analyzer',
                         help='Path to the ikos-analyzer binary',
                         default='ikos-analyzer')
+    parser.add_argument('--domain', dest='domain_override',
+                        help='Override the abstract domain for all tests '
+                             '(e.g. apron-octagon, apron-polka-polyhedra)',
+                        default=None)
 
     args = parser.parse_args()
 
-    global VERBOSE, USE_COLORS, INTERACTIVE, CLANG, IKOS_PP, IKOS_ANALYZER
+    global VERBOSE, USE_COLORS, INTERACTIVE, CLANG, IKOS_PP, IKOS_ANALYZER, DOMAIN_OVERRIDE
     VERBOSE = args.verbose
     USE_COLORS = False if args.no_colors else os.isatty(sys.stdout.fileno())
     INTERACTIVE = False if args.no_interactive else os.isatty(sys.stdout.fileno())
     CLANG = args.clang
     IKOS_PP = args.ikos_pp
     IKOS_ANALYZER = args.ikos_analyzer
+    DOMAIN_OVERRIDE = args.domain_override
