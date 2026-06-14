@@ -53,6 +53,7 @@ jobs:
       - name: Run tests
         run: |
           cd build
+          make build-core-tests build-frontend-llvm-tests build-analyzer-tests
           ctest --output-on-failure
 
       - name: Verify installation
