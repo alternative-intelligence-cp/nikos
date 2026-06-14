@@ -50,7 +50,11 @@ jobs:
         run: |
           echo "${GITHUB_WORKSPACE}/install/bin" >> $GITHUB_PATH
 
+      - name: Run tests
+        run: |
+          cd build
+          ctest --output-on-failure
+
       - name: Verify installation
         run: |
-          ikos --version
           ikos-analyzer --help | head -5
