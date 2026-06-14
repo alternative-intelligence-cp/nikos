@@ -205,6 +205,7 @@ else()
     irreader
     mc
     objcarcopts
+    passes
     scalaropts
     support
     target
