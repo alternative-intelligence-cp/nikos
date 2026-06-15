@@ -421,7 +421,11 @@ std::vector< NullDereferenceChecker::CheckResult > NullDereferenceChecker::
     case ar::Intrinsic::LibcppFreeException:
     case ar::Intrinsic::LibcppThrow:
     case ar::Intrinsic::LibcppBeginCatch:
-    case ar::Intrinsic::LibcppEndCatch: {
+    case ar::Intrinsic::LibcppEndCatch:
+    case ar::Intrinsic::LibcPthreadCreate:
+    case ar::Intrinsic::LibcPthreadJoin:
+    case ar::Intrinsic::LibcPthreadMutexLock:
+    case ar::Intrinsic::LibcPthreadMutexUnlock: {
       return {};
     }
     default: {

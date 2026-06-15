@@ -61,6 +61,9 @@ llvm::FunctionPass* create_lower_select_pass();
 /// \brief Mark all internal functions with the AlwaysInline attribute
 llvm::ModulePass* create_mark_internal_inline_pass();
 
+/// \brief Model std::thread by inserting calls to __ikos_pthread_create_wrapper
+llvm::ModulePass* create_model_std_thread_pass();
+
 /// \brief Name all unnamed values
 llvm::ModulePass* create_name_values_pass();
 
@@ -87,6 +90,9 @@ void initializeLowerSelectPassPass(llvm::PassRegistry&);
 
 /// \brief Initialize the MarkInternalInlinePass
 void initializeMarkInternalInlinePassPass(llvm::PassRegistry&);
+
+/// \brief Initialize the ModelStdThreadPass
+void initializeModelStdThreadPassPass(llvm::PassRegistry&);
 
 /// \brief Initialize the NameValuesPass
 void initializeNameValuesPassPass(llvm::PassRegistry&);

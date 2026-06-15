@@ -44,6 +44,10 @@
 #include <ikos/analyzer/checker/assert_prover.hpp>
 #include <ikos/analyzer/checker/buffer_overflow.hpp>
 #include <ikos/analyzer/checker/checker.hpp>
+#include <ikos/analyzer/checker/concurrency.hpp>
+#include <ikos/analyzer/checker/taint.hpp>
+#include <ikos/analyzer/checker/uaf.hpp>
+#include <ikos/analyzer/checker/move_semantics.hpp>
 #include <ikos/analyzer/checker/dead_code.hpp>
 #include <ikos/analyzer/checker/debug.hpp>
 #include <ikos/analyzer/checker/division_by_zero.hpp>
@@ -131,6 +135,14 @@ std::unique_ptr< Checker > make_checker(Context& ctx, CheckerName name) {
       return std::make_unique< DebugChecker >(ctx);
     case CheckerName::MemoryWatch:
       return std::make_unique< MemoryWatchChecker >(ctx);
+    case CheckerName::Concurrency:
+      return std::make_unique< ConcurrencyChecker >(ctx);
+    case CheckerName::Taint:
+      return std::make_unique< TaintChecker >(ctx);
+    case CheckerName::Uaf:
+      return std::make_unique< UafChecker >(ctx);
+    case CheckerName::Uam:
+      return std::make_unique< MoveChecker >(ctx);
     default:
       ikos_unreachable("unreachable");
   }

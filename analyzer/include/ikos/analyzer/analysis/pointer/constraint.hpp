@@ -723,6 +723,13 @@ private:
         case ar::Intrinsic::LibcExit:
         case ar::Intrinsic::LibcAbort:
           break; // do nothing
+        case ar::Intrinsic::LibcPthreadCreate: {
+          this->process_pthread_create(s);
+        } break;
+        case ar::Intrinsic::LibcPthreadJoin:
+        case ar::Intrinsic::LibcPthreadMutexLock:
+        case ar::Intrinsic::LibcPthreadMutexUnlock:
+          break; // do nothing
         // <errno.h>
         case ar::Intrinsic::LibcErrnoLocation: {
           this->process_errno_location(s);
@@ -839,6 +846,39 @@ private:
       MemoryLocation* dyn_addr = _ctx.mem_factory->get_dyn_alloc(s, context);
       Variable* var = _ctx.var_factory->get_internal(s->result());
       this->_csts.add(AssignCst::create(var, AddrOp::create(dyn_addr, zero())));
+    }
+
+    void process_pthread_create(ar::CallBase* s) {
+      // pthread_create(thread, attr, start_routine, arg)
+      if (s->num_arguments() < 4) return;
+      ar::Value* start_routine = s->argument(2);
+      ar::Value* arg = s->argument(3);
+
+      std::vector< MemoryLocation* > callees;
+
+      if (auto ptr = dyn_cast< ar::InternalVariable >(start_routine)) {
+        Variable* ptr_var = _ctx.var_factory->get_internal(ptr);
+        if (this->_function_pointer) {
+          PointsToSet points_to = this->_function_pointer->get(ptr_var).points_to();
+          if (!points_to.is_top() && !points_to.is_bottom()) {
+            std::copy(points_to.begin(), points_to.end(), std::back_inserter(callees));
+          }
+        }
+      } else if (auto cst = dyn_cast< ar::FunctionPointerConstant >(start_routine)) {
+        callees.push_back(_ctx.mem_factory->get_function(cst->function()));
+      }
+
+      for (MemoryLocation* mem : callees) {
+        if (!isa< FunctionMemoryLocation >(mem)) continue;
+        ar::Function* fun = cast< FunctionMemoryLocation >(mem)->function();
+
+        if (fun->is_declaration()) continue;
+        if (fun->num_parameters() != 1) continue;
+
+        // Assign the passed arg to the callee's parameter
+        this->assign(this->_lit_factory.get(*fun->param_begin()),
+                     this->_lit_factory.get(arg));
+      }
     }
 
     void assign_call_result(ar::CallBase* s, ar::Value* operand) {

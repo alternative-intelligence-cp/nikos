@@ -161,7 +161,16 @@ public:
     LibcppThrow,
     LibcppBeginCatch,
     LibcppEndCatch,
+    LibcppUniquePtrMove, ///< std::unique_ptr move constructor / move-assign
+    LibcppCoroAlloc,    ///< llvm.coro.alloc / llvm.coro.begin (coroutine frame alloc)
+    LibcppCoroFree,     ///< llvm.coro.end / llvm.coro.destroy (coroutine frame free)
     _EndLibcppIntrinsic,
+    _BeginPosixIntrinsic,
+    LibcPthreadCreate,
+    LibcPthreadJoin,
+    LibcPthreadMutexLock,
+    LibcPthreadMutexUnlock,
+    _EndPosixIntrinsic,
   };
 
   /// \brief Prefix for names of intrinsic functions, ie. "ar."

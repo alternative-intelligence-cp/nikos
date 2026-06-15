@@ -348,6 +348,9 @@ ar::InternalVariable* ConstantImporter::translate_constant_expr_to_var(
     ar::BasicBlock* bb,
     ConstantExpressionList& exprs) {
   // Create an internal variable containing the result of the ConstantExpr
+  if (cst->getType()->isPointerTy() && !type->is_pointer()) {
+    type = _ctx.type_imp->translate_type(cst->getType(), ar::Signed);
+  }
   ar::InternalVariable* iv = ar::InternalVariable::create(bb->code(), type);
 
   // Set the origin of the variable

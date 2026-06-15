@@ -45,6 +45,7 @@
 #include <ikos/core/domain/memory/partitioning.hpp>
 #include <ikos/core/domain/memory/value.hpp>
 #include <ikos/core/domain/nullity/separate_domain.hpp>
+#include <ikos/core/domain/taint/separate_domain.hpp>
 #include <ikos/core/domain/scalar/composite.hpp>
 #include <ikos/core/domain/uninitialized/separate_domain.hpp>
 
@@ -64,13 +65,17 @@ using UninitializedAbstractDomain =
 /// \brief Nullity abstract domain
 using NullityAbstractDomain = core::nullity::SeparateDomain< Variable* >;
 
+/// \brief Taint abstract domain
+using TaintAbstractDomain = core::taint::SeparateDomain< Variable* >;
+
 /// \brief Scalar abstract domain
 using ScalarAbstractDomain =
     core::scalar::CompositeDomain< Variable*,
                                    MemoryLocation*,
                                    UninitializedAbstractDomain,
                                    MachineIntAbstractDomain,
-                                   NullityAbstractDomain >;
+                                   NullityAbstractDomain,
+                                   TaintAbstractDomain >;
 
 /// \brief Lifetime abstract domain
 using LifetimeAbstractDomain =
@@ -94,7 +99,8 @@ MemoryAbstractDomain make_bottom_memory_abstract_value(Context& ctx) {
       ScalarAbstractDomain(UninitializedAbstractDomain::bottom(),
                            make_bottom_machine_int_abstract_value(
                                ctx.opts.machine_int_domain),
-                           NullityAbstractDomain::bottom()),
+                           NullityAbstractDomain::bottom(),
+                           TaintAbstractDomain::bottom()),
       LifetimeAbstractDomain::bottom());
 
   if (ctx.opts.use_partitioning_domain) {
@@ -111,7 +117,8 @@ MemoryAbstractDomain make_top_memory_abstract_value(Context& ctx) {
       ScalarAbstractDomain(UninitializedAbstractDomain::top(),
                            make_top_machine_int_abstract_value(
                                ctx.opts.machine_int_domain),
-                           NullityAbstractDomain::top()),
+                           NullityAbstractDomain::top(),
+                           TaintAbstractDomain::top()),
       LifetimeAbstractDomain::top());
 
   if (ctx.opts.use_partitioning_domain) {

@@ -973,6 +973,38 @@ public:
   void scalar_forget(VariableRef x) override { this->_scalar.scalar_forget(x); }
 
   /// @}
+  /// \name Implement taint abstract domain methods
+  /// @{
+
+  void taint_assign_untainted(VariableRef x) override {
+    this->_scalar.taint_assign_untainted(x);
+  }
+  void taint_assign_tainted(VariableRef x) override {
+    this->_scalar.taint_assign_tainted(x);
+  }
+  void taint_assert_untainted(VariableRef x) override {
+    this->_scalar.taint_assert_untainted(x);
+  }
+  void taint_assert_tainted(VariableRef x) override {
+    this->_scalar.taint_assert_tainted(x);
+  }
+  bool taint_is_untainted(VariableRef x) const override {
+    return this->_scalar.taint_is_untainted(x);
+  }
+  bool taint_is_tainted(VariableRef x) const override {
+    return this->_scalar.taint_is_tainted(x);
+  }
+  void taint_set(VariableRef x, Taint value) override {
+    this->_scalar.taint_set(x, value);
+  }
+  void taint_refine(VariableRef x, Taint value) override {
+    this->_scalar.taint_refine(x, value);
+  }
+  Taint taint_to_taint(VariableRef x) const override {
+    return this->_scalar.taint_to_taint(x);
+  }
+
+  /// @}
   /// \name Implement memory abstract domain methods
   /// @{
 
@@ -1929,13 +1961,15 @@ private:
   void mem_forget_cells(MemoryLocationRef addr,
                         const IntInterval& offset,
                         const MachineInt& size) {
-    if (size.is_zero()) {
+    if (size.is_zero() || offset.is_bottom()) {
       return;
     }
 
-    auto zero = MachineInt::zero(size.bit_width(), Unsigned);
-    auto one = MachineInt(1, size.bit_width(), Unsigned);
-    this->mem_forget_cells(addr, add(offset, IntInterval(zero, size - one)));
+    Signedness sign = offset.lb().sign();
+    auto zero = MachineInt::zero(size.bit_width(), sign);
+    auto one = MachineInt(1, size.bit_width(), sign);
+    MachineInt sz = size.sign() == sign ? size : size.cast(size.bit_width(), sign);
+    this->mem_forget_cells(addr, add(offset, IntInterval(zero, sz - one)));
   }
 
   /// \brief Forget the memory cells in
@@ -2252,6 +2286,37 @@ public:
   static std::string name() {
     return "value domain using " + ScalarDomain::name() + " and " +
            LifetimeDomain::name();
+  }
+
+  void taint_set_memory_tainted(VariableRef ptr) {
+    if (this->is_bottom_fast() || !ScalarVariableTrait::is_pointer(ptr)) {
+      return;
+    }
+    PointsToSetT addrs = this->_scalar.pointer_to_points_to(ptr);
+    if (addrs.is_empty() || addrs.is_top()) return;
+    for (MemoryLocationRef addr : addrs) {
+      CellSetT cells = this->_cells.get(addr);
+      for (VariableRef cell : cells) {
+        this->_scalar.taint_assign_tainted(cell);
+      }
+    }
+  }
+
+  bool taint_is_memory_tainted(VariableRef ptr) const {
+    if (this->is_bottom_fast() || !ScalarVariableTrait::is_pointer(ptr)) {
+      return false;
+    }
+    PointsToSetT addrs = this->_scalar.pointer_to_points_to(ptr);
+    if (addrs.is_empty() || addrs.is_top()) return false;
+    for (MemoryLocationRef addr : addrs) {
+      CellSetT cells = this->_cells.get(addr);
+      for (VariableRef cell : cells) {
+        if (this->_scalar.taint_is_tainted(cell)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
 }; // end class ValueDomain

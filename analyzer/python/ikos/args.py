@@ -178,6 +178,10 @@ analyses = (
     ('dfa', 'Double Free Analysis'),
     ('dbg', 'Debugger'),
     ('watch', 'Memory Watcher'),
+    ('concurrency', 'Concurrency Analysis'),
+    ('taint', 'Taint Analysis'),
+    ('uaf', 'Use-After-Free Analysis'),
+    ('uam', 'Use-After-Move Analysis'),
 )
 
 default_analyses = (
@@ -193,6 +197,7 @@ default_analyses = (
     'fca',
     'dca',
     'dfa',
+    'uaf',
     'dbg',
 )
 

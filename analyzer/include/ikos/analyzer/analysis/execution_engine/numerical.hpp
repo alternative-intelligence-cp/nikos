@@ -58,6 +58,7 @@
 #include <ikos/analyzer/analysis/literal.hpp>
 #include <ikos/analyzer/analysis/liveness.hpp>
 #include <ikos/analyzer/analysis/option.hpp>
+#include <ikos/analyzer/checker/taint_config.hpp>
 #include <ikos/analyzer/analysis/pointer/value.hpp>
 #include <ikos/analyzer/support/assert.hpp>
 #include <ikos/analyzer/support/cast.hpp>
@@ -1863,7 +1864,13 @@ public:
   }
 
   /// \brief Execute a LandingPad statement
-  void exec(ar::LandingPad*) override {}
+  void exec(ar::LandingPad* s) override {
+    const Literal& result = this->_lit_factory.get(s->result());
+    if (result.is_aggregate()) {
+      Variable* lhs_ptr = this->init_aggregate_memory(result.aggregate());
+      this->_inv.normal().mem_forget_reachable(lhs_ptr);
+    }
+  }
 
   /// \brief Execute a Resume statement
   void exec(ar::Resume* s) override {
@@ -2287,8 +2294,27 @@ public:
       case ar::Intrinsic::LibcppEndCatch: {
         this->exec_end_catch(call);
       } break;
+      case ar::Intrinsic::LibcppUniquePtrMove: {
+        // Model the move as a potential write to the source pointer's contents
+        // (the moved-from unique_ptr's internal pointer is set to null by the
+        // move constructor). This is handled conservatively as a write to the
+        // first argument (source unique_ptr).
+        this->exec_unknown_call(call,
+                                /* may_write_params = */ true,
+                                /* ignore_unknown_write = */ false,
+                                /* may_write_globals = */ false,
+                                /* may_throw_exc = */ false);
+      } break;
+      case ar::Intrinsic::LibcppCoroAlloc: {
+        // Coroutine frame allocation: modeled like operator new
+        this->exec_new(call);
+      } break;
+      case ar::Intrinsic::LibcppCoroFree: {
+        // Coroutine frame deallocation: modeled like operator delete
+        this->exec_free(call);
+      } break;
       default: {
-        ikos_unreachable("unreachable");
+        this->exec_unknown_extern_call(call);
       } break;
     }
   }
@@ -2404,11 +2430,56 @@ public:
         ikos_assert_msg(ret.scalar().is_var(),
                         "left hand side is not a variable");
         this->_inv.normal().scalar_assign_nondet(ret.scalar().var());
+        
+        // Taint Analysis: check if this is a taint source or sanitizer
+        if (this->_ctx.taint_config) {
+          auto called_op = call->called();
+          if (auto called_fn =
+                  dyn_cast< ar::FunctionPointerConstant >(called_op)) {
+            // Strip ar.libc.* prefix so config entries using standard names
+            // (e.g., "getenv") also match future AR-intrinsic sources.
+            const std::string& raw = called_fn->function()->name();
+            static auto strip = [](const std::string& n) -> std::string {
+              for (const char* p : {"ar.libc.", "ar.libcpp.", "ar.ikos."}) {
+                std::size_t plen = std::strlen(p);
+                if (n.size() > plen && n.compare(0, plen, p) == 0)
+                  return n.substr(plen);
+              }
+              return n;
+            };
+            std::string canon = strip(raw);
+            if (this->_ctx.taint_config->is_source(canon)) {
+              this->_inv.normal().taint_assign_labeled(ret.scalar().var(), canon);
+            } else if (this->_ctx.taint_config->is_sanitizer(canon)) {
+              this->_inv.normal().taint_assign_untainted(ret.scalar().var());
+            }
+          }
+        }
       } else if (ret.is_aggregate()) {
         ikos_assert_msg(ret.aggregate().is_var(),
                         "left hand side is not a variable");
         Variable* ret_ptr = this->aggregate_pointer(ret.aggregate());
         this->_inv.normal().mem_forget_reachable(ret_ptr);
+        
+        // Taint Analysis: aggregate return values (rare but possible)
+        if (this->_ctx.taint_config) {
+          auto called_op = call->called();
+          if (auto called_fn =
+                  dyn_cast< ar::FunctionPointerConstant >(called_op)) {
+            const std::string& raw = called_fn->function()->name();
+            static auto strip2 = [](const std::string& n) -> std::string {
+              for (const char* p : {"ar.libc.", "ar.libcpp.", "ar.ikos."}) {
+                std::size_t plen = std::strlen(p);
+                if (n.size() > plen && n.compare(0, plen, p) == 0)
+                  return n.substr(plen);
+              }
+              return n;
+            };
+            if (this->_ctx.taint_config->is_source(strip2(raw))) {
+              this->_inv.normal().taint_assign_labeled(ret_ptr, strip2(raw));
+            }
+          }
+        }
       } else {
         ikos_unreachable("unexpected left hand side");
       }
@@ -3049,6 +3120,15 @@ private:
       ikos_unreachable("unreachable");
     }
 
+    // Taint propagation: read() always reads from external source
+    // Write a 1-byte cell then mark it tainted
+    {
+      auto one = MachineInt(1, this->_data_layout.pointers.bit_width, Unsigned);
+      auto val = ScalarLit::machine_int(MachineInt(0, 8, Unsigned));
+      this->_inv.normal().mem_write(ptr.var(), val, one);
+      this->_inv.normal().taint_set_memory_tainted(ptr.var());
+    }
+
     if (call->has_result()) {
       const ScalarLit& lhs = this->_lit_factory.get_scalar(call->result());
       ikos_assert_msg(lhs.is_machine_int_var(),
@@ -3080,6 +3160,15 @@ private:
       // See CheckKind::IgnoredCallSideEffectOnPointerParameter
     } else {
       this->_inv.normal().mem_abstract_reachable(ptr.var());
+    }
+
+    // Taint propagation: gets() always reads from stdin
+    // Write a 1-byte cell then mark it tainted
+    {
+      auto one = MachineInt(1, this->_data_layout.pointers.bit_width, Unsigned);
+      auto val = ScalarLit::machine_int(MachineInt(0, 8, Unsigned));
+      this->_inv.normal().mem_write(ptr.var(), val, one);
+      this->_inv.normal().taint_set_memory_tainted(ptr.var());
     }
 
     if (call->has_result()) {
@@ -3133,6 +3222,15 @@ private:
       ikos_unreachable("unreachable");
     }
 
+    // Taint propagation: fgets() always reads from external source
+    // Write a 1-byte cell then mark it tainted
+    {
+      auto one = MachineInt(1, this->_data_layout.pointers.bit_width, Unsigned);
+      auto val = ScalarLit::machine_int(MachineInt(0, 8, Unsigned));
+      this->_inv.normal().mem_write(ptr.var(), val, one);
+      this->_inv.normal().taint_set_memory_tainted(ptr.var());
+    }
+
     if (call->has_result()) {
       const ScalarLit& lhs = this->_lit_factory.get_scalar(call->result());
       ikos_assert_msg(lhs.is_pointer_var(),
@@ -3170,6 +3268,17 @@ private:
       // See CheckKind::IgnoredCallSideEffectOnPointerParameter
     } else {
       this->_inv.normal().mem_abstract_reachable(ptr.var());
+    }
+
+    // Taint propagation: if any argument >= 2 is tainted, taint the output buffer
+    for (unsigned i = 2; i < call->num_arguments(); ++i) {
+      const ScalarLit& arg_lit = this->_lit_factory.get_scalar(call->argument(i));
+      if (arg_lit.is_var() && this->_inv.normal().taint_is_tainted(arg_lit.var())) {
+        // Write a 1-byte tainted cell to mark the buffer as tainted
+        auto one = MachineInt(1, this->_data_layout.pointers.bit_width, Unsigned);
+        this->_inv.normal().mem_write(ptr.var(), arg_lit, one);
+        break;
+      }
     }
 
     if (call->has_result()) {
@@ -3219,6 +3328,26 @@ private:
       } else {
         ikos_unreachable("unreachable");
       }
+    }
+
+    // Taint propagation: if any argument >= 2 is tainted, taint the output buffer
+    bool is_tainted = false;
+    boost::optional<ScalarLit> tainted_lit;
+    for (unsigned i = 2; i < call->num_arguments(); ++i) {
+      const ScalarLit& arg_lit = this->_lit_factory.get_scalar(call->argument(i));
+      if (arg_lit.is_var() && this->_inv.normal().taint_is_tainted(arg_lit.var())) {
+        is_tainted = true;
+        tainted_lit = arg_lit;
+        break;
+      }
+    }
+    if (is_tainted && size.is_machine_int() && tainted_lit) {
+      // Write the tainted variable to the memory buffer to propagate taint to the memory cells
+      MachineInt sz = size.machine_int();
+      if (sz.sign() == Signed) {
+        sz = sz.cast(sz.bit_width(), Unsigned);
+      }
+      this->_inv.normal().mem_write(ptr.var(), *tainted_lit, sz);
     }
 
     if (call->has_result()) {
@@ -3412,6 +3541,16 @@ private:
       this->_inv.normal().mem_abstract_reachable(dest.var());
     }
 
+    // Taint propagation from src to dest
+    {
+      const ScalarLit& src_lit = this->_lit_factory.get_scalar(call->argument(1));
+      if (src_lit.is_var() && this->_inv.normal().taint_is_tainted(src_lit.var())) {
+        // Write a 1-byte tainted cell to mark the buffer as tainted
+        auto one = MachineInt(1, this->_data_layout.pointers.bit_width, Unsigned);
+        this->_inv.normal().mem_write(dest.var(), src_lit, one);
+      }
+    }
+
     if (call->has_result()) {
       const ScalarLit& lhs = this->_lit_factory.get_scalar(call->result());
       ikos_assert_msg(lhs.is_pointer_var(),
@@ -3457,6 +3596,22 @@ private:
       ikos_unreachable("unreachable");
     }
 
+    // Taint propagation from src to dest
+    {
+      const ScalarLit& src_lit = this->_lit_factory.get_scalar(call->argument(1));
+      if (src_lit.is_var() && this->_inv.normal().taint_is_tainted(src_lit.var())) {
+        if (size.is_machine_int()) {
+          MachineInt sz = size.machine_int();
+          if (sz.sign() == Signed) {
+            sz = sz.cast(sz.bit_width(), Unsigned);
+          }
+          this->_inv.normal().mem_write(dest.var(), src_lit, sz);
+        } else {
+          this->_inv.normal().taint_assign_tainted(dest.var());
+        }
+      }
+    }
+
     if (call->has_result()) {
       const ScalarLit& lhs = this->_lit_factory.get_scalar(call->result());
       ikos_assert_msg(lhs.is_pointer_var(),
@@ -3494,6 +3649,16 @@ private:
     } else {
       // Do not keep track of the content
       this->_inv.normal().mem_abstract_reachable(s1.var());
+    }
+
+    // Taint propagation from s2 to s1
+    {
+      const ScalarLit& s2_lit = this->_lit_factory.get_scalar(call->argument(1));
+      if (s2_lit.is_var() && this->_inv.normal().taint_is_tainted(s2_lit.var())) {
+        // Write a 1-byte tainted cell to mark the buffer as tainted
+        auto one = MachineInt(1, this->_data_layout.pointers.bit_width, Unsigned);
+        this->_inv.normal().mem_write(s1.var(), s2_lit, one);
+      }
     }
 
     if (call->has_result()) {

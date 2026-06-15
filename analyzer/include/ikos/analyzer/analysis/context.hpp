@@ -62,6 +62,7 @@ class LivenessAnalysis;
 class FunctionPointerAnalysis;
 class PointerAnalysis;
 class FixpointParameters;
+class TaintConfig;
 
 /// \brief Global analysis context
 ///
@@ -104,6 +105,9 @@ public:
   /// \brief Pointer analysis, or null
   PointerAnalysis* pointer;
 
+  /// \brief Taint configuration, or null
+  TaintConfig* taint_config;
+
 public:
   /// \brief Constructor
   Context(ar::Bundle* bundle_,
@@ -126,7 +130,8 @@ public:
         fixpoint_parameters(&fixpoint_parameters_),
         liveness(nullptr),
         function_pointer(nullptr),
-        pointer(nullptr) {}
+        pointer(nullptr),
+        taint_config(nullptr) {}
 
   /// \brief No copy constructor
   Context(const Context&) = delete;

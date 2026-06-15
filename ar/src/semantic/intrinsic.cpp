@@ -515,6 +515,43 @@ FunctionType* Intrinsic::type(Bundle* bundle, ID id, Type* template_ty) {
     case LibcppEndCatch: {
       ret_ty = void_ty; // ret
     } break;
+    case LibcppUniquePtrMove: {
+      // unique_ptr move: void(dest*, src*) — both are opaque unique_ptr struct ptrs
+      ret_ty = void_ty;              // ret
+      params.push_back(void_ptr_ty); // dest (the new unique_ptr)
+      params.push_back(void_ptr_ty); // src  (the moved-from unique_ptr)
+    } break;
+    case LibcppCoroAlloc: {
+      // Coroutine frame allocation stub: treated like malloc(size) -> ptr
+      ret_ty = void_ptr_ty;      // ret (coroutine frame pointer)
+      params.push_back(size_ty); // size
+    } break;
+    case LibcppCoroFree: {
+      // Coroutine frame deallocation stub: treated like free(ptr)
+      ret_ty = void_ty;              // ret
+      params.push_back(void_ptr_ty); // frame ptr
+    } break;
+    // POSIX
+    case LibcPthreadCreate: {
+      ret_ty = si32_ty;              // ret
+      params.push_back(void_ptr_ty); // thread ptr
+      params.push_back(void_ptr_ty); // attr ptr
+      params.push_back(void_ptr_ty); // start_routine ptr
+      params.push_back(void_ptr_ty); // arg ptr
+    } break;
+    case LibcPthreadJoin: {
+      ret_ty = si32_ty;              // ret
+      params.push_back(size_ty);     // thread (pthread_t)
+      params.push_back(void_ptr_ty); // retval ptr
+    } break;
+    case LibcPthreadMutexLock: {
+      ret_ty = si32_ty;              // ret
+      params.push_back(void_ptr_ty); // mutex ptr
+    } break;
+    case LibcPthreadMutexUnlock: {
+      ret_ty = si32_ty;              // ret
+      params.push_back(void_ptr_ty); // mutex ptr
+    } break;
     default: {
       ikos_unreachable("unreachable");
     }
@@ -782,6 +819,21 @@ std::string Intrinsic::short_name(ID id, Type* template_ty) {
       return "libcpp.begincatch";
     case LibcppEndCatch:
       return "libcpp.endcatch";
+    case LibcppUniquePtrMove:
+      return "libcpp.unique_ptr.move";
+    case LibcppCoroAlloc:
+      return "libcpp.coro.alloc";
+    case LibcppCoroFree:
+      return "libcpp.coro.free";
+    // POSIX
+    case LibcPthreadCreate:
+      return "posix.pthread_create";
+    case LibcPthreadJoin:
+      return "posix.pthread_join";
+    case LibcPthreadMutexLock:
+      return "posix.pthread_mutex_lock";
+    case LibcPthreadMutexUnlock:
+      return "posix.pthread_mutex_unlock";
     default:
       ikos_unreachable("unreachable");
   }

@@ -1,0 +1,57 @@
+// Bundle
+target-endianness = little-endian
+target-pointer-size = 64 bits
+target-triple = x86_64-pc-linux-gnu
+
+define [9 x si8]* @.str.1, align 1, init {
+#1 !entry !exit {
+  store @.str.1, [108, 115, 32, 45, 108, 32, 37, 115, 0], align 1
+}
+}
+
+define [11 x si8]* @.str, align 1, init {
+#1 !entry !exit {
+  store @.str, [85, 83, 69, 82, 95, 73, 78, 80, 85, 84, 0], align 1
+}
+}
+
+declare si32 @ar.libc.snprintf(si8*, ui64, si8*, ...)
+
+declare si32 @system(opaque*)
+
+declare opaque* @getenv(opaque*)
+
+define si32 @main() {
+#1 !entry successors={#2, #3} {
+  si32* $1 = allocate si32, 1, align 4
+  opaque** $2 = allocate opaque*, 1, align 8
+  [256 x si8]* $3 = allocate [256 x si8], 1, align 16
+  store $1, 0, align 4
+  opaque* %4 = bitcast @.str
+  opaque* %5 = call @getenv(%4)
+  opaque* %6 = bitcast %5
+  opaque* %7 = bitcast %6
+  store $2, %7, align 8
+  opaque* %8 = load $2, align 8
+}
+#2 predecessors={#1} successors={#4} {
+  %8 pne null
+  si8* %9 = ptrshift $3, 256 * 0, 1 * 0
+  opaque* %10 = load $2, align 8
+  si32 (opaque*, si64, opaque*, ...)* %11 = bitcast @ar.libc.snprintf
+  opaque* %12 = bitcast %9
+  opaque* %13 = bitcast @.str.1
+  si32 %14 = call %11(%12, 256, %13, %10)
+  opaque* %15 = load $2, align 8
+  si32 %16 = call @system(%15)
+  store $1, 0, align 4
+}
+#3 predecessors={#1} successors={#4} {
+  %8 peq null
+  store $1, 0, align 4
+}
+#4 !exit predecessors={#2, #3} {
+  si32 %17 = load $1, align 4
+  return %17
+}
+}

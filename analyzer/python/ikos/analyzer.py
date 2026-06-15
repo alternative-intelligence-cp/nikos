@@ -242,6 +242,19 @@ def parse_arguments(argv):
                           metavar='',
                           help='Specify a value for argc',
                           type=args.Integer(min=0))
+    analysis.add_argument('--taint-config',
+                          dest='taint_config',
+                          metavar='<file>',
+                          help='Path to taint analysis configuration file '
+                               '(default: <prefix>/share/ikos/taint_config.json)',
+                          default=None)
+    analysis.add_argument('--taint-profile',
+                          dest='taint_profile',
+                          metavar='<name>',
+                          help='Use a built-in taint profile (posix, web, sql). '
+                               'Resolved to <prefix>/share/ikos/profiles/<name>.json. '
+                               'Overridden by --taint-config.',
+                          default=None)
 
     # Compile options
     compiler = parser.add_argument_group('Compile Options')
@@ -814,6 +827,29 @@ def ikos_analyzer(db_path, pp_path, opt):
         cmd.append('-hardware-addresses-file=%s' % opt.hardware_addresses_file)
     if opt.argc is not None:
         cmd.append('-argc=%d' % opt.argc)
+
+    # taint config: explicit path > profile > auto-default
+    if opt.taint_config:
+        cmd.append('-taint-config=%s' % opt.taint_config)
+    elif opt.taint_profile:
+        profile_path = os.path.join(settings.SHARE_DIR, 'profiles',
+                                    '%s.json' % opt.taint_profile)
+        if os.path.isfile(profile_path):
+            cmd.append('-taint-config=%s' % profile_path)
+        else:
+            sys.stderr.write(
+                'warning: taint profile %r not found at %s, '
+                'falling back to default config\n'
+                % (opt.taint_profile, profile_path))
+            default_taint_config = os.path.join(settings.SHARE_DIR,
+                                                'taint_config.json')
+            if os.path.isfile(default_taint_config):
+                cmd.append('-taint-config=%s' % default_taint_config)
+    else:
+        default_taint_config = os.path.join(settings.SHARE_DIR,
+                                            'taint_config.json')
+        if os.path.isfile(default_taint_config):
+            cmd.append('-taint-config=%s' % default_taint_config)
 
     # import options
     cmd.append('-allow-dbg-mismatch')

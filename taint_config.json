@@ -1,0 +1,51 @@
+{
+  "sources": [
+    "getenv",
+    "getenv_s",
+    "recv",
+    "recvfrom",
+    "recvmsg",
+    "fgets",
+    "fgetc",
+    "getchar",
+    "getline",
+    "scanf",
+    "fscanf",
+    "sscanf",
+    "read"
+  ],
+  "sinks": [
+    { "name": "system",       "type": "CommandInjection", "sensitive_args": [0] },
+    { "name": "popen",        "type": "CommandInjection", "sensitive_args": [0] },
+    { "name": "execl",        "type": "CommandInjection", "sensitive_args": [0] },
+    { "name": "execlp",       "type": "CommandInjection", "sensitive_args": [0] },
+    { "name": "execle",       "type": "CommandInjection", "sensitive_args": [0] },
+    { "name": "execv",        "type": "CommandInjection", "sensitive_args": [0] },
+    { "name": "execve",       "type": "CommandInjection", "sensitive_args": [0] },
+    { "name": "execvp",       "type": "CommandInjection", "sensitive_args": [0] },
+
+    { "name": "sqlite3_exec",       "type": "SQLInjection", "sensitive_args": [1] },
+    { "name": "mysql_query",        "type": "SQLInjection", "sensitive_args": [1] },
+    { "name": "PQexec",             "type": "SQLInjection", "sensitive_args": [1] },
+    { "name": "PQexecParams",       "type": "SQLInjection", "sensitive_args": [1] },
+
+    { "name": "fopen",   "type": "PathTraversal", "sensitive_args": [0] },
+    { "name": "open",    "type": "PathTraversal", "sensitive_args": [0] },
+    { "name": "openat",  "type": "PathTraversal", "sensitive_args": [1] },
+    { "name": "unlink",  "type": "PathTraversal", "sensitive_args": [0] },
+    { "name": "rename",  "type": "PathTraversal", "sensitive_args": [0] },
+    { "name": "remove",  "type": "PathTraversal", "sensitive_args": [0] },
+
+    { "name": "printf",   "type": "FormatString", "sensitive_args": [0] },
+    { "name": "fprintf",  "type": "FormatString", "sensitive_args": [1] },
+    { "name": "dprintf",  "type": "FormatString", "sensitive_args": [1] },
+    { "name": "syslog",   "type": "FormatString", "sensitive_args": [1] }
+  ],
+  "sanitizers": [
+    "escape_shell_arg",
+    "sqlite3_mprintf",
+    "mysql_real_escape_string",
+    "realpath",
+    "basename"
+  ]
+}

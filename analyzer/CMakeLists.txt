@@ -242,6 +242,7 @@ add_executable(ikos-analyzer
   src/checker/assert_prover.cpp
   src/checker/buffer_overflow.cpp
   src/checker/checker.cpp
+  src/checker/concurrency.cpp
   src/checker/dead_code.cpp
   src/checker/debug.cpp
   src/checker/division_by_zero.cpp
@@ -256,6 +257,10 @@ add_executable(ikos-analyzer
   src/checker/shift_count.cpp
   src/checker/signed_int_overflow.cpp
   src/checker/soundness.cpp
+  src/checker/taint.cpp
+  src/checker/taint_config.cpp
+  src/checker/uaf.cpp
+  src/checker/move_semantics.cpp
   src/checker/uninitialized_variable.cpp
   src/checker/unsigned_int_overflow.cpp
   src/database/output.cpp
@@ -366,8 +371,17 @@ else()
   endif()
 endif()
 
+# taint analysis configuration
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../taint_config.json"
+  DESTINATION share/ikos)
+
+# built-in taint profiles
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../profiles"
+  DESTINATION share/ikos)
+
 # python web resources
 install(DIRECTORY python/ikos/view DESTINATION share/ikos)
+
 
 # python scripts
 configure_file(script/ikos.py.in script/ikos @ONLY)

@@ -60,7 +60,7 @@ from ikos import colors
 from ikos import log
 from ikos import report
 from ikos import settings
-from ikos.enums import Result, CheckKind
+from ikos.enums import Result, CheckKind, CheckerName
 from ikos.highlight import CppLexer, HtmlFormatter, highlight
 from ikos.http import HTTPServerIPv6, BaseHTTPRequestHandler
 from ikos.log import printf
@@ -137,16 +137,251 @@ class RequestHandler(BaseHTTPRequestHandler):
             (r'^/settings$',
              self._serve_settings),
             (r'^/report/(?P<id>[0-9]+)(\?k=(?P<kinds_filter>[A-Z0-9]+))?$',
-             self._serve_report)
+             self._serve_report),
+            (r'^/api/v1/summary$',
+             self._serve_api_summary),
+            (r'^/api/v1/sarif$',
+             self._serve_api_sarif),
+            (r'^/api/v1/checks$',
+             self._serve_api_checks),
+            (r'^/api/v1/checks/(?P<check_id>[0-9]+)$',
+             self._serve_api_check),
+            (r'^/api/v1/files$',
+             self._serve_api_files),
+            (r'^/api/v1/functions$',
+             self._serve_api_functions),
         ]
 
+        # Strip query string before routing; individual handlers parse it if needed
+        path = self.path.split('?', 1)[0]
+
         for pattern, f in urls:
-            m = re.match(pattern, self.path)
+            m = re.match(pattern, path)
             if m:
                 f(**m.groupdict())
                 return
 
         self._serve_not_found()
+
+    # API helpers
+
+    def _send_json(self, data, status=200):
+        ''' Write a JSON response with CORS headers '''
+        body = json.dumps(data, indent=2).encode('utf-8')
+        self.send_response(status)
+        self.send_header('Content-Type', 'application/json; charset=UTF-8')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Content-Length', str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    # API Endpoints
+
+    def _serve_api_summary(self):
+        ''' GET /api/v1/summary — analysis summary counts '''
+        view_report = View.get().report
+        summary = report.generate_summary(view_report.db)
+        self._send_json({
+            'ok': summary.ok,
+            'error': summary.error,
+            'warning': summary.warning,
+            'unreachable': summary.unreachable,
+            'total': summary.total
+        })
+
+    def _serve_api_sarif(self):
+        ''' GET /api/v1/sarif — full SARIF 2.1.0 report '''
+        view_report = View.get().report
+
+        output = io.StringIO()
+        fmt = report.SARIFFormatter(output, 4)
+        fmt.format(view_report._report)
+
+        body = output.getvalue().encode('utf-8')
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/sarif+json; charset=UTF-8')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Content-Length', str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _serve_api_checks(self):
+        '''
+        GET /api/v1/checks — all checks as a JSON array.
+
+        Supported query parameters (all optional, combinable):
+          ?status=error|warning|safe|unreachable
+          ?kind=<short-name>   (e.g. boa, dbz, taint)
+          ?file_id=<int>
+        '''
+        from urllib.parse import urlparse, parse_qs
+        db = View.get().db
+
+        parsed = urlparse(self.path)
+        params = parse_qs(parsed.query)
+
+        # Build WHERE clause
+        where_clauses = []
+        sql_params = []
+
+        if 'status' in params:
+            status_map = {
+                'error': Result.ERROR,
+                'warning': Result.WARNING,
+                'safe': Result.OK,
+                'unreachable': Result.UNREACHABLE,
+            }
+            status_val = params['status'][0].lower()
+            if status_val in status_map:
+                where_clauses.append('c.status = ?')
+                sql_params.append(status_map[status_val])
+
+        if 'kind' in params:
+            try:
+                kind_int = CheckKind.from_short_name(params['kind'][0])
+                where_clauses.append('c.kind = ?')
+                sql_params.append(int(kind_int))
+            except Exception:
+                pass
+
+        if 'file_id' in params:
+            where_clauses.append('s.file_id = ?')
+            sql_params.append(int(params['file_id'][0]))
+
+        where = ('WHERE ' + ' AND '.join(where_clauses)) if where_clauses else ''
+
+        sql = '''
+            SELECT c.id, c.kind, c.checker, c.status,
+                   c.statement_id, c.call_context_id,
+                   s.line, s.column, s.file_id,
+                   f.id as func_id, f.demangled
+            FROM checks c
+            JOIN statements s ON c.statement_id = s.id
+            JOIN functions f ON s.function_id = f.id
+            %s
+            ORDER BY s.file_id, s.line, s.column
+        ''' % where
+
+        cursor = db.con.cursor()
+        cursor.execute(sql, sql_params)
+
+        checks = []
+        for row in cursor.fetchall():
+            (cid, kind, checker, status, stmt_id, ctx_id,
+             line, col, file_id, func_id, demangled) = row
+            checks.append({
+                'id': cid,
+                'kind': CheckKind.short_name(kind),
+                'kind_long': CheckKind.long_name(kind),
+                'checker': CheckerName.short_name(checker),
+                'status': Result.str(status),
+                'statement_id': stmt_id,
+                'call_context_id': ctx_id,
+                'line': line,
+                'column': col,
+                'file_id': file_id,
+                'function': demangled,
+            })
+        cursor.close()
+        self._send_json(checks)
+
+    def _serve_api_check(self, check_id):
+        '''
+        GET /api/v1/checks/{id} — single check detail with operands and
+        call-context chain.
+        '''
+        from ikos.output_db import Check as OCheck
+        db = View.get().db
+        cid = int(check_id)
+
+        cursor = db.con.cursor()
+        cursor.execute('SELECT * FROM checks WHERE id = ?', (cid,))
+        row = cursor.fetchone()
+        cursor.close()
+
+        if row is None:
+            self._send_json({'error': 'check %d not found' % cid}, status=404)
+            return
+
+        chk = OCheck(row, db)
+        stmt = chk.statement()
+        ctx = chk.call_context()
+
+        # Build call chain
+        chain = []
+        c = ctx
+        while not c.empty():
+            cs = c.call()
+            fn = c.function()
+            chain.append({
+                'file': report.format_path(cs.file_path()),
+                'line': cs.line_or(None),
+                'column': cs.column_or(None),
+                'function': fn.pretty_name(),
+            })
+            c = c.parent()
+
+        # Operands
+        operands = []
+        raw_ops = chk.load_operands()
+        if raw_ops:
+            for pair in raw_ops:
+                operands.append({'num': pair.num, 'repr': pair.operand.repr})
+
+        self._send_json({
+            'id': chk.id,
+            'kind': CheckKind.short_name(chk.kind),
+            'kind_long': CheckKind.long_name(chk.kind),
+            'checker': CheckerName.short_name(chk.checker),
+            'status': Result.str(chk.status),
+            'file': report.format_path(stmt.file_path()),
+            'line': stmt.line_or(None),
+            'column': stmt.column_or(None),
+            'function': stmt.function().pretty_name(),
+            'operands': operands,
+            'call_chain': chain,
+            'info': chk.info,
+        })
+
+    def _serve_api_files(self):
+        ''' GET /api/v1/files — all source files with per-status check counts '''
+        view_report = View.get().report
+        files = []
+        for f in view_report.files:
+            sk = view_report.files_status_kinds.get(f.id, {})
+            # sk is a StatusKinds namedtuple indexed by Result int
+            def _count(result_int):
+                try:
+                    d = sk[result_int]
+                    return sum(d.values()) if isinstance(d, dict) else 0
+                except (KeyError, TypeError):
+                    return 0
+            files.append({
+                'id': f.id,
+                'path': report.format_path(f.path),
+                'errors': _count(Result.ERROR),
+                'warnings': _count(Result.WARNING),
+                'safe': _count(Result.OK),
+                'unreachable': _count(Result.UNREACHABLE),
+            })
+        files.sort(key=lambda x: x['path'])
+        self._send_json(files)
+
+    def _serve_api_functions(self):
+        ''' GET /api/v1/functions — all functions with name, file, and line '''
+        db = View.get().db
+        functions = []
+        for f in db.functions:
+            functions.append({
+                'id': f.id,
+                'name': f.name,
+                'demangled': f.demangled,
+                'file': report.format_path(f.file().path) if f.file() else None,
+                'line': f.line,
+                'is_definition': f.definition,
+            })
+        functions.sort(key=lambda x: (x['file'] or '', x['line'] or 0))
+        self._send_json(functions)
 
     # Static files
 
@@ -581,6 +816,11 @@ def parse_arguments(argv):
                         help='Listening port',
                         default=8080,
                         type=int)
+    parser.add_argument('--api-only',
+                        dest='api_only',
+                        action='store_true',
+                        help='Run headlessly without serving HTML or opening a browser',
+                        default=False)
 
     return parser.parse_args(argv)
 
@@ -619,10 +859,11 @@ def main(argv):
         db = OutputDatabase(opt.file)
 
         v = View(db, port=opt.port)
-        browser_timer = threading.Timer(0.1,
-                                        open_browser,
-                                        ['http://localhost:%d/' % opt.port])
-        browser_timer.start()
+        if not opt.api_only:
+            browser_timer = threading.Timer(0.1,
+                                            open_browser,
+                                            ['http://localhost:%d/' % opt.port])
+            browser_timer.start()
         v.serve()
 
         # close database

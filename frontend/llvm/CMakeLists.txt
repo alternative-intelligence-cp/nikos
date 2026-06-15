@@ -165,6 +165,7 @@ add_library(ikos-pp-lib
   src/pass/lower_cst_expr.cpp
   src/pass/lower_select.cpp
   src/pass/mark_internal_inline.cpp
+  src/pass/model_std_thread.cpp
   src/pass/name_values.cpp
   src/pass/remove_printf_calls.cpp
   src/pass/remove_unreachable_blocks.cpp

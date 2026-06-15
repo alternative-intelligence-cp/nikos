@@ -162,6 +162,45 @@ enum class CheckKind {
   /// \brief Check for a memory deallocation (e.g, free)
   Free,
 
+  _BeginUaf,
+
+  /// \brief Check for use of heap memory after it was freed
+  UseAfterFree,
+
+  /// \brief Check for use of stack memory after the containing function returned
+  UseAfterReturn,
+
+  /// \brief Check for use of a moved-from object (e.g. std::unique_ptr after std::move)
+  UseAfterMove,
+
+  _EndUaf,
+
+  _BeginConcurrency,
+
+  /// \brief Check for a data race
+  DataRace,
+
+  /// \brief Check for a deadlock
+  Deadlock,
+
+  _EndConcurrency,
+
+  _BeginTaint,
+
+  /// \brief Check for command injection
+  CommandInjection,
+
+  /// \brief Check for path traversal
+  PathTraversal,
+
+  /// \brief Check for format string vulnerability
+  FormatString,
+
+  /// \brief Check for SQL injection
+  SQLInjection,
+
+  _EndTaint,
+
 };
 
 } // end namespace analyzer

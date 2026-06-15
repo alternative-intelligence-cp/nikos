@@ -1968,6 +1968,16 @@ def generate_function_call_message(report, verbosity):
     return s
 
 
+def generate_use_after_move_message(report, verbosity):
+    msg = ['use after move']
+    if verbosity >= 1:
+        operands = report.load_operands()
+        if operands:
+            _, operand = operands[0]
+            msg.append("of '%s'" % operand.repr)
+    return ' '.join(msg)
+
+
 def generate_double_free_message(report, verbosity):
     if report.status == Result.OK:
         return 'safe memory deallocation'
@@ -2075,6 +2085,7 @@ GENERATE_MESSAGE_MAP = {
         generate_unknown_function_call_message,
     CheckKind.FUNCTION_CALL: generate_function_call_message,
     CheckKind.FREE: generate_double_free_message,
+    CheckKind.USE_AFTER_MOVE: generate_use_after_move_message,
 }
 
 

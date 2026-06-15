@@ -89,6 +89,7 @@
 #include <ikos/analyzer/analysis/variable.hpp>
 #include <ikos/analyzer/analysis/widening_hint.hpp>
 #include <ikos/analyzer/checker/name.hpp>
+#include <ikos/analyzer/checker/taint_config.hpp>
 #include <ikos/analyzer/database/output.hpp>
 #include <ikos/analyzer/util/color.hpp>
 #include <ikos/analyzer/util/log.hpp>
@@ -214,7 +215,19 @@ static llvm::cl::list< analyzer::CheckerName > Analyses(
                    checker_long_name(analyzer::CheckerName::Debug)),
         clEnumValN(analyzer::CheckerName::MemoryWatch,
                    checker_short_name(analyzer::CheckerName::MemoryWatch),
-                   checker_long_name(analyzer::CheckerName::MemoryWatch))),
+                   checker_long_name(analyzer::CheckerName::MemoryWatch)),
+        clEnumValN(analyzer::CheckerName::Concurrency,
+                   checker_short_name(analyzer::CheckerName::Concurrency),
+                   checker_long_name(analyzer::CheckerName::Concurrency)),
+        clEnumValN(analyzer::CheckerName::Taint,
+                   checker_short_name(analyzer::CheckerName::Taint),
+                   checker_long_name(analyzer::CheckerName::Taint)),
+        clEnumValN(analyzer::CheckerName::Uaf,
+                   checker_short_name(analyzer::CheckerName::Uaf),
+                   checker_long_name(analyzer::CheckerName::Uaf)),
+        clEnumValN(analyzer::CheckerName::Uam,
+                   checker_short_name(analyzer::CheckerName::Uam),
+                   checker_long_name(analyzer::CheckerName::Uam))),
     llvm::cl::cat(AnalysisCategory));
 
 static llvm::cl::opt< analyzer::MachineIntDomainOption > Domain(
@@ -477,6 +490,12 @@ static llvm::cl::opt< int > Argc("argc",
                                  llvm::cl::desc("Specify a value for argc"),
                                  llvm::cl::init(-1),
                                  llvm::cl::cat(AnalysisCategory));
+
+static llvm::cl::opt< std::string > TaintConfigFile(
+    "taint-config",
+    llvm::cl::desc("Path to taint analysis configuration file"),
+    llvm::cl::value_desc("file"),
+    llvm::cl::cat(AnalysisCategory));
 
 /// @}
 /// \name Import options
@@ -1036,6 +1055,17 @@ int main(int argc, char** argv) {
     // Fixpoint parameters
     analyzer::FixpointParameters fixpoint_parameters(opts);
 
+    analyzer::TaintConfig taint_config;
+    if (!TaintConfigFile.empty()) {
+      try {
+        taint_config.load_from_file(TaintConfigFile);
+        analyzer::log::info("Loaded taint config from '" + TaintConfigFile + "'");
+      } catch (const std::exception& e) {
+        analyzer::log::warning("Failed to load taint config '" +
+                               TaintConfigFile + "': " + e.what());
+      }
+    }
+
     // Analysis context
     analyzer::Context ctx(bundle,
                           opts,
@@ -1046,6 +1076,7 @@ int main(int argc, char** argv) {
                           lit_factory,
                           call_context_factory,
                           fixpoint_parameters);
+    ctx.taint_config = &taint_config;
 
     // Run a liveness analysis
     //
@@ -1081,8 +1112,12 @@ int main(int argc, char** argv) {
     //
     // The goal here is to get all function pointers so that we can analyse
     // precisely indirect calls in the following analyses
+    bool run_pointer_analysis = (Procedural == analyzer::Procedural::Intraprocedural ||
+                                 std::find(opts.analyses.begin(), opts.analyses.end(), analyzer::CheckerName::Concurrency) != opts.analyses.end()) &&
+                                !NoPointer;
+
     analyzer::FunctionPointerAnalysis function_pointer(ctx);
-    if (Procedural == analyzer::Procedural::Intraprocedural && !NoPointer) {
+    if (run_pointer_analysis) {
       analyzer::log::info("Running function pointer analysis");
       analyzer::ScopeTimerDatabase t(output_db.times,
                                      "ikos-analyzer.function-pointer-analysis");
@@ -1097,7 +1132,7 @@ int main(int argc, char** argv) {
     //
     // That step uses the result of the previous function pointer analysis.
     analyzer::PointerAnalysis pointer(ctx, function_pointer);
-    if (Procedural == analyzer::Procedural::Intraprocedural && !NoPointer) {
+    if (run_pointer_analysis) {
       analyzer::log::info("Running pointer analysis");
       analyzer::ScopeTimerDatabase t(output_db.times,
                                      "ikos-analyzer.pointer-analysis");

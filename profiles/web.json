@@ -1,0 +1,34 @@
+{
+  "sources": [
+    "getenv",
+    "getenv_s",
+    "recv",
+    "recvfrom",
+    "fgets",
+    "read"
+  ],
+  "sinks": [
+    { "name": "system",       "type": "CommandInjection", "sensitive_args": [0] },
+    { "name": "popen",        "type": "CommandInjection", "sensitive_args": [0] },
+
+    { "name": "sqlite3_exec",       "type": "SQLInjection", "sensitive_args": [1] },
+    { "name": "mysql_query",        "type": "SQLInjection", "sensitive_args": [1] },
+    { "name": "PQexec",             "type": "SQLInjection", "sensitive_args": [1] },
+    { "name": "PQexecParams",       "type": "SQLInjection", "sensitive_args": [1] },
+
+    { "name": "fopen",   "type": "PathTraversal", "sensitive_args": [0] },
+    { "name": "open",    "type": "PathTraversal", "sensitive_args": [0] },
+    { "name": "unlink",  "type": "PathTraversal", "sensitive_args": [0] },
+
+    { "name": "printf",   "type": "FormatString", "sensitive_args": [0] },
+    { "name": "fprintf",  "type": "FormatString", "sensitive_args": [1] },
+    { "name": "dprintf",  "type": "FormatString", "sensitive_args": [1] }
+  ],
+  "sanitizers": [
+    "escape_shell_arg",
+    "sqlite3_mprintf",
+    "mysql_real_escape_string",
+    "htmlspecialchars",
+    "realpath"
+  ]
+}

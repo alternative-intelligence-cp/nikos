@@ -827,6 +827,34 @@ public:
   }
 
   /// @}
+  /// \name Implement taint abstract domain methods
+  /// @{
+
+  void taint_assign_untainted(VariableRef) override {}
+  void taint_assign_tainted(VariableRef) override {}
+  void taint_assert_untainted(VariableRef) override {}
+  void taint_assert_tainted(VariableRef) override {}
+  bool taint_is_untainted(VariableRef) const override { return this->is_bottom(); }
+  bool taint_is_tainted(VariableRef) const override { return this->is_bottom(); }
+  void taint_set(VariableRef, Taint value) override {
+    if (value.is_bottom()) {
+      this->set_to_bottom();
+    }
+  }
+  void taint_refine(VariableRef, Taint value) override {
+    if (value.is_bottom()) {
+      this->set_to_bottom();
+    }
+  }
+  Taint taint_to_taint(VariableRef) const override {
+    if (this->is_bottom()) {
+      return Taint::bottom();
+    } else {
+      return Taint::top();
+    }
+  }
+
+  /// @}
   /// \name Implement nullity abstract domain methods
   /// @{
 

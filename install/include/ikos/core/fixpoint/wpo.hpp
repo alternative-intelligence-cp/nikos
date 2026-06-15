@@ -231,9 +231,9 @@ private:
 
   /// \brief Check if the given node is a successor of lifted forward arrow
   bool is_successor_lifted(WpoIndex idx) const {
-    return std::find(this->_successor_lifted.begin(),
-                     this->_successor_lifted.end(),
-                     idx) != this->_successor_lifted.end();
+    return std::find(this->_successors_lifted.begin(),
+                     this->_successors_lifted.end(),
+                     idx) != this->_successors_lifted.end();
   }
 
   /// \brief Increment the number of irreducibles that is directing to idx

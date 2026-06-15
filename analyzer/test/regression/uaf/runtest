@@ -1,0 +1,85 @@
+#!/usr/bin/env python
+################################################################################
+# Script for testing the use-after-free analysis
+#
+# Author: NIKOS Development Team
+#
+# Contact: ikos@lists.nasa.gov
+#
+# Notices:
+#
+# Copyright (c) 2011-2024 United States Government as represented by the
+# Administrator of the National Aeronautics and Space Administration.
+# All Rights Reserved.
+#
+# Disclaimers:
+#
+# No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY OF
+# ANY KIND, EITHER EXPRESSED, IMPLIED, OR STATUTORY, INCLUDING, BUT NOT LIMITED
+# TO, ANY WARRANTY THAT THE SUBJECT SOFTWARE WILL CONFORM TO SPECIFICATIONS,
+# ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE,
+# OR FREEDOM FROM INFRINGEMENT, ANY WARRANTY THAT THE SUBJECT SOFTWARE WILL BE
+# ERROR FREE, OR ANY WARRANTY THAT DOCUMENTATION, IF PROVIDED, WILL CONFORM TO
+# THE SUBJECT SOFTWARE. THIS AGREEMENT DOES NOT, IN ANY MANNER, CONSTITUTE AN
+# ENDORSEMENT BY GOVERNMENT AGENCY OR ANY PRIOR RECIPIENT OF ANY RESULTS,
+# RESULTING DESIGNS, HARDWARE, SOFTWARE PRODUCTS OR ANY OTHER APPLICATIONS
+# RESULTING FROM USE OF THE SUBJECT SOFTWARE.  FURTHER, GOVERNMENT AGENCY
+# DISCLAIMS ALL WARRANTIES AND LIABILITIES REGARDING THIRD-PARTY SOFTWARE,
+# IF PRESENT IN THE ORIGINAL SOFTWARE, AND DISTRIBUTES IT "AS IS."
+#
+# Waiver and Indemnity:  RECIPIENT AGREES TO WAIVE ANY AND ALL CLAIMS AGAINST
+# THE UNITED STATES GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS, AS WELL
+# AS ANY PRIOR RECIPIENT.  IF RECIPIENT'S USE OF THE SUBJECT SOFTWARE RESULTS
+# IN ANY LIABILITIES, DEMANDS, DAMAGES, EXPENSES OR LOSSES ARISING FROM SUCH
+# USE, INCLUDING ANY DAMAGES FROM PRODUCTS BASED ON, OR RESULTING FROM,
+# RECIPIENT'S USE OF THE SUBJECT SOFTWARE, RECIPIENT SHALL INDEMNIFY AND HOLD
+# HARMLESS THE UNITED STATES GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS,
+# AS WELL AS ANY PRIOR RECIPIENT, TO THE EXTENT PERMITTED BY LAW.
+# RECIPIENT'S SOLE REMEDY FOR ANY SUCH MATTER SHALL BE THE IMMEDIATE,
+# UNILATERAL TERMINATION OF THIS AGREEMENT.
+#
+################################################################################
+import os.path
+import sys
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir)
+sys.dont_write_bytecode = True
+from libruntest import TestManager, Test, parse_args
+
+if __name__ == '__main__':
+    parse_args(description='Regression tests for the use-after-free analysis')
+
+    t = TestManager(root=current_dir)
+
+    # test-1: heap read after free — definite error
+    t.add(Test('test-1-uaf-read.c', 'test-1-uaf-read.c', 'uaf', 'error',
+               line_checks=[(10, 'error')]))
+
+    # test-2: heap write after free — definite error
+    t.add(Test('test-2-uaf-write.c', 'test-2-uaf-write.c', 'uaf', 'error',
+               line_checks=[(9, 'error')]))
+
+    # test-3: conditional free before read — possible UAF (warning or error)
+    t.add(Test('test-3-uaf-conditional.c', 'test-3-uaf-conditional.c', 'uaf',
+               'unsafe', line_checks=[(16, 'error', 'warning')]))
+
+    # test-4: correct allocation/use/free order — must be fully safe
+    t.add(Test('test-4-uaf-safe.c', 'test-4-uaf-safe.c', 'uaf', 'safe'))
+
+    # test-5: array element access after free — definite error
+    t.add(Test('test-5-uaf-array.c', 'test-5-uaf-array.c', 'uaf', 'error',
+               line_checks=[(18, 'error')]))
+
+    # test-6: use-after-return — definite error
+    t.add(Test('test-6-uar.c', 'test-6-uar.c', 'uaf', 'error',
+               line_checks=[(12, 'error')]))
+
+    # test-7: null guard after free does NOT prevent UAF — definite error
+    t.add(Test('test-7-uaf-null-guarded.c', 'test-7-uaf-null-guarded.c', 'uaf',
+               'error', line_checks=[(15, 'error')]))
+
+    # test-8: free inside loop but last pointer not freed — safe
+    t.add(Test('test-8-uaf-loop.c', 'test-8-uaf-loop.c', 'uaf', 'safe'))
+
+    t.run()

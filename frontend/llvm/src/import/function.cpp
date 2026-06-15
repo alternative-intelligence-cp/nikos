@@ -397,8 +397,22 @@ void FunctionImporter::translate_alloca(BasicBlockTranslation* bb_translation,
   // Translate types
   check_import(alloca->getType()->isPointerTy(),
                "unexpected type for alloca instruction");
-  auto var_type = ar::cast< ar::PointerType >(this->infer_type(alloca));
-  ar::Type* allocated_type = var_type->pointee();
+  
+  // Use getAllocatedType() to get the actual allocated type instead of inferring from opaque pointer
+  ar::Type* allocated_type = nullptr;
+  if (alloca->hasName()) {
+    // Try to get type from debug info if available
+    try {
+      allocated_type = _ctx.type_imp->translate_type(alloca->getAllocatedType(), nullptr);
+    } catch (const TypeDebugInfoMismatch&) {}
+  }
+  
+  if (!allocated_type) {
+    allocated_type = this->_ctx.type_imp->translate_type(alloca->getAllocatedType(), ar::Signed);
+  }
+  
+  auto var_type = ar::PointerType::get(this->_context, allocated_type);
+
 
   // Translate local variable
   ar::LocalVariable* var =
@@ -1887,9 +1901,10 @@ ar::InternalVariable* FunctionImporter::add_integer_casts(
 }
 
 ar::Type* FunctionImporter::infer_type(llvm::Value* value) {
-  // Use debug information if available
   if (auto ar_type = this->infer_type_from_dbg(value)) {
-    return ar_type;
+    if (value->getType()->isPointerTy() == ar_type->is_pointer()) {
+      return ar_type;
+    }
   }
 
   // Use heuristics to find a correct type
@@ -1900,6 +1915,10 @@ ar::Type* FunctionImporter::infer_type(llvm::Value* value) {
     TypeHint hint = this->infer_type_hint_use(use);
 
     if (hint.ignore()) {
+      continue;
+    }
+
+    if (value->getType()->isPointerTy() != hint.type->is_pointer()) {
       continue;
     }
 

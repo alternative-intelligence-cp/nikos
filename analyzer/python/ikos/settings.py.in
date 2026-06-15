@@ -74,6 +74,8 @@ INCLUDE_DIR = os.path.join(PREFIX, 'include')
 
 LIB_DIR = os.path.join(PREFIX, 'lib')
 
+SHARE_DIR = os.path.join(PREFIX, 'share', 'ikos')
+
 LLVM_CONFIG = '@LLVM_CONFIG_EXECUTABLE@'
 
 LLVM_VERSION = '@LLVM_VERSION@'

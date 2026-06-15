@@ -1442,6 +1442,62 @@ public:
   }
 
   /// @}
+  /// \name Implement taint abstract domain methods
+  /// @{
+
+  void taint_assign_untainted(VariableRef x) override {
+    for (Partition& partition : this->_partitions) {
+      partition.memory.taint_assign_untainted(x);
+    }
+  }
+  void taint_assign_tainted(VariableRef x) override {
+    for (Partition& partition : this->_partitions) {
+      partition.memory.taint_assign_tainted(x);
+    }
+  }
+  void taint_assert_untainted(VariableRef x) override {
+    for (Partition& partition : this->_partitions) {
+      partition.memory.taint_assert_untainted(x);
+    }
+  }
+  void taint_assert_tainted(VariableRef x) override {
+    for (Partition& partition : this->_partitions) {
+      partition.memory.taint_assert_tainted(x);
+    }
+  }
+  bool taint_is_untainted(VariableRef x) const override {
+    return std::all_of(this->_partitions.begin(),
+                       this->_partitions.end(),
+                       [=](const Partition& partition) {
+                         return partition.memory.taint_is_untainted(x);
+                       });
+  }
+  bool taint_is_tainted(VariableRef x) const override {
+    return std::all_of(this->_partitions.begin(),
+                       this->_partitions.end(),
+                       [=](const Partition& partition) {
+                         return partition.memory.taint_is_tainted(x);
+                       });
+  }
+  void taint_set(VariableRef x, Taint value) override {
+    for (Partition& partition : this->_partitions) {
+      partition.memory.taint_set(x, value);
+    }
+  }
+  void taint_refine(VariableRef x, Taint value) override {
+    for (Partition& partition : this->_partitions) {
+      partition.memory.taint_refine(x, value);
+    }
+  }
+  Taint taint_to_taint(VariableRef x) const override {
+    auto result = Taint::bottom();
+    for (const Partition& partition : this->_partitions) {
+      result.join_with(partition.memory.taint_to_taint(x));
+    }
+    return result;
+  }
+
+  /// @}
   /// \name Implement memory abstract domain methods
   /// @{
 
@@ -1539,9 +1595,24 @@ public:
   }
 
   void mem_uninitialize_reachable(VariableRef p) override {
-    for (Partition& partition : this->_partitions) {
+    for (auto& partition : this->_partitions) {
       partition.memory.mem_uninitialize_reachable(p);
     }
+  }
+
+  void taint_set_memory_tainted(VariableRef p) override {
+    for (auto& partition : this->_partitions) {
+      partition.memory.taint_set_memory_tainted(p);
+    }
+  }
+
+  bool taint_is_memory_tainted(VariableRef p) const override {
+    for (const auto& partition : this->_partitions) {
+      if (partition.memory.taint_is_memory_tainted(p)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /// @}

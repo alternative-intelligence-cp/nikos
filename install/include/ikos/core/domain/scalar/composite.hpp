@@ -48,6 +48,7 @@
 #include <ikos/core/domain/scalar/abstract_domain.hpp>
 #include <ikos/core/domain/separate_domain.hpp>
 #include <ikos/core/domain/uninitialized/abstract_domain.hpp>
+#include <ikos/core/domain/taint/abstract_domain.hpp>
 
 namespace ikos {
 namespace core {
@@ -89,7 +90,8 @@ template < typename VariableRef,
            typename MemoryLocationRef,
            typename UninitializedDomain,
            typename MachineIntDomain,
-           typename NullityDomain >
+           typename NullityDomain,
+           typename TaintDomain >
 class CompositeDomain final
     : public scalar::AbstractDomain< VariableRef,
                                      MemoryLocationRef,
@@ -97,7 +99,8 @@ class CompositeDomain final
                                                       MemoryLocationRef,
                                                       UninitializedDomain,
                                                       MachineIntDomain,
-                                                      NullityDomain > > {
+                                                      NullityDomain,
+                                                      TaintDomain > > {
 public:
   static_assert(
       uninitialized::IsAbstractDomain< UninitializedDomain,
@@ -108,6 +111,9 @@ public:
       "MachineIntDomain must implement machine_int::AbstractDomain");
   static_assert(nullity::IsAbstractDomain< NullityDomain, VariableRef >::value,
                 "NullityDomain must implement nullity::AbstractDomain");
+
+  static_assert(taint::IsAbstractDomain< TaintDomain, VariableRef >::value,
+                "TaintDomain must implement taint::AbstractDomain");
 
 public:
   using IntUnaryOperator = machine_int::UnaryOperator;
@@ -137,6 +143,9 @@ private:
   /// \brief Underlying nullity abstract domains
   NullityDomain _nullity;
 
+  /// \brief Underlying taint abstract domains
+  TaintDomain _taint;
+
   /// \brief Map pointer variables to set of addresses
   PointsToMap _points_to_map;
 
@@ -145,10 +154,12 @@ private:
   CompositeDomain(UninitializedDomain uninitialized,
                   MachineIntDomain integer,
                   NullityDomain nullity,
+                  TaintDomain taint,
                   PointsToMap points_to_map)
       : _uninitialized(std::move(uninitialized)),
         _integer(std::move(integer)),
         _nullity(std::move(nullity)),
+        _taint(std::move(taint)),
         _points_to_map(std::move(points_to_map)) {
     this->normalize();
   }
@@ -161,10 +172,12 @@ public:
   /// \param nullity The nullity abstract value
   CompositeDomain(UninitializedDomain uninitialized,
                   MachineIntDomain integer,
-                  NullityDomain nullity)
+                  NullityDomain nullity,
+                  TaintDomain taint)
       : _uninitialized(std::move(uninitialized)),
         _integer(std::move(integer)),
         _nullity(std::move(nullity)),
+        _taint(std::move(taint)),
         _points_to_map(PointsToMap::top()) {
     this->normalize();
   }
@@ -212,6 +225,12 @@ public:
       return;
     }
 
+    this->_taint.normalize();
+    if (this->_nullity.is_bottom()) {
+      this->set_to_bottom();
+      return;
+    }
+
     this->_points_to_map.normalize();
     if (this->_points_to_map.is_bottom()) {
       this->set_to_bottom();
@@ -233,12 +252,12 @@ private:
 
 public:
   bool is_bottom() const override {
-    return this->_uninitialized.is_bottom() || this->_nullity.is_bottom() ||
+    return this->_uninitialized.is_bottom() || this->_nullity.is_bottom() || this->_taint.is_bottom() ||
            this->_points_to_map.is_bottom() || this->_integer.is_bottom();
   }
 
   bool is_top() const override {
-    return this->_uninitialized.is_top() && this->_nullity.is_top() &&
+    return this->_uninitialized.is_top() && this->_nullity.is_top() && this->_taint.is_top() &&
            this->_points_to_map.is_top() && this->_integer.is_top();
   }
 
@@ -246,6 +265,7 @@ public:
     this->_uninitialized.set_to_bottom();
     this->_integer.set_to_bottom();
     this->_nullity.set_to_bottom();
+    this->_taint.set_to_bottom();
     this->_points_to_map.set_to_bottom();
   }
 
@@ -253,6 +273,7 @@ public:
     this->_uninitialized.set_to_top();
     this->_integer.set_to_top();
     this->_nullity.set_to_top();
+    this->_taint.set_to_top();
     this->_points_to_map.set_to_top();
   }
 
@@ -265,6 +286,7 @@ public:
       return this->_uninitialized.leq(other._uninitialized) &&
              this->_integer.leq(other._integer) &&
              this->_nullity.leq(other._nullity) &&
+             this->_taint.leq(other._taint) &&
              this->_points_to_map.leq(other._points_to_map);
     }
   }
@@ -278,6 +300,7 @@ public:
       return this->_uninitialized.equals(other._uninitialized) &&
              this->_integer.equals(other._integer) &&
              this->_nullity.equals(other._nullity) &&
+             this->_taint.equals(other._taint) &&
              this->_points_to_map.equals(other._points_to_map);
     }
   }
@@ -293,6 +316,7 @@ public:
       this->_uninitialized.join_with(std::move(other._uninitialized));
       this->_integer.join_with(std::move(other._integer));
       this->_nullity.join_with(std::move(other._nullity));
+      this->_taint.join_with(std::move(other._taint));
       this->_points_to_map.join_with(std::move(other._points_to_map));
     }
   }
@@ -307,6 +331,7 @@ public:
       this->_uninitialized.join_with(other._uninitialized);
       this->_integer.join_with(other._integer);
       this->_nullity.join_with(other._nullity);
+      this->_taint.join_with(other._taint);
       this->_points_to_map.join_with(other._points_to_map);
     }
   }
@@ -322,6 +347,7 @@ public:
       this->_uninitialized.join_loop_with(std::move(other._uninitialized));
       this->_integer.join_loop_with(std::move(other._integer));
       this->_nullity.join_loop_with(std::move(other._nullity));
+      this->_taint.join_loop_with(std::move(other._taint));
       this->_points_to_map.join_loop_with(std::move(other._points_to_map));
     }
   }
@@ -336,6 +362,7 @@ public:
       this->_uninitialized.join_loop_with(other._uninitialized);
       this->_integer.join_loop_with(other._integer);
       this->_nullity.join_loop_with(other._nullity);
+      this->_taint.join_loop_with(other._taint);
       this->_points_to_map.join_loop_with(other._points_to_map);
     }
   }
@@ -351,6 +378,7 @@ public:
       this->_uninitialized.join_iter_with(std::move(other._uninitialized));
       this->_integer.join_iter_with(std::move(other._integer));
       this->_nullity.join_iter_with(std::move(other._nullity));
+      this->_taint.join_iter_with(std::move(other._taint));
       this->_points_to_map.join_iter_with(std::move(other._points_to_map));
     }
   }
@@ -365,6 +393,7 @@ public:
       this->_uninitialized.join_iter_with(other._uninitialized);
       this->_integer.join_iter_with(other._integer);
       this->_nullity.join_iter_with(other._nullity);
+      this->_taint.join_iter_with(other._taint);
       this->_points_to_map.join_iter_with(other._points_to_map);
     }
   }
@@ -379,6 +408,8 @@ public:
       this->_uninitialized.widen_with(other._uninitialized);
       this->_integer.widen_with(other._integer);
       this->_nullity.widen_with(other._nullity);
+      this->_taint.widen_with(other._taint);
+      this->_taint.widen_with(other._taint);
       this->_points_to_map.widen_with(other._points_to_map);
     }
   }
@@ -394,6 +425,8 @@ public:
       this->_uninitialized.widen_with(other._uninitialized);
       this->_integer.widen_threshold_with(other._integer, threshold);
       this->_nullity.widen_with(other._nullity);
+      this->_taint.widen_with(other._taint);
+      this->_taint.widen_with(other._taint);
       this->_points_to_map.widen_with(other._points_to_map);
     }
   }
@@ -408,6 +441,7 @@ public:
       this->_uninitialized.meet_with(other._uninitialized);
       this->_integer.meet_with(other._integer);
       this->_nullity.meet_with(other._nullity);
+      this->_taint.meet_with(other._taint);
       this->_points_to_map.meet_with(other._points_to_map);
     }
   }
@@ -422,6 +456,8 @@ public:
       this->_uninitialized.narrow_with(other._uninitialized);
       this->_integer.narrow_with(other._integer);
       this->_nullity.narrow_with(other._nullity);
+      this->_taint.narrow_with(other._taint);
+      this->_taint.narrow_with(other._taint);
       this->_points_to_map.narrow_with(other._points_to_map);
     }
   }
@@ -437,6 +473,8 @@ public:
       this->_uninitialized.narrow_with(other._uninitialized);
       this->_integer.narrow_threshold_with(other._integer, threshold);
       this->_nullity.narrow_with(other._nullity);
+      this->_taint.narrow_with(other._taint);
+      this->_taint.narrow_with(other._taint);
       this->_points_to_map.narrow_with(other._points_to_map);
     }
   }
@@ -450,6 +488,7 @@ public:
       return CompositeDomain(this->_uninitialized.join(other._uninitialized),
                              this->_integer.join(other._integer),
                              this->_nullity.join(other._nullity),
+                             this->_taint.join(other._taint),
                              this->_points_to_map.join(other._points_to_map));
     }
   }
@@ -464,6 +503,7 @@ public:
                                  other._uninitialized),
                              this->_integer.join_loop(other._integer),
                              this->_nullity.join_loop(other._nullity),
+                             this->_taint.join_loop(other._taint),
                              this->_points_to_map.join_loop(
                                  other._points_to_map));
     }
@@ -479,6 +519,7 @@ public:
                                  other._uninitialized),
                              this->_integer.join_iter(other._integer),
                              this->_nullity.join_iter(other._nullity),
+                             this->_taint.join_iter(other._taint),
                              this->_points_to_map.join_iter(
                                  other._points_to_map));
     }
@@ -494,6 +535,7 @@ public:
                                  other._uninitialized),
                              this->_integer.widening(other._integer),
                              this->_nullity.widening(other._nullity),
+                             this->_taint.widening(other._taint),
                              this->_points_to_map.widening(
                                  other._points_to_map));
     }
@@ -512,6 +554,7 @@ public:
                              this->_integer.widening_threshold(other._integer,
                                                                threshold),
                              this->_nullity.widening(other._nullity),
+                             this->_taint.widening(other._taint),
                              this->_points_to_map.widening(
                                  other._points_to_map));
     }
@@ -526,6 +569,7 @@ public:
       return CompositeDomain(this->_uninitialized.meet(other._uninitialized),
                              this->_integer.meet(other._integer),
                              this->_nullity.meet(other._nullity),
+                             this->_taint.meet(other._taint),
                              this->_points_to_map.meet(other._points_to_map));
     }
   }
@@ -540,6 +584,7 @@ public:
                                  other._uninitialized),
                              this->_integer.narrowing(other._integer),
                              this->_nullity.narrowing(other._nullity),
+                             this->_taint.narrowing(other._taint),
                              this->_points_to_map.narrowing(
                                  other._points_to_map));
     }
@@ -558,6 +603,7 @@ public:
                              this->_integer.narrowing_threshold(other._integer,
                                                                 threshold),
                              this->_nullity.narrowing(other._nullity),
+                             this->_taint.narrowing(other._taint),
                              this->_points_to_map.narrowing(
                                  other._points_to_map));
     }
@@ -600,6 +646,7 @@ public:
 
     this->_uninitialized.assign_initialized(x);
     this->_integer.assign(x, n);
+    this->_taint.assign_untainted(x);
   }
 
   void int_assign_undef(VariableRef x) override {
@@ -611,6 +658,7 @@ public:
 
     this->_uninitialized.assign_uninitialized(x);
     this->_integer.forget(x);
+    this->_taint.forget(x);
   }
 
   void int_assign_nondet(VariableRef x) override {
@@ -622,6 +670,7 @@ public:
 
     this->_uninitialized.assign_initialized(x);
     this->_integer.forget(x);
+    this->_taint.forget(x);
   }
 
   void int_assign(VariableRef x, VariableRef y) override {
@@ -634,6 +683,7 @@ public:
 
     this->_uninitialized.assign(x, y);
     this->_integer.assign(x, y);
+    this->_taint.assign(x, y);
   }
 
   void int_assign(VariableRef x, const IntLinearExpression& e) override {
@@ -655,6 +705,12 @@ public:
 
     this->_uninitialized.assign_initialized(x);
     this->_integer.assign(x, e);
+
+    Taint t = Taint::untainted();
+    for (const auto& term : e) {
+      t.join_with(this->_taint.get(term.first));
+    }
+    this->_taint.set(x, t);
   }
 
   void int_apply(IntUnaryOperator op, VariableRef x, VariableRef y) override {
@@ -674,6 +730,7 @@ public:
 
     this->_uninitialized.assign_initialized(x);
     this->_integer.apply(op, x, y);
+    this->_taint.apply(x, y);
   }
 
   // \brief Assert that x is initialized (throw if not), but only if the
@@ -710,6 +767,7 @@ public:
 
     this->_uninitialized.assign_initialized(x);
     this->_integer.apply(op, x, y, z);
+    this->_taint.apply(x, y, z);
   }
 
   void int_apply(IntBinaryOperator op,
@@ -732,6 +790,7 @@ public:
 
     this->_uninitialized.assign_initialized(x);
     this->_integer.apply(op, x, y, z);
+    this->_taint.assign(x, y);
   }
 
   void int_apply(IntBinaryOperator op,
@@ -754,6 +813,7 @@ public:
 
     this->_uninitialized.assign_initialized(x);
     this->_integer.apply(op, x, y, z);
+    this->_taint.assign(x, z);
   }
 
   void int_add(IntPredicate pred, VariableRef x, VariableRef y) override {
@@ -869,6 +929,7 @@ public:
 
     this->_uninitialized.forget(x);
     this->_integer.forget(x);
+    this->_taint.forget(x);
   }
 
   IntInterval int_to_interval(VariableRef x) const override {
@@ -958,6 +1019,7 @@ public:
     ikos_assert(ScalarVariableTrait::is_float(y));
 
     this->_uninitialized.assign(x, y);
+    this->_taint.assign(x, y);
   }
 
   void float_forget(VariableRef x) override {
@@ -1025,6 +1087,50 @@ public:
     ikos_assert(ScalarVariableTrait::is_pointer(p));
 
     return this->_nullity.get(p);
+  }
+
+  /// @}
+  /// \name Implement taint abstract domain methods
+  /// @{
+
+  void taint_assign_untainted(VariableRef x) override {
+    this->_taint.assign_untainted(x);
+  }
+
+  void taint_assign_tainted(VariableRef x) override {
+    this->_taint.assign_tainted(x);
+  }
+
+  void taint_assign_labeled(VariableRef x, std::string label) override {
+    this->_taint.assign_labeled(x, std::move(label));
+  }
+
+  void taint_assert_untainted(VariableRef x) override {
+    this->_taint.assert_untainted(x);
+  }
+
+  void taint_assert_tainted(VariableRef x) override {
+    this->_taint.assert_tainted(x);
+  }
+
+  bool taint_is_untainted(VariableRef x) const override {
+    return this->_taint.is_untainted(x);
+  }
+
+  bool taint_is_tainted(VariableRef x) const override {
+    return this->_taint.is_tainted(x);
+  }
+
+  void taint_set(VariableRef x, Taint value) override {
+    this->_taint.set(x, value);
+  }
+
+  void taint_refine(VariableRef x, Taint value) override {
+    this->_taint.refine(x, value);
+  }
+
+  Taint taint_to_taint(VariableRef x) const override {
+    return this->_taint.get(x);
   }
 
   /// @}
@@ -1101,6 +1207,7 @@ public:
 
     this->_uninitialized.assign(p, q);
     this->_nullity.assign(p, q);
+    this->_taint.assign(p, q);
     this->_points_to_map.set(p, this->_points_to_map.get(q));
     this->_integer.assign(ScalarVariableTrait::offset_var(p),
                           ScalarVariableTrait::offset_var(q));
@@ -1130,6 +1237,7 @@ public:
                          ScalarVariableTrait::offset_var(p),
                          ScalarVariableTrait::offset_var(q),
                          o);
+    this->_taint.apply(p, q, o);
   }
 
   void pointer_assign(VariableRef p,
@@ -1156,6 +1264,7 @@ public:
                          ScalarVariableTrait::offset_var(p),
                          ScalarVariableTrait::offset_var(q),
                          o);
+    this->_taint.assign(p, q);
   }
 
   void pointer_assign(VariableRef p,
@@ -1190,6 +1299,12 @@ public:
     IntLinearExpression offset(o);
     offset.add(one, offset_q);
     this->_integer.assign(offset_p, offset);
+
+    Taint t = this->_taint.get(q);
+    for (const auto& term : o) {
+      t.join_with(this->_taint.get(term.first));
+    }
+    this->_taint.set(p, t);
   }
 
   void pointer_add(PointerPredicate pred,
@@ -1458,6 +1573,7 @@ public:
       this->_integer.apply(IntUnaryOperator::SignCast, x, y);
     }
     this->_nullity.assign(x, y);
+    this->_taint.assign(x, y);
     this->_points_to_map.set(x, this->_points_to_map.get(y));
     this->_integer.assign(ScalarVariableTrait::offset_var(x),
                           ScalarVariableTrait::offset_var(y));
@@ -1472,7 +1588,9 @@ public:
 
     this->_uninitialized.assign_uninitialized(x);
     this->_integer.forget(x);
+    this->_taint.forget(x);
     this->_nullity.forget(x);
+    this->_taint.forget(x);
     this->_points_to_map.forget(x);
     this->_integer.forget(ScalarVariableTrait::offset_var(x));
   }
@@ -1486,7 +1604,9 @@ public:
 
     this->_uninitialized.assign_initialized(x);
     this->_integer.forget(x);
+    this->_taint.forget(x);
     this->_nullity.forget(x);
+    this->_taint.forget(x);
     this->_points_to_map.forget(x);
     this->_integer.forget(ScalarVariableTrait::offset_var(x));
   }
@@ -1502,10 +1622,12 @@ public:
     this->_uninitialized.assign_initialized(x);
     if (IntVariableTrait::sign(x) == n.sign()) {
       this->_integer.assign(x, n);
+    this->_taint.assign_untainted(x);
     } else {
       this->_integer.assign(x, n.sign_cast(IntVariableTrait::sign(x)));
     }
     this->_nullity.forget(x);
+    this->_taint.forget(x);
     this->_points_to_map.forget(x);
     this->_integer.forget(ScalarVariableTrait::offset_var(x));
   }
@@ -1519,7 +1641,9 @@ public:
 
     this->_uninitialized.assign_initialized(x);
     this->_integer.forget(x);
+    this->_taint.forget(x);
     this->_nullity.forget(x);
+    this->_taint.forget(x);
     this->_points_to_map.forget(x);
     this->_integer.forget(ScalarVariableTrait::offset_var(x));
   }
@@ -1541,6 +1665,7 @@ public:
       this->_integer.apply(IntUnaryOperator::SignCast, x, y);
     }
     this->_nullity.forget(x);
+    this->_taint.forget(x);
     this->_points_to_map.forget(x);
     this->_integer.forget(ScalarVariableTrait::offset_var(x));
   }
@@ -1554,7 +1679,9 @@ public:
 
     this->_uninitialized.assign_initialized(x);
     this->_integer.forget(x);
+    this->_taint.forget(x);
     this->_nullity.forget(x);
+    this->_taint.forget(x);
     this->_points_to_map.forget(x);
     this->_integer.forget(ScalarVariableTrait::offset_var(x));
   }
@@ -1568,7 +1695,9 @@ public:
 
     this->_uninitialized.assign_initialized(x);
     this->_integer.forget(x);
+    this->_taint.forget(x);
     this->_nullity.assign_null(x);
+    this->_taint.assign_untainted(x);
     this->_points_to_map.set(x, PointsToSetT::empty());
     VariableRef offset = ScalarVariableTrait::offset_var(x);
     this->_integer.assign(offset,
@@ -1587,6 +1716,7 @@ public:
 
     this->_uninitialized.assign_initialized(x);
     this->_integer.forget(x);
+    this->_taint.forget(x);
     this->_nullity.set(x, nullity);
     this->_points_to_map.set(x, PointsToSetT{addr});
     VariableRef offset = ScalarVariableTrait::offset_var(x);
@@ -1605,7 +1735,9 @@ public:
 
     this->_uninitialized.assign(x, y);
     this->_integer.forget(x);
+    this->_taint.forget(x);
     this->_nullity.assign(x, y);
+    this->_taint.assign(x, y);
     this->_points_to_map.set(x, this->_points_to_map.get(y));
     this->_integer.assign(ScalarVariableTrait::offset_var(x),
                           ScalarVariableTrait::offset_var(y));
@@ -1639,6 +1771,7 @@ public:
 
     this->_uninitialized.assign(x, y);
     this->_nullity.assign(x, y);
+    this->_taint.assign(x, y);
     this->_points_to_map.set(x, this->_points_to_map.get(y));
     this->_integer.assign(ScalarVariableTrait::offset_var(x),
                           ScalarVariableTrait::offset_var(y));
@@ -1666,7 +1799,9 @@ public:
 
     this->_uninitialized.forget(x);
     this->_integer.forget(x);
+    this->_taint.forget(x);
     this->_nullity.forget(x);
+    this->_taint.forget(x);
     this->_points_to_map.forget(x);
     this->_integer.forget(ScalarVariableTrait::offset_var(x));
   }
@@ -1742,6 +1877,7 @@ public:
       }
     } else {
       this->_integer.forget(x);
+    this->_taint.forget(x);
     }
   }
 

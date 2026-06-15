@@ -6,7 +6,81 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 **NIKOS** is a fork of [NASA's IKOS](https://github.com/NASA-SW-VnV/ikos), ported from LLVM 14 to LLVM 20 and integrated into the Nitpick static analysis toolchain.
 
+## [2.3.0] — 2026-06-15
+
+### 🔒 Security & Taint Analysis Expansion — 14/14 Tests Passing
+
+Third milestone in the 2.x security analysis series. Broadens taint source
+coverage to network and standard I/O, ships built-in vulnerability profiles,
+enhances diagnostic output with source-attribution labels, and grows the taint
+regression suite from 10 to 14 tests.
+
+### Added
+
+- **Expanded taint sources** — `recv`, `recvfrom`, `recvmsg` (network I/O);
+  `fgets`, `fgetc`, `getchar`, `getline`, `scanf`, `fscanf`, `sscanf`, `read`
+  (standard I/O) registered as taint sources in `taint_config.json`.
+
+- **New taint sinks** — exec family: `execl`, `execlp`, `execle`, `execv`,
+  `execve`, `execvp` (CommandInjection); filesystem: `openat`, `unlink`,
+  `rename`, `remove` (PathTraversal); `syslog` (FormatString).
+
+- **Path sanitizers** — `realpath` and `basename` added to `sanitizers` list in
+  `taint_config.json`, clearing path traversal taint when data passes through
+  canonical path resolution.
+
+- **`profiles/posix.json`** — new built-in profile targeting POSIX command/path
+  injection and format string vulnerabilities; no SQL sinks.
+
+- **Updated `profiles/web.json`** — added network I/O sources (`recv`,
+  `recvfrom`, `fgets`, `read`) and `realpath` sanitizer.
+
+- **Updated `profiles/sql.json`** — added PostgreSQL sanitizers
+  (`PQescapeStringConn`, `PQescapeLiteral`) alongside existing MySQL/SQLite ones;
+  broadened sources to include network and file I/O.
+
+- **Verbosity-2 taint source labels** in `ikos-report` — at `-v 2`, taint
+  findings now include `(source: <name>)` attribution drawn from the
+  `taint_sources` provenance key stored in the check info dict. New helper
+  `_taint_source_suffix()` in `report.py`.
+
+- **4 new regression tests** (total: 14):
+  - `recv_source.c` — network socket data → `system()` (CommandInjection)
+  - `fgets_source.c` — stdin input → `fopen()` (PathTraversal)
+  - `realpath_sanitizer.c` — `fgets` → `realpath()` → `fopen()` (safe)
+  - `snprintf_sink.c` — `getenv()` → `snprintf()` → `system()` (CommandInjection)
+
+### Fixed
+
+- **`KeyError: 53` in `ikos-report`** — the system-installed `enums.py` at
+  `/usr/local/libexec/lib/python3.12/site-packages/ikos/` was the old upstream
+  IKOS version, missing all 2.x `CheckKind` additions (`USE_AFTER_FREE`,
+  `USE_AFTER_RETURN`, `DATA_RACE`, `DEADLOCK`, `COMMAND_INJECTION`,
+  `PATH_TRAVERSAL`, `FORMAT_STRING`, `SQL_INJECTION`). Deployed updated `enums.py`
+  and all other modified Python files to both install targets.
+
+## [2.2.0] — 2026-06-15
+
+### 🧵 Concurrency Checker — Data Race & Deadlock Detection
+
+See [RELEASE_2.2.0.md](../../../META/NIKOS/ROADMAP/2.2/RELEASE_2.2.0.md) for
+full details. Highlights:
+- Lockset analysis checker (`-a concurrency`) with `pthread_mutex_lock/unlock`
+- `CheckKind::DATA_RACE` and `CheckKind::DEADLOCK`
+- 3 regression tests (mutex_safe, data_race, deadlock)
+
+## [2.1.0] — 2026-06-15
+
+### 🧹 Use-After-Free Checker Enhancements
+
+See [RELEASE_2.1.0.md](../../../META/NIKOS/ROADMAP/2.1/RELEASE_2.1.0.md) for
+full details. Highlights:
+- `CheckKind::USE_AFTER_FREE`, `USE_AFTER_RETURN`, `USE_AFTER_MOVE`
+- `CheckerName::UAF`, `UAM`
+- Lifetime tracking improvements
+
 ## [1.0.1] — 2026-06-14
+
 
 ### 🔧 Patch Release — CI Compatibility Fixes
 
@@ -370,6 +444,9 @@ This release marks NIKOS as production-ready with full LLVM 20 support.
 - Updated CMake to find LLVM 20.
 - C++ standard from C++14 to C++17.
 
+[2.3.0]: https://github.com/alternative-intelligence-cp/nikos/compare/v2.2.0...v2.3.0
+[2.2.0]: https://github.com/alternative-intelligence-cp/nikos/compare/v2.1.0...v2.2.0
+[2.1.0]: https://github.com/alternative-intelligence-cp/nikos/compare/v1.0.1...v2.1.0
 [0.12.0]: https://github.com/alternative-intelligence-cp/nikos/compare/v0.6.1...v0.12.0
 [0.6.1]: https://github.com/alternative-intelligence-cp/nikos/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/alternative-intelligence-cp/nikos/compare/v0.5.1...v0.6.0

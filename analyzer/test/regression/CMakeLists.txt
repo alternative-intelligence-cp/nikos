@@ -10,6 +10,16 @@ function(add_analysis_test test_name test_directory)
              --ikos-analyzer "$<TARGET_FILE:ikos-analyzer>")
 endfunction()
 
+function(add_taint_test test_name test_directory)
+  add_test(NAME "analysis-${test_name}"
+           WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${test_directory}"
+           COMMAND ${PYTHON_EXECUTABLE} runtest
+             --clang "${CLANG_EXECUTABLE}"
+             --ikos-pp "${FRONTEND_LLVM_IKOS_PP_EXECUTABLE}"
+             --ikos-analyzer "$<TARGET_FILE:ikos-analyzer>"
+             --taint-config "${CMAKE_SOURCE_DIR}/../../taint_config.json")
+endfunction()
+
 add_analysis_test(buffer-overflow boa)
 add_analysis_test(division-by-zero dbz)
 add_analysis_test(memory mem)
@@ -24,7 +34,12 @@ add_analysis_test(pointer-overflow poa)
 add_analysis_test(pointer-compare pcmp)
 add_analysis_test(function-call fca)
 add_analysis_test(double-free dfa)
+add_analysis_test(use-after-free uaf)
+add_analysis_test(use-after-move uam)
+add_analysis_test(lambda-capture lambda)
+add_analysis_test(concurrency-analysis concurrency)
 add_analysis_test(soundness sound)
+add_taint_test(taint taint)
 if (APRON_FOUND)
   add_analysis_test(apron-domains apron)
 endif()

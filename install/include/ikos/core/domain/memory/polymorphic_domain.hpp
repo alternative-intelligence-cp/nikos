@@ -417,6 +417,20 @@ private:
     virtual Nullity nullity_to_nullity(VariableRef p) const = 0;
 
     /// @}
+    /// \name Taint abstract domain methods
+    /// @{
+
+    virtual void taint_assign_untainted(VariableRef x) = 0;
+    virtual void taint_assign_tainted(VariableRef x) = 0;
+    virtual void taint_assert_untainted(VariableRef x) = 0;
+    virtual void taint_assert_tainted(VariableRef x) = 0;
+    virtual bool taint_is_untainted(VariableRef x) const = 0;
+    virtual bool taint_is_tainted(VariableRef x) const = 0;
+    virtual void taint_set(VariableRef x, Taint value) = 0;
+    virtual void taint_refine(VariableRef x, Taint value) = 0;
+    virtual Taint taint_to_taint(VariableRef x) const = 0;
+
+    /// @}
     /// \name Pointer abstract domain methods
     /// @{
 
@@ -681,6 +695,9 @@ private:
     /// \brief Set the memory contents accessible through pointer `p` to
     /// uninitialized
     virtual void mem_uninitialize_reachable(VariableRef p) = 0;
+
+    virtual void taint_set_memory_tainted(VariableRef p) = 0;
+    virtual bool taint_is_memory_tainted(VariableRef p) const = 0;
 
     /// @}
     /// \name Lifetime abstract domain methods
@@ -1145,6 +1162,46 @@ private:
     }
 
     /// @}
+    /// \name Taint abstract domain methods
+    /// @{
+
+    void taint_assign_untainted(VariableRef x) override {
+      this->_inv.taint_assign_untainted(x);
+    }
+
+    void taint_assign_tainted(VariableRef x) override {
+      this->_inv.taint_assign_tainted(x);
+    }
+
+    void taint_assert_untainted(VariableRef x) override {
+      this->_inv.taint_assert_untainted(x);
+    }
+
+    void taint_assert_tainted(VariableRef x) override {
+      this->_inv.taint_assert_tainted(x);
+    }
+
+    bool taint_is_untainted(VariableRef x) const override {
+      return this->_inv.taint_is_untainted(x);
+    }
+
+    bool taint_is_tainted(VariableRef x) const override {
+      return this->_inv.taint_is_tainted(x);
+    }
+
+    void taint_set(VariableRef x, Taint value) override {
+      this->_inv.taint_set(x, value);
+    }
+
+    void taint_refine(VariableRef x, Taint value) override {
+      this->_inv.taint_refine(x, value);
+    }
+
+    Taint taint_to_taint(VariableRef x) const override {
+      return this->_inv.taint_to_taint(x);
+    }
+
+    /// @}
     /// \name Pointer abstract domain methods
     /// @{
 
@@ -1402,6 +1459,14 @@ private:
 
     void mem_uninitialize_reachable(VariableRef p) override {
       this->_inv.mem_uninitialize_reachable(p);
+    }
+
+    void taint_set_memory_tainted(VariableRef p) override {
+      this->_inv.taint_set_memory_tainted(p);
+    }
+
+    bool taint_is_memory_tainted(VariableRef p) const override {
+      return this->_inv.taint_is_memory_tainted(p);
     }
 
     /// @}
@@ -1805,6 +1870,46 @@ public:
   }
 
   /// @}
+  /// \name Taint abstract domain methods
+  /// @{
+
+  void taint_assign_untainted(VariableRef x) override {
+    this->_ptr->taint_assign_untainted(x);
+  }
+
+  void taint_assign_tainted(VariableRef x) override {
+    this->_ptr->taint_assign_tainted(x);
+  }
+
+  void taint_assert_untainted(VariableRef x) override {
+    this->_ptr->taint_assert_untainted(x);
+  }
+
+  void taint_assert_tainted(VariableRef x) override {
+    this->_ptr->taint_assert_tainted(x);
+  }
+
+  bool taint_is_untainted(VariableRef x) const override {
+    return this->_ptr->taint_is_untainted(x);
+  }
+
+  bool taint_is_tainted(VariableRef x) const override {
+    return this->_ptr->taint_is_tainted(x);
+  }
+
+  void taint_set(VariableRef x, Taint value) override {
+    this->_ptr->taint_set(x, value);
+  }
+
+  void taint_refine(VariableRef x, Taint value) override {
+    this->_ptr->taint_refine(x, value);
+  }
+
+  Taint taint_to_taint(VariableRef x) const override {
+    return this->_ptr->taint_to_taint(x);
+  }
+
+  /// @}
   /// \name Pointer abstract domain methods
   /// @{
 
@@ -2057,6 +2162,14 @@ public:
 
   void mem_uninitialize_reachable(VariableRef p) override {
     this->_ptr->mem_uninitialize_reachable(p);
+  }
+
+  void taint_set_memory_tainted(VariableRef p) override {
+    this->_ptr->taint_set_memory_tainted(p);
+  }
+
+  bool taint_is_memory_tainted(VariableRef p) const override {
+    return this->_ptr->taint_is_memory_tainted(p);
   }
 
   /// @}

@@ -384,6 +384,9 @@ int main(int argc, char** argv) {
       // Lower constant expressions to instructions (ikos-pp -lower-cst-expr)
       pass_manager.add(ikos_pp::create_lower_cst_expr_pass());
 
+      // Model std::thread
+      // pass_manager.add(ikos_pp::create_model_std_thread_pass());
+
       // Lower down select instructions (ikos-pp -lower-select)
       pass_manager.add(ikos_pp::create_lower_select_pass());
 
@@ -405,6 +408,9 @@ int main(int argc, char** argv) {
 
       // Lower constant expressions to instructions (ikos-pp -lower-cst-expr)
       pass_manager.add(ikos_pp::create_lower_cst_expr_pass());
+
+      // Model std::thread
+      pass_manager.add(ikos_pp::create_model_std_thread_pass());
 
       // Dead code elimination (opt -dce)
       pass_manager.add(llvm::createDeadCodeEliminationPass());
@@ -491,6 +497,9 @@ int main(int argc, char** argv) {
 
       // Lower constant expressions to instructions (ikos-pp -lower-cst-expr)
       pass_manager.add(ikos_pp::create_lower_cst_expr_pass());
+
+      // Model std::thread
+      pass_manager.add(ikos_pp::create_model_std_thread_pass());
 
       // Dead code elimination (opt -dce)
       pass_manager.add(llvm::createDeadCodeEliminationPass());

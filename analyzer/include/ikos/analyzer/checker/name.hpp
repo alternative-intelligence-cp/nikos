@@ -67,6 +67,10 @@ enum class CheckerName {
   DoubleFree,
   Debug,
   MemoryWatch,
+  Concurrency,
+  Taint,
+  Uaf,
+  Uam,
 };
 
 /// \brief Return the long name of the given checker
@@ -106,6 +110,14 @@ inline const char* checker_long_name(CheckerName checker) {
       return "Debugger";
     case CheckerName::MemoryWatch:
       return "Memory Watcher";
+    case CheckerName::Concurrency:
+      return "Concurrency Analysis";
+    case CheckerName::Taint:
+      return "Taint Analysis";
+    case CheckerName::Uaf:
+      return "Use-After-Free Analysis";
+    case CheckerName::Uam:
+      return "Use-After-Move Analysis";
     default: {
       ikos_unreachable("unreachable");
     }
@@ -149,6 +161,14 @@ inline const char* checker_short_name(CheckerName checker) {
       return "dbg";
     case CheckerName::MemoryWatch:
       return "watch";
+    case CheckerName::Concurrency:
+      return "concurrency";
+    case CheckerName::Taint:
+      return "taint";
+    case CheckerName::Uaf:
+      return "uaf";
+    case CheckerName::Uam:
+      return "uam";
     default: {
       ikos_unreachable("unreachable");
     }

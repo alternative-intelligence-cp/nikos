@@ -222,6 +222,35 @@ ar::Function* LibraryFunctionImporter::function(llvm::StringRef name) {
     } else if (name == "__strcat_chk") {
       return this->_bundle->intrinsic_function(ar::Intrinsic::LibcStrcatCheck);
     }
+    // <pthread.h>
+    if (name == "pthread_create") {
+      return this->_bundle->intrinsic_function(ar::Intrinsic::LibcPthreadCreate);
+    } else if (name == "pthread_join") {
+      return this->_bundle->intrinsic_function(ar::Intrinsic::LibcPthreadJoin);
+    } else if (name == "pthread_mutex_lock") {
+      return this->_bundle->intrinsic_function(ar::Intrinsic::LibcPthreadMutexLock);
+    } else if (name == "pthread_mutex_unlock") {
+      return this->_bundle->intrinsic_function(ar::Intrinsic::LibcPthreadMutexUnlock);
+    } else if (name == "_ZNSt5mutex4lockEv" ||
+               name == "_ZNSt10lock_guardISt5mutexEC2ERS0_" ||
+               name == "_ZNSt10lock_guardISt5mutexEC1ERS0_") {
+      // std::mutex::lock() and std::lock_guard<std::mutex> constructor
+      return this->_bundle->intrinsic_function(ar::Intrinsic::LibcPthreadMutexLock);
+    } else if (name == "_ZNSt5mutex6unlockEv" ||
+               name == "_ZNSt10lock_guardISt5mutexED2Ev" ||
+               name == "_ZNSt10lock_guardISt5mutexED1Ev") {
+      // std::mutex::unlock() and std::lock_guard<std::mutex> destructor
+      return this->_bundle->intrinsic_function(ar::Intrinsic::LibcPthreadMutexUnlock);
+    } else if (name == "__ikos_pthread_create_wrapper") {
+      // std::thread internal thread-spawn, modeled by ModelStdThreadPass
+      return this->_bundle->intrinsic_function(ar::Intrinsic::LibcPthreadCreate);
+    } else if (name == "_ZNSt6thread4joinEv") {
+      // std::thread::join()
+      return this->_bundle->intrinsic_function(ar::Intrinsic::LibcPthreadJoin);
+    } else if (name == "_ZNSt6thread6detachEv") {
+      // std::thread::detach() — treat as thread lifecycle complete
+      return this->_bundle->intrinsic_function(ar::Intrinsic::LibcPthreadJoin);
+    }
   }
 
   // libc++ functions
@@ -247,6 +276,26 @@ ar::Function* LibraryFunctionImporter::function(llvm::StringRef name) {
       return this->_bundle->intrinsic_function(ar::Intrinsic::LibcppBeginCatch);
     } else if (name == "__cxa_end_catch") {
       return this->_bundle->intrinsic_function(ar::Intrinsic::LibcppEndCatch);
+    } else if (name.starts_with("_ZNSt10unique_ptr") &&
+               (name.contains("C2EOS") || name.contains("C1EOS") ||
+                name.contains("aSEOS"))) {
+      // std::unique_ptr<T,D> move constructor / move-assignment operator.
+      // The mangled name encodes the element type T and deleter D, but the
+      // "C2EOS" / "C1EOS" (move ctor) or "aSEOS" (move-assign from rvalue ref)
+      // substring is invariant across instantiations.
+      return this->_bundle->intrinsic_function(
+          ar::Intrinsic::LibcppUniquePtrMove);
+    } else if (name.starts_with("llvm.coro.alloc") ||
+               name.starts_with("llvm.coro.begin")) {
+      // Coroutine frame allocation (llvm.coro.alloc / llvm.coro.begin).
+      // Model as heap allocation, so the frame pointer is properly tracked.
+      return this->_bundle->intrinsic_function(ar::Intrinsic::LibcppCoroAlloc);
+    } else if (name.starts_with("llvm.coro.end") ||
+               name.starts_with("llvm.coro.destroy") ||
+               name.starts_with("llvm.coro.free")) {
+      // Coroutine frame deallocation (llvm.coro.end / llvm.coro.destroy /
+      // llvm.coro.free). Model as heap free, so UAF/double-free detection works.
+      return this->_bundle->intrinsic_function(ar::Intrinsic::LibcppCoroFree);
     }
   }
 

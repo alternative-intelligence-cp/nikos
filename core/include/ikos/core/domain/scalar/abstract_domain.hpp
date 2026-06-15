@@ -43,6 +43,9 @@
 
 #pragma once
 
+#include <set>
+#include <string>
+
 #include <ikos/core/domain/abstract_domain.hpp>
 #include <ikos/core/domain/machine_int/operator.hpp>
 #include <ikos/core/domain/pointer/operator.hpp>
@@ -59,6 +62,7 @@
 #include <ikos/core/value/pointer/pointer.hpp>
 #include <ikos/core/value/pointer/pointer_set.hpp>
 #include <ikos/core/value/pointer/points_to_set.hpp>
+#include <ikos/core/value/taint.hpp>
 #include <ikos/core/value/uninitialized.hpp>
 
 namespace ikos {
@@ -326,6 +330,51 @@ public:
 
   /// \brief Get the nullity value for the given variable
   virtual Nullity nullity_to_nullity(VariableRef p) const = 0;
+
+  /// @}
+  /// \name Taint abstract domain methods
+  /// @{
+
+  /// \brief Assign `x = untainted`
+  virtual void taint_assign_untainted(VariableRef x) = 0;
+
+  /// \brief Assign `x = tainted` (no provenance label)
+  virtual void taint_assign_tainted(VariableRef x) = 0;
+
+  /// \brief Assign `x = tainted` with a source label for provenance tracking
+  virtual void taint_assign_labeled(VariableRef x, std::string label) {
+    this->taint_assign_tainted(x);
+    Taint t = this->taint_to_taint(x);
+    t.add_label(std::move(label));
+    this->taint_set(x, t);
+  }
+
+  /// \brief Return the provenance labels for `x` (empty if not tainted or
+  /// tainted without label)
+  virtual std::set< std::string > taint_get_labels(VariableRef x) const {
+    return this->taint_to_taint(x).labels();
+  }
+
+  /// \brief Add the constraint `x == untainted`
+  virtual void taint_assert_untainted(VariableRef x) = 0;
+
+  /// \brief Add the constraint `x == tainted`
+  virtual void taint_assert_tainted(VariableRef x) = 0;
+
+  /// \brief Return true if `x` is untainted, otherwise false
+  virtual bool taint_is_untainted(VariableRef x) const = 0;
+
+  /// \brief Return true if `x` is tainted, otherwise false
+  virtual bool taint_is_tainted(VariableRef x) const = 0;
+
+  /// \brief Set the taint of the variable `x` to the given value
+  virtual void taint_set(VariableRef x, Taint value) = 0;
+
+  /// \brief Refine the variable `x` with the given taint value
+  virtual void taint_refine(VariableRef x, Taint value) = 0;
+
+  /// \brief Get the taint value for the given variable
+  virtual Taint taint_to_taint(VariableRef x) const = 0;
 
   /// @}
   /// \name Pointer abstract domain methods

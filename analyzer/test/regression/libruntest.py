@@ -54,6 +54,8 @@ VERBOSE = False
 CLANG = 'clang'
 IKOS_PP = 'ikos-pp'
 IKOS_ANALYZER = 'ikos-analyzer'
+# Path to taint_config.json; if set, passed as -taint-config to ikos-analyzer
+TAINT_CONFIG = None
 # When set, overrides the abstract domain for every test
 # (e.g. 'apron-octagon' to benchmark APRON precision across all suites)
 DOMAIN_OVERRIDE = None
@@ -83,6 +85,10 @@ ANALYSES = (
     'dfa',
     'dbg',
     'watch',
+    'concurrency',
+    'taint',
+    'uaf',
+    'uam',
 )
 
 # available colors
@@ -335,6 +341,8 @@ class Test:
                '-d=%s' % self.domain,
                '-entry-points=%s' % ','.join(self.entry_points),
                '-proc=%s' % self.procedural]
+        if TAINT_CONFIG:
+            cmd.append('-taint-config=%s' % TAINT_CONFIG)
         cmd.extend(self.options)
         if self.opt_level == 'aggressive':
             cmd.append('-allow-dbg-mismatch')
@@ -540,6 +548,9 @@ def parse_args(description=None):
     parser.add_argument('--ikos-analyzer', dest='ikos_analyzer',
                         help='Path to the ikos-analyzer binary',
                         default='ikos-analyzer')
+    parser.add_argument('--taint-config', dest='taint_config',
+                        help='Path to taint_config.json for taint analysis tests',
+                        default=None)
     parser.add_argument('--domain', dest='domain_override',
                         help='Override the abstract domain for all tests '
                              '(e.g. apron-octagon, apron-polka-polyhedra)',
@@ -547,7 +558,7 @@ def parse_args(description=None):
 
     args = parser.parse_args()
 
-    global VERBOSE, USE_COLORS, INTERACTIVE, CLANG, IKOS_PP, IKOS_ANALYZER, DOMAIN_OVERRIDE
+    global VERBOSE, USE_COLORS, INTERACTIVE, CLANG, IKOS_PP, IKOS_ANALYZER, DOMAIN_OVERRIDE, TAINT_CONFIG
     VERBOSE = args.verbose
     USE_COLORS = False if args.no_colors else os.isatty(sys.stdout.fileno())
     INTERACTIVE = False if args.no_interactive else os.isatty(sys.stdout.fileno())
@@ -555,3 +566,4 @@ def parse_args(description=None):
     IKOS_PP = args.ikos_pp
     IKOS_ANALYZER = args.ikos_analyzer
     DOMAIN_OVERRIDE = args.domain_override
+    TAINT_CONFIG = args.taint_config

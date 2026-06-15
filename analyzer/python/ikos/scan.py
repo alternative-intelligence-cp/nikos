@@ -879,6 +879,24 @@ def scan_parse_arguments(argv):
                                        args.default_log_level),
                         choices=args.choices(args.log_levels),
                         default=None)
+    parser.add_argument('--taint',
+                        dest='taint',
+                        help='Enable taint analysis on analyzed binaries '
+                             '(uses posix profile by default)',
+                        action='store_true',
+                        default=False)
+    parser.add_argument('--taint-profile',
+                        dest='taint_profile',
+                        metavar='<name>',
+                        help='Built-in taint profile to use with --taint '
+                             '(posix, web, sql; default: posix)',
+                        default=None)
+    parser.add_argument('--taint-config',
+                        dest='taint_config',
+                        metavar='<file>',
+                        help='Path to a taint config JSON file. '
+                             'Overrides --taint-profile.',
+                        default=None)
 
     opt = parser.parse_args(argv)
 
@@ -952,9 +970,6 @@ def scan_main(argv):
         answer = sys.stdin.readline().strip().lower()
 
         if answer in ('', 'y', 'yes'):
-            cmd = ['ikos', bc_path, '-o', '%s.db' % exe_path]
-            log.info('Running %s' % colors.bold(command_string(cmd)))
-
             cmd = [sys.executable,
                    settings.ikos(),
                    bc_path,
@@ -962,4 +977,17 @@ def scan_main(argv):
                    '%s.db' % exe_path,
                    '--color=%s' % opt.color,
                    '--log=%s' % opt.log_level]
+
+            # taint analysis
+            if opt.taint:
+                cmd.append('-a=taint')
+                if opt.taint_config:
+                    cmd.append('--taint-config=%s' % opt.taint_config)
+                elif opt.taint_profile:
+                    cmd.append('--taint-profile=%s' % opt.taint_profile)
+                else:
+                    # default to posix profile for ikos-scan --taint
+                    cmd.append('--taint-profile=posix')
+
+            log.info('Running %s' % colors.bold(command_string(cmd)))
             run(cmd)

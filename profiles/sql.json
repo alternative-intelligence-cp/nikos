@@ -1,0 +1,24 @@
+{
+  "sources": [
+    "getenv",
+    "getenv_s",
+    "recv",
+    "recvfrom",
+    "fgets",
+    "scanf",
+    "fscanf",
+    "read"
+  ],
+  "sinks": [
+    { "name": "sqlite3_exec",       "type": "SQLInjection", "sensitive_args": [1] },
+    { "name": "mysql_query",        "type": "SQLInjection", "sensitive_args": [1] },
+    { "name": "PQexec",             "type": "SQLInjection", "sensitive_args": [1] },
+    { "name": "PQexecParams",       "type": "SQLInjection", "sensitive_args": [1] }
+  ],
+  "sanitizers": [
+    "sqlite3_mprintf",
+    "mysql_real_escape_string",
+    "PQescapeStringConn",
+    "PQescapeLiteral"
+  ]
+}

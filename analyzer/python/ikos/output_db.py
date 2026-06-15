@@ -65,7 +65,7 @@ class OutputDatabase(object):
 
     def __init__(self, path):
         self.path = path
-        self.con = sqlite3.connect(path)
+        self.con = sqlite3.connect(path, check_same_thread=False)
 
         # Use 'str' as text factory since it's the type of string literals
         # This is unicode

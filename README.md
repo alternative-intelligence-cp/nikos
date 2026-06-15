@@ -255,7 +255,12 @@ target_link_libraries(mytool
 
 ## Installation
 
-NIKOS v1.0.0 provides multiple installation methods:
+NIKOS v2.0.0 provides multiple installation methods. 
+
+> [!NOTE]
+> **Version Guidance**
+> - **Version 1.x:** If you are simply looking for a direct, modernized drop-in replacement for the original NASA IKOS (updated for LLVM 20, opaque pointers, modern C++), use the `v1.x` tags. We will maintain v1.x with critical bug fixes only to keep it clean and simple for legacy users.
+> - **Version 2.x+:** If you want all of our powerful new additions—Taint Analysis, Use-After-Move Detection, Advanced Concurrency Modeling (std::thread), Web APIs, and more—use `v2.0.0` or higher.
 
 ### One-line Install Script (Ubuntu 22.04 / 24.04)
 
@@ -292,6 +297,7 @@ See [doc/install/1.0/UBUNTU_22.04.md](doc/install/1.0/UBUNTU_22.04.md) or [doc/i
 
 | Tag | Milestone |
 |---|---|
+| **`v2.0.0`** | **🚀 Version 2.0 Release** — Taint Analysis, Concurrency modeling (`std::thread`, `pthread_once`), Unified API |
 | **`v1.0.0`** | **🚀 Official Production Release** — install.sh, .deb, Docker, RPM, Flatpak, full docs (64/64 tests) |
 | `v0.13.1` | **0.13 Series Final** — install verification, benchmark docs, series close |
 | `v0.13.0` | **APRON Support** — 13 relational abstract domains (64/64 tests passing) |

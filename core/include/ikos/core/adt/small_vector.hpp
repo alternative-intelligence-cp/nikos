@@ -48,7 +48,7 @@
 
 #include <boost/version.hpp>
 
-#if BOOST_VERSION >= 105800
+#if 0
 
 // Use boost::container::small_vector
 #include <boost/container/small_vector.hpp>

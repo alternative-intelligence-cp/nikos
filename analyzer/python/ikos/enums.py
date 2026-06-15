@@ -115,6 +115,21 @@ class CheckKind:
     FUNCTION_CALL = auto()
     _END_FUNCTION_CALL = auto()
     FREE = auto()
+    _BEGIN_UAF = auto()
+    USE_AFTER_FREE = auto()
+    USE_AFTER_RETURN = auto()
+    USE_AFTER_MOVE = auto()
+    _END_UAF = auto()
+    _BEGIN_CONCURRENCY = auto()
+    DATA_RACE = auto()
+    DEADLOCK = auto()
+    _END_CONCURRENCY = auto()
+    _BEGIN_TAINT = auto()
+    COMMAND_INJECTION = auto()
+    PATH_TRAVERSAL = auto()
+    FORMAT_STRING = auto()
+    SQL_INJECTION = auto()
+    _END_TAINT = auto()
 
     SHORT_NAME_LIST = [
         'unreachable',
@@ -157,6 +172,21 @@ class CheckKind:
         'function-call',
         'end-function-call',
         'free',
+        'begin-uaf',
+        'use-after-free',
+        'use-after-return',
+        'use-after-move',
+        'end-uaf',
+        'begin-concurrency',
+        'data-race',
+        'deadlock',
+        'end-concurrency',
+        'begin-taint',
+        'command-injection',
+        'path-traversal',
+        'format-string',
+        'sql-injection',
+        'end-taint',
     ]
 
     @classmethod
@@ -204,6 +234,21 @@ class CheckKind:
         'function call',
         'end function call',
         'free',
+        'begin use-after-free',
+        'use after free',
+        'use after return',
+        'use after move',
+        'end use-after-free',
+        'begin concurrency',
+        'data race',
+        'deadlock',
+        'end concurrency',
+        'begin taint',
+        'command injection',
+        'path traversal',
+        'format string vulnerability',
+        'SQL injection',
+        'end taint',
     ]
 
     @classmethod
@@ -229,6 +274,10 @@ class CheckerName:
     DOUBLE_FREE = auto()
     DEBUG = auto()
     MEMORY_WATCH = auto()
+    CONCURRENCY = auto()
+    TAINT = auto()
+    UAF = auto()
+    UAM = auto()
 
     SHORT_NAME_LIST = [
         'boa',
@@ -248,6 +297,10 @@ class CheckerName:
         'dfa',
         'dbg',
         'watch',
+        'concurrency',
+        'taint',
+        'uaf',
+        'uam',
     ]
     SHORT_NAME_MAP = {v: k for k, v in enumerate(SHORT_NAME_LIST)}
 
