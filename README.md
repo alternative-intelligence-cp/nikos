@@ -259,8 +259,8 @@ NIKOS v2.0.0 provides multiple installation methods.
 
 > [!NOTE]
 > **Version Guidance**
-> - **Version 1.x:** If you are simply looking for a direct, modernized drop-in replacement for the original NASA IKOS (updated for LLVM 20, opaque pointers, modern C++), use the `v1.x` tags. We will maintain v1.x with critical bug fixes only to keep it clean and simple for legacy users.
-> - **Version 2.x+:** If you want all of our powerful new additions—Taint Analysis, Use-After-Move Detection, Advanced Concurrency Modeling (std::thread), Web APIs, and more—use `v2.0.0` or higher.
+> - **Version 1.0.1:** If you are simply looking for a direct, modernized drop-in replacement for the original NASA IKOS (updated for LLVM 20, opaque pointers, modern C++), use the **v1.0.1** release. We will maintain the 1.0 series with critical bug fixes only, keeping it clean and simple for legacy users wanting no additional bells and whistles.
+> - **Version 2.0.0:** If you want all of our powerful new additions—Taint Analysis, Use-After-Move Detection, Advanced Concurrency Modeling (std::thread), Web APIs, and more—use the **v2.0.0** release. This is the latest release containing all the new goodies built for the Nitpick ecosystem.
 
 ### One-line Install Script (Ubuntu 22.04 / 24.04)
 
