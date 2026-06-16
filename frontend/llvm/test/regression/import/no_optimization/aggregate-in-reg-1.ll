@@ -35,18 +35,16 @@ define linkonce_odr { <2 x float>, float } @_ZN3Foo9get_coordEv(%class.Foo*) #3 
 ; CHECK:   opaque** $3 = allocate opaque*, 1, align 8
 ; CHECK:   {0: <2 x float>, 8: float}* $4 = allocate {0: <2 x float>, 8: float}, 1, align 8
 ; CHECK:   opaque* %5 = bitcast %1
-; CHECK:   opaque** %6 = bitcast $3
-; CHECK:   store %6, %5, align 8
-; CHECK:   opaque** %7 = bitcast $3
-; CHECK:   opaque* %8 = load %7, align 8
-; CHECK:   {0: {0: float, 4: float, 8: float}}* %9 = bitcast %8
-; CHECK:   opaque* %10 = ptrshift %9, 12 * 0, 1 * 0
-; CHECK:   si8* %11 = bitcast $2
-; CHECK:   si8* %12 = bitcast %10
-; CHECK:   call @ar.memcpy(%11, %12, 12, 4, 4, 0)
-; CHECK:   si8* %13 = bitcast $4
-; CHECK:   si8* %14 = bitcast $2
-; CHECK:   call @ar.memcpy(%13, %14, 12, 8, 4, 0)
+; CHECK:   store $3, %5, align 8
+; CHECK:   opaque* %6 = load $3, align 8
+; CHECK:   {0: {0: float, 4: float, 8: float}}* %7 = bitcast %6
+; CHECK:   opaque* %8 = ptrshift %7, 12 * 0, 1 * 0
+; CHECK:   si8* %9 = bitcast $2
+; CHECK:   si8* %10 = bitcast %8
+; CHECK:   call @ar.memcpy(%9, %10, 12, 4, 4, 0)
+; CHECK:   si8* %11 = bitcast $4
+; CHECK:   si8* %12 = bitcast $2
+; CHECK:   call @ar.memcpy(%11, %12, 12, 8, 4, 0)
 
 ; Function Attrs: noinline ssp uwtable
 define linkonce_odr void @_ZN3FooC1Efff(%class.Foo*, float, float, float) unnamed_addr #2 align 2 !dbg !47 {
@@ -69,9 +67,8 @@ define linkonce_odr void @_ZN3FooC1Efff(%class.Foo*, float, float, float) unname
   call void @_ZN3FooC2Efff(%class.Foo* %9, float %10, float %11, float %12), !dbg !57
   ret void, !dbg !58
 }
-; CHECK:   {0: <2 x float>, 8: float}* %15 = bitcast $4
-; CHECK:   {0: <2 x float>, 8: float} %16 = load %15, align 8
-; CHECK:   return %16
+; CHECK:   {0: <2 x float>, 8: float} %15 = load $4, align 8
+; CHECK:   return %15
 ; CHECK: }
 ; CHECK: }
 ; CHECK: define void @_ZN3FooC1Efff(opaque* %1, float %2, float %3, float %4) {

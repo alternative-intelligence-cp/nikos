@@ -291,7 +291,11 @@ class Test:
 
     def run(self, root, output_db):
         fullpath = os.path.join(root, self.filename)
-        assert os.path.exists(fullpath)
+        if not os.path.exists(fullpath):
+            raise RuntimeError(
+                'Test source file not found: %r\n'
+                '  root=%r  filename=%r  cwd=%r' % (
+                    fullpath, root, self.filename, os.getcwd()))
 
         # create working directory
         wd = tempfile.mkdtemp(prefix='ikos-%s' % self.filename)

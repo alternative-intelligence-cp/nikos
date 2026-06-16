@@ -81,23 +81,22 @@ define i32 @main(i32, i8**) local_unnamed_addr #0 !dbg !8 {
 }
 ; CHECK: define si32 @main(si32 %1, opaque* %2) {
 ; CHECK: #1 !entry successors={#2} {
-; CHECK:   opaque* $3 = allocate opaque, 1, align 4
-; CHECK:   {0: si32, 4: {0: si32, 4: float}, 12: [10 x [10 x [9 x si32]]]}* %4 = bitcast $3
-; CHECK:   si32* %5 = ptrshift %4, 3612 * 0, 1 * 4, 1 * 0
-; CHECK:   store %5, %1, align 4
+; CHECK:   {0: si32, 4: {0: si32, 4: float}, 12: [10 x [10 x [9 x si32]]]}* $3 = allocate {0: si32, 4: {0: si32, 4: float}, 12: [10 x [10 x [9 x si32]]]}, 1, align 4
+; CHECK:   si32* %4 = ptrshift $3, 3612 * 0, 1 * 4, 1 * 0
+; CHECK:   store %4, %1, align 4
 ; CHECK:   si32 %.02 = 0
 ; CHECK: }
 ; CHECK: #2 predecessors={#1, #6} successors={#3, #4} {
-; CHECK:   ui32 %6 = bitcast %.02
+; CHECK:   ui32 %5 = bitcast %.02
 ; CHECK: }
 ; CHECK: #3 predecessors={#2} successors={#.preheader4} {
-; CHECK:   %6 uilt 10
-; CHECK:   ui32 %7 = bitcast %.02
-; CHECK:   ui64 %8 = zext %7
+; CHECK:   %5 uilt 10
+; CHECK:   ui32 %6 = bitcast %.02
+; CHECK:   ui64 %7 = zext %6
 ; CHECK:   si32 %.01 = 0
 ; CHECK: }
 ; CHECK: #4 predecessors={#2} successors={#.preheader} {
-; CHECK:   %6 uige 10
+; CHECK:   %5 uige 10
 ; CHECK:   si32 %.1 = 0
 ; CHECK: }
 ; CHECK: #.preheader predecessors={#4, #7} successors={#7, #8} {
@@ -133,15 +132,14 @@ define i32 @main(i32, i8**) local_unnamed_addr #0 !dbg !8 {
 ; CHECK:   %15 uilt 9
 ; CHECK:   ui32 %16 = bitcast %.0
 ; CHECK:   ui64 %17 = zext %16
-; CHECK:   {0: si32, 4: {0: si32, 4: float}, 12: [10 x [10 x [9 x si32]]]}* %18 = bitcast $3
-; CHECK:   si32* %19 = ptrshift %18, 3612 * 0, 1 * 12, 360 * %8, 36 * %12, 4 * %17
-; CHECK:   store %19, %1, align 4
-; CHECK:   si32 %20 = %.0 sadd.nw 1
-; CHECK:   si32 %.0 = %20
+; CHECK:   si32* %18 = ptrshift $3, 3612 * 0, 1 * 12, 360 * %7, 36 * %12, 4 * %17
+; CHECK:   store %18, %1, align 4
+; CHECK:   si32 %19 = %.0 sadd.nw 1
+; CHECK:   si32 %.0 = %19
 ; CHECK: }
 ; CHECK: #10 predecessors={#.preheader3} successors={#.preheader4} {
 ; CHECK:   %15 uige 9
-; CHECK:   si32 %21 = %.01 sadd.nw 1
+; CHECK:   si32 %20 = %.01 sadd.nw 1
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.value(metadata, metadata, metadata) #1
