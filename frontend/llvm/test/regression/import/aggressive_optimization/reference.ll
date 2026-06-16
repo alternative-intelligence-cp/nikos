@@ -35,10 +35,9 @@ define i32 @main() local_unnamed_addr #1 !dbg !17 {
 ; CHECK: }
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry !exit {
-; CHECK:   opaque* $1 = allocate opaque, 1, align 4
-; CHECK:   si32* %2 = bitcast $1
-; CHECK:   store %2, 0, align 4
-; CHECK:   void (opaque*)* %3 = bitcast @_Z1fRi
+; CHECK:   si32* $1 = allocate si32, 1, align 4
+; CHECK:   store $1, 0, align 4
+; CHECK:   void (opaque*)* %2 = bitcast @_Z1fRi
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.value(metadata, metadata, metadata) #2

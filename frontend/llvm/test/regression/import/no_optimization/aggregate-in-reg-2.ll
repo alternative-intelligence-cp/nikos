@@ -91,9 +91,10 @@ define i32 @main() #2 !dbg !29 {
 ; CHECK:   opaque* %19 = ptrshift %18, 8 * 0, 1 * 4
 ; CHECK:   float* %20 = bitcast %19
 ; CHECK:   store %20, 0.0E+0, align 4
-; CHECK:   {0: <2 x float>, 8: <2 x float>}* %21 = bitcast $2
-; CHECK:   {0: <2 x float>, 8: <2 x float>} %22 = load %21, align 4
-; CHECK:   return %22
+; CHECK:   opaque* %21 = bitcast $2
+; CHECK:   {0: <2 x float>, 8: <2 x float>}* %22 = bitcast %21
+; CHECK:   {0: <2 x float>, 8: <2 x float>} %23 = load %22, align 4
+; CHECK:   return %23
 ; CHECK: }
 ; CHECK: }
 ; CHECK: declare si32 @ar.libc.printf(si8*, ...)

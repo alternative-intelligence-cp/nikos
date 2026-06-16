@@ -78,9 +78,10 @@ define i32 @main() #1 !dbg !28 {
 ; CHECK:   opaque* %14 = ptrshift %13, 8 * 0, 1 * 4
 ; CHECK:   float* %15 = bitcast %14
 ; CHECK:   store %15, 0.0E+0, align 4
-; CHECK:   {0: <2 x float>, 8: <2 x float>}* %16 = bitcast $2
-; CHECK:   {0: <2 x float>, 8: <2 x float>} %17 = load %16, align 4
-; CHECK:   return %17
+; CHECK:   opaque* %16 = bitcast $2
+; CHECK:   {0: <2 x float>, 8: <2 x float>}* %17 = bitcast %16
+; CHECK:   {0: <2 x float>, 8: <2 x float>} %18 = load %17, align 4
+; CHECK:   return %18
 ; CHECK: }
 ; CHECK: }
 ; CHECK: declare si32 @ar.libc.printf(si8*, ...)

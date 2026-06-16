@@ -67,3 +67,4 @@ packaging/*.deb
 packaging/*.rpm
 install/
 build-deb/
+build_ci_test/
