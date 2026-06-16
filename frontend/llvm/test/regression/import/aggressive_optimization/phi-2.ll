@@ -122,24 +122,24 @@ define i32 @main(i32, i8**) local_unnamed_addr #0 !dbg !8 {
 ; CHECK: }
 ; CHECK: #6 predecessors={#.preheader4} successors={#2} {
 ; CHECK:   %8 uige 10
-; CHECK:   si32 %13 = %.02 sadd.nw 1
-; CHECK:   si32 %.02 = %13
+; CHECK:   si32 %12 = %.02 sadd.nw 1
+; CHECK:   si32 %.02 = %12
 ; CHECK: }
 ; CHECK: #.preheader3 predecessors={#5, #9} successors={#9, #10} {
-; CHECK:   ui32 %15 = bitcast %.0
+; CHECK:   ui32 %14 = bitcast %.0
 ; CHECK: }
 ; CHECK: #9 predecessors={#.preheader3} successors={#.preheader3} {
-; CHECK:   %15 uilt 9
-; CHECK:   ui32 %16 = bitcast %.0
-; CHECK:   ui64 %17 = zext %16
-; CHECK:   si32* %18 = ptrshift $3, 3612 * 0, 1 * 12, 360 * %7, 36 * %11, 4 * %17
-; CHECK:   store %18, %1, align 4
-; CHECK:   si32 %19 = %.0 sadd.nw 1
-; CHECK:   si32 %.0 = %19
+; CHECK:   %14 uilt 9
+; CHECK:   ui32 %15 = bitcast %.0
+; CHECK:   ui64 %16 = zext %15
+; CHECK:   si32* %17 = ptrshift $3, 3612 * 0, 1 * 12, 360 * %7, 36 * %11, 4 * %16
+; CHECK:   store %17, %1, align 4
+; CHECK:   si32 %18 = %.0 sadd.nw 1
+; CHECK:   si32 %.0 = %18
 ; CHECK: }
 ; CHECK: #10 predecessors={#.preheader3} successors={#.preheader4} {
-; CHECK:   %15 uige 9
-; CHECK:   si32 %20 = %.01 sadd.nw 1
+; CHECK:   %14 uige 9
+; CHECK:   si32 %19 = %.01 sadd.nw 1
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.value(metadata, metadata, metadata) #1
