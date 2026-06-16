@@ -100,28 +100,28 @@ define i32 @main(i32, i8**) local_unnamed_addr #0 !dbg !8 {
 ; CHECK:   si32 %.1 = 0
 ; CHECK: }
 ; CHECK: #.preheader predecessors={#4, #7} successors={#7, #8} {
-; CHECK:   ui32 %10 = bitcast %.1
+; CHECK:   ui32 %9 = bitcast %.1
 ; CHECK: }
 ; CHECK: #7 predecessors={#.preheader} successors={#.preheader} {
-; CHECK:   %10 uilt 10
-; CHECK:   si32 %14 = %.1 sadd.nw 1
-; CHECK:   si32 %.1 = %14
+; CHECK:   %9 uilt 10
+; CHECK:   si32 %13 = %.1 sadd.nw 1
+; CHECK:   si32 %.1 = %13
 ; CHECK: }
 ; CHECK: #8 !exit predecessors={#.preheader} {
-; CHECK:   %10 uige 10
+; CHECK:   %9 uige 10
 ; CHECK:   return 0
 ; CHECK: }
 ; CHECK: #.preheader4 predecessors={#3, #10} successors={#5, #6} {
-; CHECK:   ui32 %9 = bitcast %.01
+; CHECK:   ui32 %8 = bitcast %.01
 ; CHECK: }
 ; CHECK: #5 predecessors={#.preheader4} successors={#.preheader3} {
-; CHECK:   %9 uilt 10
+; CHECK:   %8 uilt 10
 ; CHECK:   ui32 %11 = bitcast %.01
 ; CHECK:   ui64 %12 = zext %11
 ; CHECK:   si32 %.0 = 0
 ; CHECK: }
 ; CHECK: #6 predecessors={#.preheader4} successors={#2} {
-; CHECK:   %9 uige 10
+; CHECK:   %8 uige 10
 ; CHECK:   si32 %13 = %.02 sadd.nw 1
 ; CHECK:   si32 %.02 = %13
 ; CHECK: }

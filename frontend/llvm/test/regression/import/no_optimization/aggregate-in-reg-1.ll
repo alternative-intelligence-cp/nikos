@@ -67,8 +67,8 @@ define linkonce_odr void @_ZN3FooC1Efff(%class.Foo*, float, float, float) unname
   call void @_ZN3FooC2Efff(%class.Foo* %9, float %10, float %11, float %12), !dbg !57
   ret void, !dbg !58
 }
-; CHECK:   {0: <2 x float>, 8: float} %15 = load $4, align 8
-; CHECK:   return %15
+; CHECK:   {0: <2 x float>, 8: float} %13 = load $4, align 8
+; CHECK:   return %13
 ; CHECK: }
 ; CHECK: }
 ; CHECK: define void @_ZN3FooC1Efff(opaque* %1, float %2, float %3, float %4) {

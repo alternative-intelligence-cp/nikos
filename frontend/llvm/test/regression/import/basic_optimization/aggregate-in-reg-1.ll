@@ -44,6 +44,18 @@ define linkonce_odr { <2 x float>, float } @_ZN3Foo9get_coordEv(%class.Foo*) #3 
 ; CHECK: }
 
 ; Function Attrs: noinline ssp uwtable
+define linkonce_odr void @_ZN3FooC1Efff(%class.Foo*, float, float, float) unnamed_addr #2 align 2 !dbg !46 {
+  call void @llvm.dbg.value(metadata %class.Foo* %0, metadata !47, metadata !DIExpression()), !dbg !49
+  call void @llvm.dbg.value(metadata float %1, metadata !50, metadata !DIExpression()), !dbg !49
+  call void @llvm.dbg.value(metadata float %2, metadata !51, metadata !DIExpression()), !dbg !49
+  call void @llvm.dbg.value(metadata float %3, metadata !52, metadata !DIExpression()), !dbg !49
+  call void @_ZN3FooC2Efff(%class.Foo* %0, float %1, float %2, float %3), !dbg !53
+  ret void, !dbg !54
+}
+; CHECK: }
+; CHECK: }
+
+; Function Attrs: noinline ssp uwtable
 define linkonce_odr void @_ZN3FooC2Efff(%class.Foo*, float, float, float) unnamed_addr #2 align 2 !dbg !60 {
   call void @llvm.dbg.value(metadata %class.Foo* %0, metadata !61, metadata !DIExpression()), !dbg !62
   call void @llvm.dbg.value(metadata float %1, metadata !63, metadata !DIExpression()), !dbg !62
