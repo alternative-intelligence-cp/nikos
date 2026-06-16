@@ -27,6 +27,7 @@ Detect and prove the absence of runtime errors in C/C++ using Abstract Interpret
 - [Installation](#installation)
 - [Releases](#releases)
 - [Troubleshooting](#troubleshooting)
+- [Working with the Test Suite](#working-with-the-test-suite)
 - [Contributing](#contributing)
 - [License](#license)
 - [Acknowledgements](#acknowledgements)
@@ -332,6 +333,26 @@ Build failures, LLVM version mismatches, and common runtime issues are covered i
 | `use of undeclared 'gep_type_begin'` | Add `#include <llvm/IR/GetElementPtrTypeIterator.h>` |
 | `'llvm::Optional' is not a member of 'llvm'` | Replace with `std::optional`; `llvm::None` → `std::nullopt` |
 | `initializeXxxPass` linker errors | Remove calls — these passes were deleted in LLVM 17+ |
+
+## Working with the Test Suite
+
+The regression tests in `frontend/llvm/test/regression/import/` validate the AR output of `ikos-import` using LLVM's FileCheck tool. If you are adding tests, updating CHECK lines after an LLVM upgrade, or debugging CI failures, read:
+
+> **[doc/LLVM20_AR_CHANGES.md](doc/LLVM20_AR_CHANGES.md)** — Documents every way the AR output changed between LLVM 14 and LLVM 20: concrete alloca types, struct layout resolution, bitcast elimination rules, SSA renumbering, and more. Also covers how to run the suite locally with the correct LLVM version and how to auto-regenerate CHECK lines.
+
+Key things to know before touching test files:
+
+- The system `ikos-import` may be built against a **different LLVM version** than CI. Always verify with `ikos-import --version`.
+- Use `script/regen_checks.py` to regenerate CHECK lines from actual `ikos-import` output instead of editing by hand:
+  ```bash
+  python3 script/regen_checks.py --batch --failing-only \
+    frontend/llvm/test/regression/import/no_optimization/
+  ```
+- Run the full suite locally before pushing:
+  ```bash
+  cd frontend/llvm/test/regression/import/no_optimization
+  bash runtest --ikos-import /path/to/ikos-import --file-check /path/to/FileCheck
+  ```
 
 ## Contributing
 
