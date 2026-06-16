@@ -85,7 +85,7 @@ define i32 @main() local_unnamed_addr #0 !dbg !8 {
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   [1025 x si8]* $1 = allocate [1025 x si8], 1, align 16
-; CHECK:   opaque* $2 = allocate opaque, 1, align 4
+; CHECK:   si32* $2 = allocate si32, 1, align 4
 ; CHECK:   si8* %3 = ptrshift @.str, 10 * 0, 1 * 0
 ; CHECK:   si8* %4 = ptrshift @.str.1, 3 * 0, 1 * 0
 ; CHECK:   opaque* (opaque*, opaque*)* %5 = bitcast @ar.libc.fopen

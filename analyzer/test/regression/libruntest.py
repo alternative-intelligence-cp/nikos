@@ -567,3 +567,6 @@ def parse_args(description=None):
     IKOS_ANALYZER = args.ikos_analyzer
     DOMAIN_OVERRIDE = args.domain_override
     TAINT_CONFIG = args.taint_config
+    if TAINT_CONFIG and not os.path.exists(TAINT_CONFIG):
+        import sys as _sys
+        _sys.exit('error: --taint-config path does not exist: %s' % TAINT_CONFIG)

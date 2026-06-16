@@ -28,8 +28,8 @@ define linkonce_odr { <2 x float>, float } @_ZN3Foo9get_coordEv(%class.Foo*) #3 
 }
 ; CHECK: define {0: <2 x float>, 8: float} @_ZN3Foo9get_coordEv(opaque* %1) {
 ; CHECK: #1 !entry !exit {
-; CHECK:   opaque* $2 = allocate opaque, 1, align 4
-; CHECK:   opaque* $3 = allocate opaque, 1, align 8
+; CHECK:   {0: float, 4: float, 8: float}* $2 = allocate {0: float, 4: float, 8: float}, 1, align 4
+; CHECK:   {0: <2 x float>, 8: float}* $3 = allocate {0: <2 x float>, 8: float}, 1, align 8
 ; CHECK:   {0: {0: float, 4: float, 8: float}}* %4 = bitcast %1
 ; CHECK:   opaque* %5 = ptrshift %4, 12 * 0, 1 * 0
 ; CHECK:   si8* %6 = bitcast $2
