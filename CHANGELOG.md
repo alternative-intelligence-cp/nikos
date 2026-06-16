@@ -6,6 +6,49 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 **NIKOS** is a fork of [NASA's IKOS](https://github.com/NASA-SW-VnV/ikos), ported from LLVM 14 to LLVM 20 and integrated into the Nitpick static analysis toolchain.
 
+## [2.3.1] — 2026-06-16
+
+### 🔧 Patch Release — LLVM 20 Regression Test Suite Complete
+
+Fixes all remaining LLVM 20 AR output mismatches across the full import
+regression test suite. Adds developer tooling and documentation for future
+LLVM upgrades.
+
+### Fixed
+
+- **Complete LLVM 20 regression test suite** — all 162 non-skipped tests now
+  pass across `no_optimization`, `basic_optimization`, and
+  `aggressive_optimization` suites (previously 40+ tests failing). Root cause
+  was that CHECK lines were written against LLVM 14 AR output; the local
+  `ikos-import` binary was LLVM 14 while CI used LLVM 20.
+
+- **`no_optimization/`** — 37 files updated: concrete scalar alloca types
+  (`allocate opaque` → `allocate si32/float/etc.`), bitcast elimination
+  cascades, struct layout resolution, SSA variable renumbering.
+
+- **`basic_optimization/`** — 3 files updated: bitfield signedness (`ui16` →
+  `si16`), struct alloca type resolution, PHI node renumbering.
+
+- **`aggressive_optimization/`** — 1 file updated: vtable bitcast chain.
+
+### Added
+
+- **`script/regen_checks.py`** — tool to auto-regenerate `; CHECK:` lines
+  in `.ll` test files from actual `ikos-import` output. Eliminates error-prone
+  hand-editing after LLVM upgrades. Supports `--batch`, `--failing-only`,
+  `--diff`, and `--dry-run` modes.
+
+- **`doc/LLVM20_AR_CHANGES.md`** — reference guide documenting every way the
+  AR output changed between LLVM 14 and LLVM 20: concrete alloca types, struct
+  field layout resolution, selective bitcast elimination rules, return value
+  bitcast chain expansion, constructor delegation behavior, SSA renumbering
+  cascades, and integer signedness changes. Includes local testing instructions
+  and a troubleshooting checklist.
+
+- **README "Working with the Test Suite" section** — links to
+  `LLVM20_AR_CHANGES.md`, shows `regen_checks.py` usage, and explains how to
+  run the suite locally with the correct LLVM version.
+
 ## [2.3.0] — 2026-06-15
 
 ### 🔒 Security & Taint Analysis Expansion — 14/14 Tests Passing
@@ -444,6 +487,7 @@ This release marks NIKOS as production-ready with full LLVM 20 support.
 - Updated CMake to find LLVM 20.
 - C++ standard from C++14 to C++17.
 
+[2.3.1]: https://github.com/alternative-intelligence-cp/nikos/compare/v2.3.0...v2.3.1
 [2.3.0]: https://github.com/alternative-intelligence-cp/nikos/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/alternative-intelligence-cp/nikos/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/alternative-intelligence-cp/nikos/compare/v1.0.1...v2.1.0

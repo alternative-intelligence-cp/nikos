@@ -5,7 +5,7 @@
 A modernized fork of [NASA's IKOS](https://github.com/NASA-SW-VnV/ikos), upgraded from LLVM 14 to **LLVM 20**.
 Detect and prove the absence of runtime errors in C/C++ using Abstract Interpretation.
 
-![Version](https://img.shields.io/badge/version-1.0.0-purple?style=flat-square)
+![Version](https://img.shields.io/badge/version-2.3.1-purple?style=flat-square)
 ![LLVM 20](https://img.shields.io/badge/LLVM-20-blue?style=flat-square&logo=llvm)
 ![C++17](https://img.shields.io/badge/C%2B%2B-17-blue?style=flat-square&logo=cplusplus)
 ![Tests](https://img.shields.io/badge/tests-64%2F64%20passing-brightgreen?style=flat-square)
@@ -303,7 +303,13 @@ See [doc/install/1.0/UBUNTU_22.04.md](doc/install/1.0/UBUNTU_22.04.md) or [doc/i
 
 | Tag | Milestone |
 |---|---|
+| **`v2.3.1`** | **🔧 Patch Release** — Complete LLVM 20 regression test suite fixed (all 162 tests pass); `regen_checks.py` tool; LLVM 14→20 AR changes guide |
+| `v2.3.0` | 🔒 Security & Taint Analysis Expansion — 14/14 taint tests, network/IO sources, POSIX profile |
+| `v2.2.0` | 🧵 Concurrency Checker — Data race & deadlock detection (`pthread_mutex`) |
+| `v2.1.0` | 🧹 Use-After-Free Checker Enhancements — `USE_AFTER_FREE`, `USE_AFTER_RETURN`, `USE_AFTER_MOVE` |
+| `v2.0.1` | 🔧 CI Compatibility — macOS (AppleClang 17) and Linux build fixes |
 | **`v2.0.0`** | **🚀 Version 2.0 Release** — Taint Analysis, Concurrency modeling (`std::thread`, `pthread_once`), Unified API |
+| **`v1.0.1`** | **🔧 Patch Release** — CMake 4.x, Boost 1.90, FindPythonInterp, AppleClang 17 fixes |
 | **`v1.0.0`** | **🚀 Official Production Release** — install.sh, .deb, Docker, RPM, Flatpak, full docs (64/64 tests) |
 | `v0.13.1` | **0.13 Series Final** — install verification, benchmark docs, series close |
 | `v0.13.0` | **APRON Support** — 13 relational abstract domains (64/64 tests passing) |
