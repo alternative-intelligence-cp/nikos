@@ -273,11 +273,16 @@ With APRON support:
 bash <(curl -sSf .../install.sh) --with-apron
 ```
 
-### Debian Package
+### Native Packages (.deb / .rpm)
 
 ```bash
-# Download from releases, then:
-sudo dpkg -i nikos_1.0.0_amd64.deb
+# Ubuntu / Debian
+wget https://github.com/alternative-intelligence-cp/nikos/releases/download/v2.0.0/nikos-2.0.0-Linux.deb
+sudo dpkg -i nikos-2.0.0-Linux.deb || sudo apt-get install -f -y
+
+# Fedora / RHEL
+wget https://github.com/alternative-intelligence-cp/nikos/releases/download/v2.0.0/nikos-2.0.0-Linux.rpm
+sudo dnf install -y nikos-2.0.0-Linux.rpm
 ```
 
 ### Docker

@@ -118,3 +118,27 @@ add_custom_target(check
 
 # Doxygen
 add_custom_target(doc DEPENDS doxygen-ar doxygen-core doxygen-analyzer)
+
+# -----------------------------------------------------------------------------
+# CPack Packaging for DEB and RPM
+# -----------------------------------------------------------------------------
+set(CPACK_PACKAGE_NAME "nikos")
+set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Nitpick Inference Kernel for Open Static Analyzers")
+set(CPACK_PACKAGE_VENDOR "Alternative Intelligence")
+set(CPACK_PACKAGE_CONTACT "support@ai-lp.org")
+
+set(CPACK_GENERATOR "DEB;RPM")
+set(CPACK_PACKAGING_INSTALL_PREFIX "/usr/local")
+
+# DEB specific
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsqlite3-dev, libgmp-dev, libtbb-dev, zlib1g-dev, python3, llvm-20-dev, clang-20, libclang-20-dev")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Alternative Intelligence")
+set(CPACK_DEBIAN_PACKAGE_SECTION "devel")
+
+# RPM specific
+set(CPACK_RPM_PACKAGE_REQUIRES "sqlite-devel, gmp-devel, tbb-devel, zlib-devel, python3")
+set(CPACK_RPM_PACKAGE_GROUP "Development/Tools")
+set(CPACK_RPM_PACKAGE_LICENSE "NOSA-1.3")
+
+include(CPack)
