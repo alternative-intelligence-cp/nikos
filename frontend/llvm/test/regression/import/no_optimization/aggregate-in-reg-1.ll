@@ -78,8 +78,7 @@ define linkonce_odr void @_ZN3FooC1Efff(%class.Foo*, float, float, float) unname
 ; CHECK:   float* $7 = allocate float, 1, align 4
 ; CHECK:   float* $8 = allocate float, 1, align 4
 ; CHECK:   opaque* %9 = bitcast %1
-; CHECK:   opaque** %10 = bitcast $5
-; CHECK:   store %10, %9, align 8
+; CHECK:   store $5, %9, align 8
 ; CHECK:   store $6, %2, align 4
 ; CHECK:   store $7, %3, align 4
 ; CHECK:   store $8, %4, align 4
@@ -106,14 +105,13 @@ define linkonce_odr void @_ZN3FooC2Efff(%class.Foo*, float, float, float) unname
   call void @_ZN7Vector3IfEC1Efff(%class.Vector3* %10, float %11, float %12, float %13), !dbg !77
   ret void, !dbg !78
 }
-; CHECK:   opaque** %11 = bitcast $5
-; CHECK:   opaque* %12 = load %11, align 8
-; CHECK:   float %13 = load $6, align 4
-; CHECK:   float %14 = load $7, align 4
-; CHECK:   float %15 = load $8, align 4
-; CHECK:   void (opaque*, float, float, float)* %16 = bitcast @_ZN3FooC2Efff
-; CHECK:   opaque* %17 = bitcast %12
-; CHECK:   call %16(%17, %13, %14, %15)
+; CHECK:   opaque* %10 = load $5, align 8
+; CHECK:   float %11 = load $6, align 4
+; CHECK:   float %12 = load $7, align 4
+; CHECK:   float %13 = load $8, align 4
+; CHECK:   void (opaque*, float, float, float)* %14 = bitcast @_ZN3FooC2Efff
+; CHECK:   opaque* %15 = bitcast %10
+; CHECK:   call %14(%15, %11, %12, %13)
 ; CHECK:   return
 ; CHECK: }
 ; CHECK: }

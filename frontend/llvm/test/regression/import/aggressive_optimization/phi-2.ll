@@ -116,8 +116,8 @@ define i32 @main(i32, i8**) local_unnamed_addr #0 !dbg !8 {
 ; CHECK: }
 ; CHECK: #5 predecessors={#.preheader4} successors={#.preheader3} {
 ; CHECK:   %8 uilt 10
-; CHECK:   ui32 %11 = bitcast %.01
-; CHECK:   ui64 %12 = zext %11
+; CHECK:   ui32 %10 = bitcast %.01
+; CHECK:   ui64 %11 = zext %10
 ; CHECK:   si32 %.0 = 0
 ; CHECK: }
 ; CHECK: #6 predecessors={#.preheader4} successors={#2} {
@@ -132,7 +132,7 @@ define i32 @main(i32, i8**) local_unnamed_addr #0 !dbg !8 {
 ; CHECK:   %15 uilt 9
 ; CHECK:   ui32 %16 = bitcast %.0
 ; CHECK:   ui64 %17 = zext %16
-; CHECK:   si32* %18 = ptrshift $3, 3612 * 0, 1 * 12, 360 * %7, 36 * %12, 4 * %17
+; CHECK:   si32* %18 = ptrshift $3, 3612 * 0, 1 * 12, 360 * %7, 36 * %11, 4 * %17
 ; CHECK:   store %18, %1, align 4
 ; CHECK:   si32 %19 = %.0 sadd.nw 1
 ; CHECK:   si32 %.0 = %19
