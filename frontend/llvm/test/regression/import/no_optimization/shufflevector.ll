@@ -48,45 +48,45 @@ define i32 @main(i32, i8**) #0 !dbg !16 {
 }
 ; CHECK: define si32 @main(si32 %1, opaque* %2) {
 ; CHECK: #1 !entry !exit {
-; CHECK:   opaque* $3 = allocate opaque, 1, align 4
-; CHECK:   opaque* $4 = allocate opaque, 1, align 4
-; CHECK:   opaque* $5 = allocate opaque, 1, align 4
-; CHECK:   opaque* $6 = allocate opaque, 1, align 4
-; CHECK:   opaque* $7 = allocate opaque, 1, align 16
+; CHECK:   float* $3 = allocate float, 1, align 4
+; CHECK:   float* $4 = allocate float, 1, align 4
+; CHECK:   float* $5 = allocate float, 1, align 4
+; CHECK:   float* $6 = allocate float, 1, align 4
+; CHECK:   <4 x float>* $7 = allocate <4 x float>, 1, align 16
 ; CHECK:   si32* $8 = allocate si32, 1, align 4
 ; CHECK:   opaque** $9 = allocate opaque*, 1, align 8
 ; CHECK:   <4 x float>* $10 = allocate <4 x float>, 1, align 16
 ; CHECK:   store $8, %1, align 4
 ; CHECK:   opaque* %11 = bitcast %2
-; CHECK:   opaque** %12 = bitcast $9
-; CHECK:   store %12, %11, align 8
-; CHECK:   float* %13 = bitcast $3
-; CHECK:   store %13, 4.0E+0, align 4
-; CHECK:   float* %14 = bitcast $4
-; CHECK:   store %14, 3.0E+0, align 4
-; CHECK:   float* %15 = bitcast $5
-; CHECK:   store %15, 2.0E+0, align 4
-; CHECK:   float* %16 = bitcast $6
-; CHECK:   store %16, 1.0E+0, align 4
-; CHECK:   float* %17 = bitcast $6
-; CHECK:   float %18 = load %17, align 4
-; CHECK:   <4 x float> %19 = insertelement undef, 0, %18
-; CHECK:   float* %20 = bitcast $5
-; CHECK:   float %21 = load %20, align 4
-; CHECK:   <4 x float> %22 = insertelement %19, 4, %21
-; CHECK:   float* %23 = bitcast $4
-; CHECK:   float %24 = load %23, align 4
-; CHECK:   <4 x float> %25 = insertelement %22, 8, %24
-; CHECK:   float* %26 = bitcast $3
-; CHECK:   float %27 = load %26, align 4
-; CHECK:   opaque %28 = insertelement %25, 12, %27
-; CHECK:   <4 x float> %29 = bitcast %28
+; CHECK:   store $9, %11, align 8
+; CHECK:   store $3, 4.0E+0, align 4
+; CHECK:   store $4, 3.0E+0, align 4
+; CHECK:   store $5, 2.0E+0, align 4
+; CHECK:   store $6, 1.0E+0, align 4
+; CHECK:   float %12 = load $6, align 4
+; CHECK:   <4 x float> %13 = insertelement undef, 0, %12
+; CHECK:   float %14 = load $5, align 4
+; CHECK:   <4 x float> %15 = insertelement %13, 4, %14
+; CHECK:   float %16 = load $4, align 4
+; CHECK:   <4 x float> %17 = insertelement %15, 8, %16
+; CHECK:   float %18 = load $3, align 4
+; CHECK:   <4 x float> %19 = insertelement %17, 12, %18
+; CHECK:   store $7, %19, align 16
+; CHECK:   <4 x float> %20 = load $7, align 16
+; CHECK:   store $10, %20, align 16
+; CHECK:   <4 x float> %21 = load $10, align 16
+; CHECK:   <4 x float> %22 = load $10, align 16
+; CHECK:   <4 x float> %23 = shufflevector %21, %22
+; CHECK:   store $10, %23, align 16
+; CHECK:   <4 x float> %24 = load $10, align 16
+; CHECK:   call @printv(%24)
+; CHECK:   return 0
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1
 
 declare void @printv(<4 x float>) #2
-; CHECK:   <4 x float>* %30 = bitcast $7
+; CHECK: }
 
 attributes #0 = { noinline nounwind ssp uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "min-legal-vector-width"="128" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+cx8,+fxsr,+mmx,+sahf,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
 attributes #1 = { nounwind readnone speculatable }

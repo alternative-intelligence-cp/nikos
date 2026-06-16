@@ -43,27 +43,27 @@ define i32 @main(i32, i8**) #0 !dbg !8 {
 ; CHECK: declare void @ar.libc.exit(si32)
 ; CHECK: define si32 @main(si32 %1, opaque* %2) {
 ; CHECK: #1 !entry successors={#2} {
-; CHECK:   opaque* $3 = allocate opaque, 1, align 4
+; CHECK:   si32* $3 = allocate si32, 1, align 4
 ; CHECK:   si32* $4 = allocate si32, 1, align 4
 ; CHECK:   opaque** $5 = allocate opaque*, 1, align 8
 ; CHECK:   si32* $6 = allocate si32, 1, align 4
-; CHECK:   si32* %7 = bitcast $3
-; CHECK:   store %7, 0, align 4
+; CHECK:   store $3, 0, align 4
 ; CHECK:   store $4, %1, align 4
-; CHECK:   opaque* %8 = bitcast %2
-; CHECK:   opaque** %9 = bitcast $5
-; CHECK:   store %9, %8, align 8
+; CHECK:   opaque* %7 = bitcast %2
+; CHECK:   store $5, %7, align 8
 ; CHECK: }
 ; CHECK: #2 predecessors={#1, #4} successors={#3, #4} {
-; CHECK:   si32 %10 = load $6, align 4
+; CHECK:   si32 %8 = load $6, align 4
 ; CHECK: }
 ; CHECK: #3 !exit predecessors={#2} {
-; CHECK:   %10 sieq 0
+; CHECK:   %8 sieq 0
 ; CHECK:   call @ar.libc.exit(1)
 ; CHECK:   unreachable
 ; CHECK: }
 ; CHECK: #4 predecessors={#2} successors={#2} {
-; CHECK:   %10 sine 0
+; CHECK:   %8 sine 0
+; CHECK:   si32 %9 = load $6, align 4
+; CHECK:   si32 %10 = %9 sadd.nw 1
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1

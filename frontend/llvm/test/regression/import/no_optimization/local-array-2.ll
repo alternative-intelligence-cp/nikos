@@ -72,24 +72,24 @@ define i8* @foo(i8*, i32) #0 !dbg !8 {
 ; CHECK:   si32* $4 = allocate si32, 1, align 4
 ; CHECK:   si32* $5 = allocate si32, 1, align 4
 ; CHECK:   opaque* %6 = bitcast %1
-; CHECK:   opaque** %7 = bitcast $3
-; CHECK:   store %7, %6, align 8
+; CHECK:   store $3, %6, align 8
 ; CHECK:   store $4, %2, align 4
 ; CHECK:   store $5, 0, align 4
 ; CHECK: }
 ; CHECK: #2 predecessors={#1, #3} successors={#3, #4} {
-; CHECK:   si32 %8 = load $5, align 4
-; CHECK:   si32 %9 = load $4, align 4
+; CHECK:   si32 %7 = load $5, align 4
+; CHECK:   si32 %8 = load $4, align 4
 ; CHECK: }
 ; CHECK: #3 predecessors={#2} successors={#2} {
-; CHECK:   %8 silt %9
-; CHECK:   opaque** %10 = bitcast $3
-; CHECK:   opaque* %11 = load %10, align 8
-; CHECK:   si32 %12 = load $5, align 4
-; CHECK:   si64 %13 = sext %12
-; CHECK:   si8* %14 = bitcast %11
-; CHECK:   opaque* %15 = ptrshift %14, 1 * %13
-; CHECK:   si8* %16 = bitcast %15
+; CHECK:   %7 silt %8
+; CHECK:   opaque* %9 = load $3, align 8
+; CHECK:   si32 %10 = load $5, align 4
+; CHECK:   si64 %11 = sext %10
+; CHECK:   si8* %12 = bitcast %9
+; CHECK:   opaque* %13 = ptrshift %12, 1 * %11
+; CHECK:   si8* %14 = bitcast %13
+; CHECK:   store %14, 65, align 1
+; CHECK:   si32 %15 = load $5, align 4
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1
@@ -126,34 +126,34 @@ define i32 @main() #0 !dbg !37 {
   %19 = call i32 @puts(i8* %18), !dbg !66
   ret i32 0, !dbg !67
 }
-; CHECK:   store %16, 65, align 1
-; CHECK:   si32 %17 = load $5, align 4
-; CHECK:   si32 %18 = %17 sadd.nw 1
-; CHECK:   store $5, %18, align 4
+; CHECK:   si32 %16 = %15 sadd.nw 1
+; CHECK:   store $5, %16, align 4
 ; CHECK: }
 ; CHECK: #4 !exit predecessors={#2} {
-; CHECK:   %8 sige %9
-; CHECK:   opaque* %19 = load $3, align 8
-; CHECK:   return %19
+; CHECK:   %7 sige %8
+; CHECK:   opaque** %17 = bitcast $3
+; CHECK:   opaque* %18 = load %17, align 8
+; CHECK:   return %18
 ; CHECK: }
 ; CHECK: }
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry !exit {
-; CHECK:   opaque* $1 = allocate opaque, 1, align 4
+; CHECK:   si32* $1 = allocate si32, 1, align 4
 ; CHECK:   [50 x si8]* $2 = allocate [50 x si8], 1, align 16
 ; CHECK:   opaque** $3 = allocate opaque*, 1, align 8
 ; CHECK:   [10 x si8]* $4 = allocate [10 x si8], 1, align 1
 ; CHECK:   opaque** $5 = allocate opaque*, 1, align 8
-; CHECK:   si32* %6 = bitcast $1
-; CHECK:   store %6, 0, align 4
-; CHECK:   si8* %7 = ptrshift $2, 50 * 0, 1 * 0
-; CHECK:   si8* %8 = ptrshift @.str, 34 * 0, 1 * 0
-; CHECK:   opaque* (opaque*, opaque*)* %9 = bitcast @ar.libc.strcpy
+; CHECK:   store $1, 0, align 4
+; CHECK:   si8* %6 = ptrshift $2, 50 * 0, 1 * 0
+; CHECK:   si8* %7 = ptrshift @.str, 34 * 0, 1 * 0
+; CHECK:   opaque* (opaque*, opaque*)* %8 = bitcast @ar.libc.strcpy
+; CHECK:   opaque* %9 = bitcast %6
 ; CHECK:   opaque* %10 = bitcast %7
-; CHECK:   opaque* %11 = bitcast %8
-; CHECK:   opaque* %12 = call %9(%10, %11)
-; CHECK:   si8* %13 = bitcast %12
-; CHECK:   si8* %14 = ptrshift $2, 50 * 0, 1 * 0
+; CHECK:   opaque* %11 = call %8(%9, %10)
+; CHECK:   si8* %12 = bitcast %11
+; CHECK:   si8* %13 = ptrshift $2, 50 * 0, 1 * 0
+; CHECK:   si32 (opaque*)* %14 = bitcast @ar.libc.puts
+; CHECK:   opaque* %15 = bitcast %13
 
 attributes #0 = { noinline nounwind ssp uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+cx8,+fxsr,+mmx,+sahf,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
 attributes #1 = { nounwind readnone speculatable }

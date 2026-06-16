@@ -26,15 +26,15 @@ define i32 @_Z1fb(i1 zeroext) #0 !dbg !12 {
 ; CHECK: }
 ; CHECK: define si32 @_Z1fb(ui1 %1) {
 ; CHECK: #1 !entry !exit {
-; CHECK:   ui8* $2 = allocate ui8, 1, align 1
+; CHECK:   si8* $2 = allocate si8, 1, align 1
 ; CHECK:   ui8 %3 = zext %1
 ; CHECK:   si8 %4 = bitcast %3
-; CHECK:   si8* %5 = bitcast $2
-; CHECK:   store %5, %4, align 1
+; CHECK:   store $2, %4, align 1
+; CHECK:   call @ar.trap()
 
 ; Function Attrs: cold noreturn nounwind
 declare void @llvm.trap() #2
-; CHECK:   call @ar.trap()
+; CHECK:   unreachable
 
 ; Function Attrs: noinline norecurse nounwind ssp uwtable
 define i32 @main() #3 !dbg !19 {
@@ -42,11 +42,11 @@ define i32 @main() #3 !dbg !19 {
   store i32 0, i32* %1, align 4
   ret i32 0, !dbg !22
 }
-; CHECK:   unreachable
 ; CHECK: }
 ; CHECK: }
 ; CHECK: declare void @ar.trap()
 ; CHECK: define si32 @main() {
+; CHECK: #1 !entry !exit {
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1

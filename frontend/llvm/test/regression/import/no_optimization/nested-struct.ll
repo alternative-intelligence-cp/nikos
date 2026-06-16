@@ -33,17 +33,17 @@ define i32 @main(i32, i8**) #0 !dbg !8 {
 ; CHECK: declare si8* @ar.libc.malloc(ui64)
 ; CHECK: define si32 @main(si32 %1, opaque* %2) {
 ; CHECK: #1 !entry !exit {
-; CHECK:   opaque* $3 = allocate opaque, 1, align 4
+; CHECK:   si32* $3 = allocate si32, 1, align 4
 ; CHECK:   si32* $4 = allocate si32, 1, align 4
 ; CHECK:   opaque** $5 = allocate opaque*, 1, align 8
 ; CHECK:   opaque** $6 = allocate opaque*, 1, align 8
-; CHECK:   si32* %7 = bitcast $3
-; CHECK:   store %7, 0, align 4
+; CHECK:   store $3, 0, align 4
 ; CHECK:   store $4, %1, align 4
-; CHECK:   opaque* %8 = bitcast %2
-; CHECK:   opaque** %9 = bitcast $5
-; CHECK:   store %9, %8, align 8
-; CHECK:   opaque* (si64)* %10 = bitcast @ar.libc.malloc
+; CHECK:   opaque* %7 = bitcast %2
+; CHECK:   store $5, %7, align 8
+; CHECK:   opaque* (si64)* %8 = bitcast @ar.libc.malloc
+; CHECK:   opaque* %9 = call %8(8)
+; CHECK:   si8* %10 = bitcast %9
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1

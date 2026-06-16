@@ -87,9 +87,9 @@ define i32 @main() #1 !dbg !28 {
 ; CHECK: declare si32 @ar.libc.printf(si8*, ...)
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry !exit {
-; CHECK:   {0: <2 x float>, 8: <2 x float>}* $1 = allocate {0: <2 x float>, 8: <2 x float>}, 1, align 4
+; CHECK:   {0: {0: float, 4: float}, 8: {0: float, 4: float}}* $1 = allocate {0: {0: float, 4: float}, 8: {0: float, 4: float}}, 1, align 4
 ; CHECK:   {0: <2 x float>, 8: <2 x float>} %2 = call @_Z1ff(2.0E+0)
-; CHECK:   store $1, %2, align 8
+; CHECK:   opaque* %3 = bitcast $1
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.value(metadata, metadata, metadata) #3

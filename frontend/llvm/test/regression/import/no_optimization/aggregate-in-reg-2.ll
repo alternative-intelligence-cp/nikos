@@ -101,7 +101,7 @@ define i32 @main() #2 !dbg !29 {
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   si32* $1 = allocate si32, 1, align 4
-; CHECK:   {0: <2 x float>, 8: <2 x float>}* $2 = allocate {0: <2 x float>, 8: <2 x float>}, 1, align 4
+; CHECK:   {0: {0: float, 4: float}, 8: {0: float, 4: float}}* $2 = allocate {0: {0: float, 4: float}, 8: {0: float, 4: float}}, 1, align 4
 ; CHECK:   store $1, 0, align 4
 
 ; Function Attrs: nounwind readnone speculatable

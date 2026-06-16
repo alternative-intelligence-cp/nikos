@@ -66,39 +66,39 @@ define i32 @main(i32, i8**) #0 !dbg !8 {
 ; CHECK: declare si32 @ar.libc.printf(si8*, ...)
 ; CHECK: define si32 @main(si32 %1, opaque* %2) {
 ; CHECK: #1 !entry successors={#2} {
-; CHECK:   opaque* $3 = allocate opaque, 1, align 4
+; CHECK:   si32* $3 = allocate si32, 1, align 4
 ; CHECK:   si32* $4 = allocate si32, 1, align 4
 ; CHECK:   opaque** $5 = allocate opaque*, 1, align 8
 ; CHECK:   si32* $6 = allocate si32, 1, align 4
 ; CHECK:   [10 x si32]* $7 = allocate [10 x si32], 1, align 16
-; CHECK:   si32* %8 = bitcast $3
-; CHECK:   store %8, 0, align 4
+; CHECK:   store $3, 0, align 4
 ; CHECK:   store $4, %1, align 4
-; CHECK:   opaque* %9 = bitcast %2
-; CHECK:   opaque** %10 = bitcast $5
-; CHECK:   store %10, %9, align 8
+; CHECK:   opaque* %8 = bitcast %2
+; CHECK:   store $5, %8, align 8
 ; CHECK:   store $6, 0, align 4
 ; CHECK: }
 ; CHECK: #2 predecessors={#1, #3} successors={#3, #4} {
-; CHECK:   si32 %11 = load $6, align 4
+; CHECK:   si32 %9 = load $6, align 4
 ; CHECK: }
 ; CHECK: #3 predecessors={#2} successors={#2} {
-; CHECK:   %11 silt 10
-; CHECK:   si32 %12 = load $6, align 4
-; CHECK:   si32 %13 = load $6, align 4
-; CHECK:   si64 %14 = sext %13
-; CHECK:   si32* %15 = ptrshift $7, 40 * 0, 4 * %14
-; CHECK:   store %15, %12, align 4
-; CHECK:   si32 %16 = load $6, align 4
-; CHECK:   si32 %17 = %16 sadd.nw 1
-; CHECK:   store $6, %17, align 4
+; CHECK:   %9 silt 10
+; CHECK:   si32 %10 = load $6, align 4
+; CHECK:   si32 %11 = load $6, align 4
+; CHECK:   si64 %12 = sext %11
+; CHECK:   si32* %13 = ptrshift $7, 40 * 0, 4 * %12
+; CHECK:   store %13, %10, align 4
+; CHECK:   si32 %14 = load $6, align 4
+; CHECK:   si32 %15 = %14 sadd.nw 1
+; CHECK:   store $6, %15, align 4
 ; CHECK: }
 ; CHECK: #4 !exit predecessors={#2} {
-; CHECK:   %11 sige 10
-; CHECK:   si32 %18 = load $6, align 4
-; CHECK:   si32 %19 = %18 ssub.nw 1
-; CHECK:   si64 %20 = sext %19
-; CHECK:   opaque* %21 = ptrshift $7, 40 * 0, 4 * %20
+; CHECK:   %9 sige 10
+; CHECK:   si32 %16 = load $6, align 4
+; CHECK:   si32 %17 = %16 ssub.nw 1
+; CHECK:   si64 %18 = sext %17
+; CHECK:   opaque* %19 = ptrshift $7, 40 * 0, 4 * %18
+; CHECK:   si32* %20 = bitcast %19
+; CHECK:   si32 %21 = load %20, align 4
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1

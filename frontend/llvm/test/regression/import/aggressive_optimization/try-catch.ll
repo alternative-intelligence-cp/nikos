@@ -233,15 +233,15 @@ define internal fastcc void @_ZN1BC2Ev(%class.B*) unnamed_addr #0 align 2 !dbg !
   ret void, !dbg !102
 }
 ; CHECK:   opaque* %4 = ptrshift @_ZTV1A, 32 * 0, 1 * 0, 8 * 2
-; CHECK:   opaque %5 = bitcast %4
-; CHECK:   opaque* %6 = bitcast %5
-; CHECK:   opaque** %7 = bitcast %3
-; CHECK:   store %7, %6, align 8
+; CHECK:   opaque* %5 = bitcast %4
+; CHECK:   opaque** %6 = bitcast %3
+; CHECK:   store %6, %5, align 8
 ; CHECK:   return
 ; CHECK: }
 ; CHECK: }
 ; CHECK: define void @_ZN1B1fEi(opaque* %1, si32 %2) {
 ; CHECK: #1 !entry !exit {
+; CHECK:   return
 
 ; Function Attrs: noinline nounwind ssp uwtable
 define internal void @_ZN1C1fEi(%class.C*, i32) unnamed_addr #0 align 2 !dbg !132 {
@@ -249,20 +249,20 @@ define internal void @_ZN1C1fEi(%class.C*, i32) unnamed_addr #0 align 2 !dbg !13
   call void @llvm.dbg.value(metadata i32 %1, metadata !135, metadata !DIExpression()), !dbg !134
   ret void, !dbg !136
 }
-; CHECK:   return
 ; CHECK: }
 ; CHECK: }
 ; CHECK: define si32 @_ZN1B1gEv(opaque* %1) {
+; CHECK: #1 !entry !exit {
 
 ; Function Attrs: noinline nounwind ssp uwtable
 define internal i32 @_ZN1C1gEv(%class.C*) unnamed_addr #0 align 2 !dbg !137 {
   call void @llvm.dbg.value(metadata %class.C* %0, metadata !138, metadata !DIExpression()), !dbg !139
   ret i32 1, !dbg !140
 }
-; CHECK: #1 !entry !exit {
 ; CHECK:   return 0
 ; CHECK: }
 ; CHECK: }
+; CHECK: define void @_ZN1BC1Ev(opaque* %1) {
 
 ; Function Attrs: noinline nounwind ssp uwtable
 define internal fastcc void @_ZN1CC1Ev(%class.C*) unnamed_addr #0 align 2 !dbg !91 {
@@ -270,12 +270,12 @@ define internal fastcc void @_ZN1CC1Ev(%class.C*) unnamed_addr #0 align 2 !dbg !
   call fastcc void @_ZN1CC2Ev(%class.C* %0) #4, !dbg !98
   ret void, !dbg !98
 }
-; CHECK: define void @_ZN1BC1Ev(opaque* %1) {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   void (opaque*)* %2 = bitcast @_ZN1BC2Ev
 ; CHECK:   opaque* %3 = bitcast %1
 ; CHECK:   call %2(%3)
 ; CHECK:   return
+; CHECK: }
 
 ; Function Attrs: noinline nounwind ssp uwtable
 define internal fastcc void @_ZN1CC2Ev(%class.C*) unnamed_addr #0 align 2 !dbg !128 {
@@ -289,7 +289,6 @@ define internal fastcc void @_ZN1CC2Ev(%class.C*) unnamed_addr #0 align 2 !dbg !
   ret void, !dbg !131
 }
 ; CHECK: }
-; CHECK: }
 ; CHECK: define void @_ZN1BC2Ev(opaque* %1) {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   {0: {0: opaque*}}* %2 = bitcast %1
@@ -298,9 +297,10 @@ define internal fastcc void @_ZN1CC2Ev(%class.C*) unnamed_addr #0 align 2 !dbg !
 ; CHECK:   opaque* %5 = bitcast %3
 ; CHECK:   call %4(%5)
 ; CHECK:   {0: {0: opaque*}}* %6 = bitcast %1
+; CHECK:   opaque* %7 = ptrshift %6, 8 * 0, 1 * 0, 1 * 0
 
 declare i32 @__gxx_personality_v0(...)
-; CHECK:   opaque* %7 = ptrshift %6, 8 * 0, 1 * 0, 1 * 0
+; CHECK:   opaque* %8 = ptrshift @_ZTV1B, 32 * 0, 1 * 0, 8 * 2
 
 ; Function Attrs: noinline norecurse ssp uwtable
 define i32 @main() local_unnamed_addr #2 personality i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*) !dbg !51 {
@@ -316,11 +316,9 @@ define i32 @main() local_unnamed_addr #2 personality i8* bitcast (i32 (...)* @__
   call fastcc void @_Z3runP1A(%class.A* nonnull %4), !dbg !81
   ret i32 0, !dbg !82
 }
-; CHECK:   opaque* %8 = ptrshift @_ZTV1B, 32 * 0, 1 * 0, 8 * 2
-; CHECK:   opaque %9 = bitcast %8
-; CHECK:   opaque* %10 = bitcast %9
-; CHECK:   opaque** %11 = bitcast %7
-; CHECK:   store %11, %10, align 8
+; CHECK:   opaque* %9 = bitcast %8
+; CHECK:   opaque** %10 = bitcast %7
+; CHECK:   store %10, %9, align 8
 ; CHECK:   return
 ; CHECK: }
 ; CHECK: }
@@ -328,6 +326,8 @@ define i32 @main() local_unnamed_addr #2 personality i8* bitcast (i32 (...)* @__
 ; CHECK: #1 !entry !exit {
 ; CHECK:   return
 ; CHECK: }
+; CHECK: }
+; CHECK: define si32 @_ZN1C1gEv(opaque* %1) {
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.value(metadata, metadata, metadata) #3

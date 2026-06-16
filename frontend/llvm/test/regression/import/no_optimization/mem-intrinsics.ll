@@ -74,23 +74,23 @@ define i32 @main() #0 !dbg !18 {
 ; CHECK:   opaque** $1 = allocate opaque*, 1, align 8
 ; CHECK:   opaque** $2 = allocate opaque*, 1, align 8
 ; CHECK:   opaque** $3 = allocate opaque*, 1, align 8
-; CHECK:   opaque** %4 = bitcast $1
-; CHECK:   opaque* %5 = load %4, align 8
-; CHECK:   si8* %6 = bitcast %5
-; CHECK:   opaque** %7 = bitcast $2
-; CHECK:   opaque* %8 = load %7, align 8
-; CHECK:   si8* %9 = bitcast %8
-; CHECK:   call @ar.memcpy(%6, %9, 10, 4, 4, 0)
-; CHECK:   opaque* %10 = bitcast %6
-; CHECK:   opaque* %11 = bitcast %10
-; CHECK:   opaque** %12 = bitcast $3
-; CHECK:   store %12, %11, align 8
-; CHECK:   opaque** %13 = bitcast $1
-; CHECK:   opaque* %14 = load %13, align 8
-; CHECK:   si8* %15 = bitcast %14
-; CHECK:   opaque** %16 = bitcast $2
-; CHECK:   opaque* %17 = load %16, align 8
-; CHECK:   si8* %18 = bitcast %17
+; CHECK:   opaque* %4 = load $1, align 8
+; CHECK:   si8* %5 = bitcast %4
+; CHECK:   opaque* %6 = load $2, align 8
+; CHECK:   si8* %7 = bitcast %6
+; CHECK:   call @ar.memcpy(%5, %7, 10, 4, 4, 0)
+; CHECK:   opaque* %8 = bitcast %5
+; CHECK:   opaque* %9 = bitcast %8
+; CHECK:   store $3, %9, align 8
+; CHECK:   opaque* %10 = load $1, align 8
+; CHECK:   si8* %11 = bitcast %10
+; CHECK:   opaque* %12 = load $2, align 8
+; CHECK:   si8* %13 = bitcast %12
+; CHECK:   call @ar.memmove(%11, %13, 50, 4, 4, 0)
+; CHECK:   opaque* %14 = bitcast %11
+; CHECK:   opaque* %15 = bitcast %14
+; CHECK:   store $3, %15, align 8
+; CHECK:   opaque* %16 = load $1, align 8
 
 attributes #0 = { noinline nounwind ssp uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+fxsr,+mmx,+sahf,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
 attributes #1 = { nounwind readnone speculatable }

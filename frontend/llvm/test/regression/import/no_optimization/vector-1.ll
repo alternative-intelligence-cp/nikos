@@ -41,11 +41,11 @@ define i32 @main() #0 !dbg !20 {
 ; CHECK: }
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry !exit {
-; CHECK:   opaque* $1 = allocate opaque, 1, align 4
-; CHECK:   si32* %2 = bitcast $1
-; CHECK:   store %2, 0, align 4
-; CHECK:   <4 x float> %3 = load @a, align 16
-; CHECK:   <4 x float> %4 = load @b, align 16
+; CHECK:   si32* $1 = allocate si32, 1, align 4
+; CHECK:   store $1, 0, align 4
+; CHECK:   <4 x float> %2 = load @a, align 16
+; CHECK:   <4 x float> %3 = load @b, align 16
+; CHECK:   <4 x float> %4 = %2 fadd %3
 
 attributes #0 = { noinline nounwind ssp uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+cx8,+fxsr,+mmx,+sahf,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
 

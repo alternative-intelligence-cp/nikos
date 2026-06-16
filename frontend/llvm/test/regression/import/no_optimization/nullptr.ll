@@ -17,10 +17,10 @@ define i32 @_Z1fDn(i8*) #0 !dbg !8 {
 }
 ; CHECK: define si32 @_Z1fDn(si8* %1) {
 ; CHECK: #1 !entry !exit {
-; CHECK:   si8** $2 = allocate si8*, 1, align 8
+; CHECK:   opaque** $2 = allocate opaque*, 1, align 8
 ; CHECK:   opaque* %3 = bitcast %1
-; CHECK:   opaque** %4 = bitcast $2
-; CHECK:   store %4, %3, align 8
+; CHECK:   store $2, %3, align 8
+; CHECK:   return 1
 
 ; Function Attrs: noinline norecurse nounwind ssp uwtable
 define i32 @main() #2 !dbg !16 {
@@ -29,13 +29,13 @@ define i32 @main() #2 !dbg !16 {
   %2 = call i32 @_Z1fDn(i8* null), !dbg !19
   ret i32 %2, !dbg !20
 }
-; CHECK:   return 1
 ; CHECK: }
 ; CHECK: }
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry !exit {
-; CHECK:   opaque* $1 = allocate opaque, 1, align 4
-; CHECK:   si32* %2 = bitcast $1
+; CHECK:   si32* $1 = allocate si32, 1, align 4
+; CHECK:   store $1, 0, align 4
+; CHECK:   si32 (opaque*)* %2 = bitcast @_Z1fDn
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1

@@ -36,31 +36,31 @@ define i32 @main() #0 !dbg !12 {
 ; CHECK: }
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry successors={#2, #3} {
-; CHECK:   opaque* $1 = allocate opaque, 1, align 4
-; CHECK:   si32* %2 = bitcast $1
-; CHECK:   store %2, 0, align 4
-; CHECK:   si32 %3 = load @a, align 4
+; CHECK:   si32* $1 = allocate si32, 1, align 4
+; CHECK:   store $1, 0, align 4
+; CHECK:   si32 %2 = load @a, align 4
 ; CHECK: }
 ; CHECK: #2 predecessors={#1} successors={#4} {
-; CHECK:   %3 sigt 0
-; CHECK:   ui1 %4 = 1
+; CHECK:   %2 sigt 0
+; CHECK:   ui1 %3 = 1
 ; CHECK: }
 ; CHECK: #3 predecessors={#1} successors={#4} {
-; CHECK:   %3 sile 0
-; CHECK:   ui1 %4 = 0
+; CHECK:   %2 sile 0
+; CHECK:   ui1 %3 = 0
 ; CHECK: }
 ; CHECK: #4 predecessors={#2, #3} successors={#5, #6} {
-; CHECK:   ui64 %5 = zext %4
+; CHECK:   ui64 %4 = zext %3
 ; CHECK: }
 ; CHECK: #5 predecessors={#4} successors={#7} {
-; CHECK:   %4 uieq 1
-; CHECK:   si32 %6 = 123
+; CHECK:   %3 uieq 1
+; CHECK:   si32 %5 = 123
 ; CHECK: }
 ; CHECK: #6 predecessors={#4} successors={#7} {
-; CHECK:   %4 uieq 0
-; CHECK:   si32 %6 = 321
+; CHECK:   %3 uieq 0
+; CHECK:   si32 %5 = 321
 ; CHECK: }
 ; CHECK: #7 !exit predecessors={#5, #6} {
+; CHECK:   return %5
 
 attributes #0 = { noinline norecurse nounwind ssp uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+cx8,+fxsr,+mmx,+sahf,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
 

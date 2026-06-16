@@ -109,18 +109,18 @@ define i32 @main() #0 !dbg !8 {
 ; CHECK:   opaque* %9 = call %6(%7, %8)
 ; CHECK:   opaque* %10 = bitcast %9
 ; CHECK:   opaque* %11 = bitcast %10
-; CHECK:   opaque** %12 = bitcast $1
-; CHECK:   store %12, %11, align 8
-; CHECK:   si8* %13 = ptrshift $2, 1025 * 0, 1 * 0
-; CHECK:   opaque** %14 = bitcast $1
-; CHECK:   opaque* %15 = load %14, align 8
-; CHECK:   opaque* (opaque*, si32, opaque*)* %16 = bitcast @ar.libc.fgets
-; CHECK:   opaque* %17 = bitcast %13
-; CHECK:   opaque* %18 = bitcast %15
-; CHECK:   opaque* %19 = call %16(%17, 1024, %18)
-; CHECK:   si8* %20 = bitcast %19
-; CHECK:   opaque** %21 = bitcast $1
-; CHECK:   opaque* %22 = load %21, align 8
+; CHECK:   store $1, %11, align 8
+; CHECK:   si8* %12 = ptrshift $2, 1025 * 0, 1 * 0
+; CHECK:   opaque** %13 = bitcast $1
+; CHECK:   opaque* %14 = load %13, align 8
+; CHECK:   opaque* (opaque*, si32, opaque*)* %15 = bitcast @ar.libc.fgets
+; CHECK:   opaque* %16 = bitcast %12
+; CHECK:   opaque* %17 = bitcast %14
+; CHECK:   opaque* %18 = call %15(%16, 1024, %17)
+; CHECK:   si8* %19 = bitcast %18
+; CHECK:   opaque** %20 = bitcast $1
+; CHECK:   opaque* %21 = load %20, align 8
+; CHECK:   si32 (opaque*)* %22 = bitcast @ar.libc.fgetc
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1

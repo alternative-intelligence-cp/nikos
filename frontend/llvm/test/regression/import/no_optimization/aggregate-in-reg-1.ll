@@ -105,15 +105,14 @@ define linkonce_odr void @_ZN3FooC2Efff(%class.Foo*, float, float, float) unname
   call void @_ZN7Vector3IfEC1Efff(%class.Vector3* %10, float %11, float %12, float %13), !dbg !77
   ret void, !dbg !78
 }
-; CHECK:   opaque* %10 = load $5, align 8
-; CHECK:   {0: {0: float, 4: float, 8: float}}* %11 = bitcast %10
-; CHECK:   opaque* %12 = ptrshift %11, 12 * 0, 1 * 0
-; CHECK:   float %13 = load $6, align 4
-; CHECK:   float %14 = load $7, align 4
-; CHECK:   float %15 = load $8, align 4
-; CHECK:   void (opaque*, float, float, float)* %16 = bitcast @_ZN7Vector3IfEC1Efff
-; CHECK:   opaque* %17 = bitcast %12
-; CHECK:   call %16(%17, %13, %14, %15)
+; CHECK:   opaque** %10 = bitcast $5
+; CHECK:   opaque* %11 = load %10, align 8
+; CHECK:   float %12 = load $6, align 4
+; CHECK:   float %13 = load $7, align 4
+; CHECK:   float %14 = load $8, align 4
+; CHECK:   void (opaque*, float, float, float)* %15 = bitcast @_ZN3FooC2Efff
+; CHECK:   opaque* %16 = bitcast %11
+; CHECK:   call %15(%16, %12, %13, %14)
 ; CHECK:   return
 ; CHECK: }
 ; CHECK: }
@@ -200,26 +199,14 @@ define linkonce_odr void @_ZN7Vector3IfEC2Efff(%class.Vector3*, float, float, fl
 ; CHECK:   store $6, %2, align 4
 ; CHECK:   store $7, %3, align 4
 ; CHECK:   store $8, %4, align 4
-; CHECK:   opaque* %10 = load $5, align 8
-; CHECK:   {0: float, 4: float, 8: float}* %11 = bitcast %10
-; CHECK:   opaque* %12 = ptrshift %11, 12 * 0, 1 * 0
-; CHECK:   opaque* %13 = bitcast $6
-; CHECK:   opaque %14 = load %13, align 4
-; CHECK:   float %15 = bitcast %14
-; CHECK:   float* %16 = bitcast %12
-; CHECK:   store %16, %15, align 4
-; CHECK:   {0: float, 4: float, 8: float}* %17 = bitcast %10
-; CHECK:   float* %18 = ptrshift %17, 12 * 0, 1 * 4
-; CHECK:   opaque* %19 = bitcast $7
-; CHECK:   opaque %20 = load %19, align 4
-; CHECK:   float %21 = bitcast %20
-; CHECK:   store %18, %21, align 4
-; CHECK:   {0: float, 4: float, 8: float}* %22 = bitcast %10
-; CHECK:   float* %23 = ptrshift %22, 12 * 0, 1 * 8
-; CHECK:   opaque* %24 = bitcast $8
-; CHECK:   opaque %25 = load %24, align 4
-; CHECK:   float %26 = bitcast %25
-; CHECK:   store %23, %26, align 4
+; CHECK:   opaque** %10 = bitcast $5
+; CHECK:   opaque* %11 = load %10, align 8
+; CHECK:   float %12 = load $6, align 4
+; CHECK:   float %13 = load $7, align 4
+; CHECK:   float %14 = load $8, align 4
+; CHECK:   void (opaque*, float, float, float)* %15 = bitcast @_ZN7Vector3IfEC2Efff
+; CHECK:   opaque* %16 = bitcast %11
+; CHECK:   call %15(%16, %12, %13, %14)
 ; CHECK:   return
 ; CHECK: }
 ; CHECK: }

@@ -98,17 +98,17 @@ define i32 @main(i32, i8**) #0 !dbg !39 {
 ; CHECK: }
 ; CHECK: define si32 @main(si32 %1, opaque* %2) {
 ; CHECK: #1 !entry !exit {
-; CHECK:   opaque* $3 = allocate opaque, 1, align 4
+; CHECK:   si32* $3 = allocate si32, 1, align 4
 ; CHECK:   si32* $4 = allocate si32, 1, align 4
 ; CHECK:   opaque** $5 = allocate opaque*, 1, align 8
 ; CHECK:   [10 x si32]* $6 = allocate [10 x si32], 1, align 16
-; CHECK:   si32* %7 = bitcast $3
-; CHECK:   store %7, 0, align 4
+; CHECK:   store $3, 0, align 4
 ; CHECK:   store $4, %1, align 4
-; CHECK:   opaque* %8 = bitcast %2
-; CHECK:   opaque** %9 = bitcast $5
-; CHECK:   store %9, %8, align 8
-; CHECK:   si8* %10 = bitcast $6
+; CHECK:   opaque* %7 = bitcast %2
+; CHECK:   store $5, %7, align 8
+; CHECK:   si8* %8 = bitcast $6
+; CHECK:   call @ar.memset(%8, 0, 40, 16, 0)
+; CHECK:   opaque* %9 = bitcast %8
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1

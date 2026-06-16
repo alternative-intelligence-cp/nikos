@@ -31,13 +31,13 @@ define i32 @main(i32, i8**) #0 !dbg !17 {
 ; CHECK: }
 ; CHECK: define si32 @main(si32 %1, opaque* %2) {
 ; CHECK: #1 !entry !exit {
-; CHECK:   opaque* $3 = allocate opaque, 1, align 4
+; CHECK:   si32* $3 = allocate si32, 1, align 4
 ; CHECK:   si32* $4 = allocate si32, 1, align 4
 ; CHECK:   opaque** $5 = allocate opaque*, 1, align 8
-; CHECK:   si32* %6 = bitcast $3
-; CHECK:   store %6, 0, align 4
+; CHECK:   store $3, 0, align 4
 ; CHECK:   store $4, %1, align 4
-; CHECK:   opaque* %7 = bitcast %2
+; CHECK:   opaque* %6 = bitcast %2
+; CHECK:   store $5, %6, align 8
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1

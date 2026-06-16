@@ -243,15 +243,15 @@ define linkonce_odr void @_ZN1BC2Ev(%class.B*) unnamed_addr #0 align 2 !dbg !105
   ret void, !dbg !108
 }
 ; CHECK:   opaque* %3 = ptrshift @_ZTV1A, 32 * 0, 1 * 0, 8 * 2
-; CHECK:   opaque %4 = bitcast %3
-; CHECK:   opaque* %5 = bitcast %4
-; CHECK:   opaque** %6 = bitcast %2
-; CHECK:   store %6, %5, align 8
+; CHECK:   opaque* %4 = bitcast %3
+; CHECK:   opaque** %5 = bitcast %2
+; CHECK:   store %5, %4, align 8
 ; CHECK:   return
 ; CHECK: }
 ; CHECK: }
 ; CHECK: define void @_ZN1B1fEi(opaque* %1, si32 %2) {
 ; CHECK: #1 !entry !exit {
+; CHECK:   store @G, %2, align 4
 
 ; Function Attrs: noinline nounwind ssp uwtable
 define linkonce_odr void @_ZN1C1fEi(%class.C*, i32) unnamed_addr #0 align 2 !dbg !139 {
@@ -261,22 +261,22 @@ define linkonce_odr void @_ZN1C1fEi(%class.C*, i32) unnamed_addr #0 align 2 !dbg
   store i32 %3, i32* @G, align 4, !dbg !144
   ret void, !dbg !145
 }
-; CHECK:   store @G, %2, align 4
 ; CHECK:   return
 ; CHECK: }
 ; CHECK: }
 ; CHECK: define si32 @_ZN1B1gEv(opaque* %1) {
 ; CHECK: #1 !entry !exit {
+; CHECK:   return 0
 
 ; Function Attrs: noinline nounwind ssp uwtable
 define linkonce_odr i32 @_ZN1C1gEv(%class.C*) unnamed_addr #0 align 2 !dbg !146 {
   call void @llvm.dbg.value(metadata %class.C* %0, metadata !147, metadata !DIExpression()), !dbg !148
   ret i32 1, !dbg !149
 }
-; CHECK:   return 0
 ; CHECK: }
 ; CHECK: }
 ; CHECK: define void @_ZN1BC1Ev(opaque* %1) {
+; CHECK: #1 !entry !exit {
 
 ; Function Attrs: noinline nounwind ssp uwtable
 define linkonce_odr void @_ZN1CC1Ev(%class.C*) unnamed_addr #0 align 2 !dbg !97 {
@@ -284,11 +284,11 @@ define linkonce_odr void @_ZN1CC1Ev(%class.C*) unnamed_addr #0 align 2 !dbg !97 
   call void @_ZN1CC2Ev(%class.C* %0) #5, !dbg !104
   ret void, !dbg !104
 }
-; CHECK: #1 !entry !exit {
 ; CHECK:   void (opaque*)* %2 = bitcast @_ZN1BC2Ev
 ; CHECK:   opaque* %3 = bitcast %1
 ; CHECK:   call %2(%3)
 ; CHECK:   return
+; CHECK: }
 ; CHECK: }
 
 ; Function Attrs: noinline nounwind ssp uwtable
@@ -302,7 +302,6 @@ define linkonce_odr void @_ZN1CC2Ev(%class.C*) unnamed_addr #0 align 2 !dbg !135
   store i32 (...)** %5, i32 (...)*** %3, align 8, !dbg !138
   ret void, !dbg !138
 }
-; CHECK: }
 ; CHECK: define void @_ZN1BC2Ev(opaque* %1) {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   opaque* %2 = bitcast %1
@@ -311,20 +310,21 @@ define linkonce_odr void @_ZN1CC2Ev(%class.C*) unnamed_addr #0 align 2 !dbg !135
 ; CHECK:   call %3(%4)
 ; CHECK:   opaque* %5 = bitcast %1
 ; CHECK:   opaque* %6 = ptrshift @_ZTV1B, 32 * 0, 1 * 0, 8 * 2
-; CHECK:   opaque %7 = bitcast %6
+; CHECK:   opaque* %7 = bitcast %6
+; CHECK:   opaque** %8 = bitcast %5
 
 declare i32 @__gxx_personality_v0(...)
-; CHECK:   opaque* %8 = bitcast %7
+; CHECK:   store %8, %7, align 8
 
 ; Function Attrs: nounwind readnone
 declare i32 @llvm.eh.typeid.for(i8*) #4
-; CHECK:   opaque** %9 = bitcast %5
+; CHECK:   return
 
 declare i8* @__cxa_begin_catch(i8*)
-; CHECK:   store %9, %8, align 8
+; CHECK: }
 
 declare void @__cxa_end_catch()
-; CHECK:   return
+; CHECK: }
 
 ; Function Attrs: noinline norecurse ssp uwtable
 define i32 @main() #3 personality i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*) !dbg !51 {
@@ -373,8 +373,6 @@ define i32 @main() #3 personality i8* bitcast (i32 (...)* @__gxx_personality_v0 
   %20 = insertvalue { i8*, i32 } %19, i32 %10, 1, !dbg !81
   resume { i8*, i32 } %20, !dbg !81
 }
-; CHECK: }
-; CHECK: }
 ; CHECK: define void @_ZN1C1fEi(opaque* %1, si32 %2) {
 ; CHECK: #1 !entry !exit {
 ; CHECK:   si32 %3 = 0 ssub.nw %2
@@ -403,14 +401,16 @@ define i32 @main() #3 personality i8* bitcast (i32 (...)* @__gxx_personality_v0 
 ; CHECK:   call %3(%4)
 ; CHECK:   opaque* %5 = bitcast %1
 ; CHECK:   opaque* %6 = ptrshift @_ZTV1C, 32 * 0, 1 * 0, 8 * 2
-; CHECK:   opaque %7 = bitcast %6
-; CHECK:   opaque* %8 = bitcast %7
-; CHECK:   opaque** %9 = bitcast %5
-; CHECK:   store %9, %8, align 8
+; CHECK:   opaque* %7 = bitcast %6
+; CHECK:   opaque** %8 = bitcast %5
+; CHECK:   store %8, %7, align 8
 ; CHECK:   return
 ; CHECK: }
 ; CHECK: }
 ; CHECK: declare si32 @__gxx_personality_v0(...)
+; CHECK: declare si32 @ar.eh.typeid.for(si8*)
+; CHECK: declare si8* @ar.libcpp.begincatch(si8*)
+; CHECK: declare void @ar.libcpp.endcatch()
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1

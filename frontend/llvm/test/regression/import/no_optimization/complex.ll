@@ -27,20 +27,20 @@ define i32 @main() #0 !dbg !8 {
 }
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry !exit {
-; CHECK:   opaque* $1 = allocate opaque, 1, align 4
+; CHECK:   si32* $1 = allocate si32, 1, align 4
 ; CHECK:   {0: double, 8: double}* $2 = allocate {0: double, 8: double}, 1, align 8
-; CHECK:   si32* %3 = bitcast $1
-; CHECK:   store %3, 0, align 4
-; CHECK:   opaque* %4 = ptrshift $2, 16 * 0, 1 * 0
-; CHECK:   opaque* %5 = ptrshift $2, 16 * 0, 1 * 8
+; CHECK:   store $1, 0, align 4
+; CHECK:   opaque* %3 = ptrshift $2, 16 * 0, 1 * 0
+; CHECK:   opaque* %4 = ptrshift $2, 16 * 0, 1 * 8
+; CHECK:   double* %5 = bitcast %3
+; CHECK:   store %5, 1.0E+0, align 8
 ; CHECK:   double* %6 = bitcast %4
-; CHECK:   store %6, 1.0E+0, align 8
-; CHECK:   double* %7 = bitcast %5
-; CHECK:   store %7, 2.0E+0, align 8
-; CHECK:   opaque* %8 = ptrshift $2, 16 * 0, 1 * 0
-; CHECK:   double* %9 = bitcast %8
-; CHECK:   double %10 = load %9, align 8
-; CHECK:   opaque* %11 = ptrshift $2, 16 * 0, 1 * 8
+; CHECK:   store %6, 2.0E+0, align 8
+; CHECK:   opaque* %7 = ptrshift $2, 16 * 0, 1 * 0
+; CHECK:   double* %8 = bitcast %7
+; CHECK:   double %9 = load %8, align 8
+; CHECK:   opaque* %10 = ptrshift $2, 16 * 0, 1 * 8
+; CHECK:   double* %11 = bitcast %10
 
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1

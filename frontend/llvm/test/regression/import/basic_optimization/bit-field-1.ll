@@ -32,7 +32,7 @@ define i32 @main() #0 !dbg !8 {
 ; CHECK: declare void @ar.memcpy(si8*, si8*, ui64, ui32, ui32, ui1)
 ; CHECK: define si32 @main() {
 ; CHECK: #1 !entry !exit {
-; CHECK:   {0: ui16, 2: [2 x si8]}* $1 = allocate {0: ui16, 2: [2 x si8]}, 1, align 4
+; CHECK:   {0: si16, 2: [2 x si8]}* $1 = allocate {0: si16, 2: [2 x si8]}, 1, align 4
 ; CHECK:   si8* %2 = bitcast $1
 ; CHECK:   si8* %3 = ptrshift @__const.main.info, 4 * 0, 1 * 0
 ; CHECK:   call @ar.memcpy(%2, %3, 4, 4, 4, 0)
