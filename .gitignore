@@ -68,3 +68,12 @@ packaging/*.rpm
 install/
 build-deb/
 build_ci_test/
+
+# Root-level scratch / dev artifacts
+*.ar
+*.ll
+test_*.c
+test_*.cpp
+hello.c
+debug.gdb
+patch_*.py
