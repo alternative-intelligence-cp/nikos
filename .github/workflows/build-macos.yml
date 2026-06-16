@@ -20,7 +20,7 @@ jobs:
       - name: Install dependencies
         run: |
           brew update
-          brew install cmake boost gmp sqlite tbb llvm@20 libedit
+          brew install cmake boost gmp sqlite tbb llvm@20 libedit nlohmann-json
 
       - name: Build NIKOS
         run: |

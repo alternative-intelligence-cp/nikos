@@ -175,7 +175,7 @@ public:
   virtual bool taint_is_memory_tainted(VariableRef p) const = 0;
 
   /// \brief Assign `x = tainted` with a source label (delegated to scalar)
-  virtual void taint_assign_labeled(VariableRef x, std::string label) {
+  virtual void taint_assign_labeled(VariableRef x, std::string label) override {
     this->taint_assign_tainted(x);
     Taint t = this->taint_to_taint(x);
     t.add_label(std::move(label));
@@ -183,7 +183,7 @@ public:
   }
 
   /// \brief Return the provenance labels for `x`
-  virtual std::set< std::string > taint_get_labels(VariableRef x) const {
+  virtual std::set< std::string > taint_get_labels(VariableRef x) const override {
     return this->taint_to_taint(x).labels();
   }
 

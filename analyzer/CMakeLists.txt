@@ -102,6 +102,20 @@ include_directories(SYSTEM ${TBB_INCLUDE_DIRS})
 find_package(SQLite3 REQUIRED)
 include_directories(SYSTEM ${SQLITE3_INCLUDE_DIR})
 
+# nlohmann/json — header-only JSON library used by taint_config.cpp
+# Try the system package first (apt: nlohmann-json3-dev, brew: nlohmann-json);
+# if not found, download via FetchContent.
+find_package(nlohmann_json 3.2.0 QUIET)
+if (NOT nlohmann_json_FOUND)
+  include(FetchContent)
+  FetchContent_Declare(
+    nlohmann_json
+    URL      https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
+    URL_HASH SHA256=d6c65aca6b1ed68e7a182f4757257b107ae403032760ed6ef121c9d55e81757d
+  )
+  FetchContent_MakeAvailable(nlohmann_json)
+endif()
+
 find_package(APRON)
 if (APRON_FOUND)
   include_directories(SYSTEM ${APRON_INCLUDE_DIRS})
@@ -304,6 +318,7 @@ target_link_libraries(ikos-analyzer
   ${GMPXX_LIB}
   ${TBB_LIBRARIES}
   ${AR_LIB}
+  nlohmann_json::nlohmann_json
 )
 if (APRON_FOUND)
   target_link_libraries(ikos-analyzer ${APRON_LIBRARIES})
