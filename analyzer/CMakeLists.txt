@@ -368,11 +368,8 @@ if (INSTALL_PYTHON_VIRTUALENV)
     message(STATUS \"Running python -m venv ${CMAKE_INSTALL_PREFIX}/libexec\")
     execute_process(COMMAND \"${PYTHON_EXECUTABLE}\" -m venv \"${CMAKE_INSTALL_PREFIX}/libexec\")
 
-    message(STATUS \"Running ${CMAKE_INSTALL_PREFIX}/libexec/bin/python -m pip install -U pip\")
-    execute_process(COMMAND \"${CMAKE_INSTALL_PREFIX}/libexec/bin/python\" -m pip install -U pip)
-
-    message(STATUS \"Running ${CMAKE_INSTALL_PREFIX}/libexec/bin/python -m pip install -U pygments setuptools\")
-    execute_process(COMMAND \"${CMAKE_INSTALL_PREFIX}/libexec/bin/python\" -m pip install pygments setuptools)
+    message(STATUS \"Running ${CMAKE_INSTALL_PREFIX}/libexec/bin/python -m pip install -U pip setuptools wheel pygments\")
+    execute_process(COMMAND \"${CMAKE_INSTALL_PREFIX}/libexec/bin/python\" -m pip install -U pip setuptools wheel pygments)
 
     message(STATUS \"Running ${CMAKE_INSTALL_PREFIX}/libexec/bin/python -m pip install .\")
     execute_process(COMMAND \"${CMAKE_INSTALL_PREFIX}/libexec/bin/python\" -m pip install .
@@ -387,7 +384,7 @@ else()
 endif()
 
 # taint analysis configuration
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../taint_config.json"
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/taint_config.json"
   DESTINATION share/ikos)
 
 # built-in taint profiles

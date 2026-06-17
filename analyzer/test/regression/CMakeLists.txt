@@ -17,7 +17,7 @@ function(add_taint_test test_name test_directory)
              --clang "${CLANG_EXECUTABLE}"
              --ikos-pp "${FRONTEND_LLVM_IKOS_PP_EXECUTABLE}"
              --ikos-analyzer "$<TARGET_FILE:ikos-analyzer>"
-             --taint-config "${CMAKE_SOURCE_DIR}/taint_config.json")
+             --taint-config "${CMAKE_CURRENT_SOURCE_DIR}/../../taint_config.json")
 endfunction()
 
 add_analysis_test(buffer-overflow boa)
