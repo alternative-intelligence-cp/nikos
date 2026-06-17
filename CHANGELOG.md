@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 **NIKOS** is a fork of [NASA's IKOS](https://github.com/NASA-SW-VnV/ikos), ported from LLVM 14 to LLVM 20 and integrated into the Nitpick static analysis toolchain.
 
+## [2.3.1.1] — 2026-06-17
+
+### 🔧 Patch Release — CI Build Fixes
+
+Fixes failing CI jobs on Linux and macOS caused by an outdated `pip` module update behavior and an incorrect path to `taint_config.json`.
+
+### Fixed
+
+- **pip install command in CMake** — Unified the installation command `pip install -U pip setuptools wheel pygments` to resolve `ModuleNotFoundError: No module named 'pip._internal.operations.build'`.
+- **`taint_config.json` installation path** — Fixed CMake install command to point correctly to `"${CMAKE_CURRENT_SOURCE_DIR}/taint_config.json"`.
+
 ## [2.3.1] — 2026-06-16
 
 ### 🔧 Patch Release — LLVM 20 Regression Test Suite Complete
