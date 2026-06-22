@@ -456,6 +456,7 @@ public:
         // A primitive type is either an integer, a floating point or a vector
         // of integers or floating points.
         if (result_ty->is_opaque() || operand_ty->is_opaque() ||
+            (result_ty->is_struct() && operand_ty->is_struct()) ||
             (result_ty->is_pointer() && operand_ty->is_pointer()) ||
             (result_ty->is_primitive() && operand_ty->is_primitive() &&
              result_ty->primitive_bit_width() ==

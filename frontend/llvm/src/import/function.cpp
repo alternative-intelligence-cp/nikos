@@ -1471,6 +1471,10 @@ static bool is_valid_bitcast(ar::Type* from, ar::Type* to) {
   if (from->is_opaque() || to->is_opaque()) {
     return true;
   }
+  // Allow bitcasts between structs (e.g. identical layouts but different Type instances)
+  if (from->is_struct() && to->is_struct()) {
+    return true;
+  }
   return (from->is_pointer() && to->is_pointer()) ||
          (from->is_primitive() && to->is_primitive() &&
           from->primitive_bit_width() == to->primitive_bit_width());
